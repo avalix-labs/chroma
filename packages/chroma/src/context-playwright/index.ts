@@ -54,7 +54,7 @@ const DEFAULT_WALLET_CONFIGS: Record<WalletType, WalletConfig> = {
 // Helper function to get extension path based on wallet type
 async function getExtensionPath(walletType: WalletType, walletConfig: WalletConfig): Promise<string> {
   const { customPath } = walletConfig
-  
+
   if (customPath) {
     return customPath
   }
