@@ -15,7 +15,7 @@ npm install @avalix/chroma @playwright/test
 ### Using Default Polkadot JS Wallet
 
 ```typescript
-import { test, expect } from '@avalix/chroma'
+import { expect, test } from '@avalix/chroma'
 
 test('should connect wallet and sign transaction', async ({ page, importAccount, authorize, approveTx }) => {
   // Import a test account
@@ -58,7 +58,7 @@ const talismanTest = createWalletTest({
 // Create test with custom extension path
 const customTest = createWalletTest({
   walletType: 'polkadot-js',
-  walletConfig: { 
+  walletConfig: {
     customPath: './my-custom-extension'
   }
 })

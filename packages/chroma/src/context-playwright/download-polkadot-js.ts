@@ -1,6 +1,6 @@
-import fs from 'node:fs'
+import fs, { createWriteStream } from 'node:fs'
 import path from 'node:path'
-import { createWriteStream } from 'node:fs'
+import process from 'node:process'
 import { pipeline } from 'node:stream/promises'
 import { Extract } from 'unzipper'
 
@@ -24,7 +24,7 @@ export async function downloadAndExtractPolkadotExtension(targetDir?: string): P
 
   try {
     console.log('📥 Downloading Polkadot JS extension...')
-    
+
     // Download the ZIP file
     const response = await fetch(POLKADOT_JS_EXTENSION)
     if (!response.ok) {
@@ -34,22 +34,22 @@ export async function downloadAndExtractPolkadotExtension(targetDir?: string): P
     // Save ZIP file
     const writeStream = createWriteStream(zipPath)
     await pipeline(response.body!, writeStream)
-    
+
     console.log('📦 Extracting extension...')
-    
+
     // Extract ZIP file
     await pipeline(
       fs.createReadStream(zipPath),
-      Extract({ path: extensionDir })
+      Extract({ path: extensionDir }),
     )
 
     // Clean up ZIP file
     await fs.promises.unlink(zipPath)
-    
+
     console.log('✅ Polkadot extension downloaded and extracted to:', extensionDir)
     return extensionDir
-    
-  } catch (error) {
+  }
+  catch (error) {
     // Clean up on error
     if (fs.existsSync(zipPath)) {
       await fs.promises.unlink(zipPath).catch(() => {})
@@ -57,7 +57,7 @@ export async function downloadAndExtractPolkadotExtension(targetDir?: string): P
     if (fs.existsSync(extensionDir)) {
       await fs.promises.rmdir(extensionDir, { recursive: true }).catch(() => {})
     }
-    
+
     throw new Error(`Failed to download/extract Polkadot extension: ${error instanceof Error ? error.message : String(error)}`)
   }
 }

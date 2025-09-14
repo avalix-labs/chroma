@@ -6,9 +6,9 @@ export default defineConfig({
   external: [
     '@playwright/test',
     'node:fs',
-    'node:path', 
+    'node:path',
     'node:stream/promises',
-    'unzipper'
+    'unzipper',
   ],
   dts: {
     oxc: true,
