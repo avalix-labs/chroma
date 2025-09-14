@@ -4,7 +4,10 @@
   "description": "Chroma is an end-to-end (E2E) testing library specifically designed for Polkadot wallet interactions. It enables developers to write automated tests that interact with real wallet extensions, providing a comprehensive testing solution for decentralized applications (dApps) in the Polkadot ecosystem.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "bun run build && changeset publish",
+    "build": "bun --cwd packages/chroma run build"
   },
   "repository": {
     "type": "git",
@@ -20,5 +23,9 @@
   "workspaces": [
     "packages/*",
     "examples"
-  ]
+  ],
+  "dependencies": {
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.29.7"
+  }
 }
