@@ -1,8 +1,7 @@
 {
-  "name": "tsdown-starter",
+  "name": "@avalix/chroma",
   "version": "0.0.0",
-  "private": true,
-  "description": "A simple example library built by tsdown",
+  "description": "End-to-end testing library for Polkadot wallet interactions",
   "type": "module",
   "files": [
     "dist"
@@ -18,7 +17,36 @@
     "build": "tsdown",
     "dev": "tsdown --watch"
   },
+  "keywords": [
+    "polkadot",
+    "wallet",
+    "testing",
+    "e2e",
+    "playwright",
+    "automation",
+    "blockchain"
+  ],
+  "author": "Avalix Labs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avalix-labs/chroma.git",
+    "directory": "packages/chroma"
+  },
+  "bugs": {
+    "url": "https://github.com/avalix-labs/chroma/issues"
+  },
+  "homepage": "https://github.com/avalix-labs/chroma#readme",
   "devDependencies": {
+    "@types/node": "^24.3.3",
+    "@types/unzipper": "^0.10.10",
+    "@playwright/test": "^1.55.0",
     "tsdown": "latest"
+  },
+  "dependencies": {
+    "unzipper": "^0.12.3"
+  },
+  "peerDependencies": {
+    "@playwright/test": "^1.55.0"
   }
 }
