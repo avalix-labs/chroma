@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/avalix-labs/chroma#readme",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples"
   ]
 }
