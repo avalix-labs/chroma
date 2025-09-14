@@ -1,5 +1,11 @@
 # @avalix/chroma
 
+## 0.0.2
+
+### Patch Changes
+
+- [#3](https://github.com/avalix-labs/chroma/pull/3) [`fd99af6`](https://github.com/avalix-labs/chroma/commit/fd99af6fbc8d94a70dac1abe5b2b6ba3c565c9f8) Thanks [@preschian](https://github.com/preschian)! - fix: prepublish build
+
 ## 0.0.1
 
 ### Patch Changes
