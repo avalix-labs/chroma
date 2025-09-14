@@ -1,0 +1,23 @@
+{
+  "name": "chroma",
+  "version": "1.0.0",
+  "description": "Chroma is an end-to-end (E2E) testing library specifically designed for Polkadot wallet interactions. It enables developers to write automated tests that interact with real wallet extensions, providing a comprehensive testing solution for decentralized applications (dApps) in the Polkadot ecosystem.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avalix-labs/chroma.git"
+  },
+  "keywords": ["polkadot", "wallet", "testing", "e2e", "automation"],
+  "author": "Avalix Labs",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/avalix-labs/chroma/issues"
+  },
+  "homepage": "https://github.com/avalix-labs/chroma#readme",
+  "workspaces": [
+    "packages/*"
+  ]
+}
