@@ -36,7 +36,8 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "lint": "eslint --fix ."
+    "lint": "eslint --fix .",
+    "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
     "@playwright/test": "^1.55.0"
