@@ -9,7 +9,7 @@ const POLKADOT_JS_EXTENSION = 'https://github.com/polkadot-js/extension/releases
 
 export async function downloadAndExtractPolkadotExtension(targetDir?: string): Promise<string> {
   // Default to a directory in the user's project, not relative to this package
-  const extensionsDir = targetDir || path.resolve(process.cwd(), 'node_modules/.chroma')
+  const extensionsDir = targetDir || path.resolve(process.cwd(), '.chroma')
   const extensionDir = path.join(extensionsDir, 'polkadot-extension-chrome')
   const zipPath = path.join(extensionsDir, 'polkadot-extension.zip')
 
