@@ -6,8 +6,7 @@
   "scripts": {
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "bun run build && changeset publish",
-    "build": "bun --cwd packages/chroma run build"
+    "release": "changeset publish"
   },
   "repository": {
     "type": "git",
