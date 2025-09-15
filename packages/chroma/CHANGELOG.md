@@ -1,5 +1,11 @@
 # @avalix/chroma
 
+## 0.0.4
+
+### Patch Changes
+
+- [#7](https://github.com/avalix-labs/chroma/pull/7) [`ee3dbce`](https://github.com/avalix-labs/chroma/commit/ee3dbcee6f2aaeb972a137d55970f78ba0c9207f) Thanks [@preschian](https://github.com/preschian)! - revert: back to .chroma
+
 ## 0.0.3
 
 ### Patch Changes
