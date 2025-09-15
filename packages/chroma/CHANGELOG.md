@@ -1,5 +1,11 @@
 # @avalix/chroma
 
+## 0.0.3
+
+### Patch Changes
+
+- [#5](https://github.com/avalix-labs/chroma/pull/5) [`50aa1b7`](https://github.com/avalix-labs/chroma/commit/50aa1b7dbe158a7d0c82d82c488b5798db0bd7d7) Thanks [@preschian](https://github.com/preschian)! - chore: update default directory
+
 ## 0.0.2
 
 ### Patch Changes
