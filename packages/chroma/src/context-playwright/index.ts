@@ -72,6 +72,9 @@ async function getExtensionPath(walletType: WalletType, walletConfig: WalletConf
 
 // Helper function to find extension popup
 async function findExtensionPopup(context: BrowserContext, extensionId: string): Promise<Page> {
+  // delay for 1 second
+  await new Promise(resolve => setTimeout(resolve, 1000))
+
   const pages = context.pages()
   for (const p of pages) {
     if (p.url().includes(`chrome-extension://${extensionId}/`)) {
@@ -219,8 +222,13 @@ async function authorizeTalisman(context: BrowserContext, extensionId: string) {
   await extensionPopup.getByRole('button', { name: 'Talisman Account 1' }).click()
   await extensionPopup.getByTestId('connection-connect-button').click()
 
-  const anotherPopup = await findExtensionPopup(context, extensionId)
-  await anotherPopup.getByRole('button', { name: 'Approve' }).click()
+  try {
+    const anotherPopup = await findExtensionPopup(context, extensionId)
+    await anotherPopup.getByRole('button', { name: 'Approve' }).click()
+  }
+  catch {
+    console.log('No another popup found, skipping')
+  }
 }
 
 // Polkadot.js specific transaction approval
