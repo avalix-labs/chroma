@@ -1,6 +1,6 @@
 # @avalix/chroma
 
-End-to-end testing library for Polkadot wallet interactions using Playwright.
+End-to-end testing library for Polkadot wallet interactions using Playwright. Supports multiple wallet types including Polkadot.js and Talisman.
 
 ## Installation
 
@@ -50,7 +50,7 @@ const polkadotTest = createWalletTest({
   walletType: 'polkadot-js'
 })
 
-// Create test with Talisman wallet (coming soon)
+// Create test with Talisman wallet
 const talismanTest = createWalletTest({
   walletType: 'talisman'
 })
@@ -67,15 +67,30 @@ polkadotTest('test with Polkadot JS', async ({ page, walletType, walletConfig, i
   console.log('Using wallet:', walletType) // 'polkadot-js'
   // ... your test code
 })
+
+talismanTest('test with Talisman', async ({ page, walletType, importAccount, authorize, approveTx }) => {
+  await importAccount({
+    seed: 'bottom drive obey lake curtain smoke basket hold race lonely fit walk',
+    name: 'Talisman Test Account'
+  })
+  
+  await page.goto('http://localhost:3000')
+  await page.click('button:has-text("Connect Wallet")')
+  await authorize()
+  
+  await page.click('button:has-text("Send Transaction")')
+  await approveTx()
+})
 ```
 
 ## Features
 
-- 🔐 **Automatic Extension Setup**: Downloads and configures Polkadot JS extension automatically
+- 🔐 **Multi-Wallet Support**: Supports Polkadot.js and Talisman wallets
 - 🧪 **Wallet Fixtures**: Ready-to-use fixtures for wallet operations
 - 📝 **Account Management**: Import accounts with seed phrases
 - ✅ **Transaction Approval**: Approve transactions with password
 - 🔗 **dApp Authorization**: Connect wallet to decentralized applications
+- 📦 **Automatic Extension Setup**: Downloads and configures extensions automatically
 
 ## API Reference
 
@@ -112,18 +127,31 @@ await approveTx({ password: 'myPassword' })
 Download and extract Polkadot JS extension to specified directory.
 
 ```typescript
-import { downloadAndExtractPolkadotExtension } from '@chroma/core'
+import { downloadAndExtractPolkadotExtension } from '@avalix/chroma'
 
 // Download to custom directory
 const extensionPath = await downloadAndExtractPolkadotExtension('./my-extensions')
 
-// Download to default directory (./extensions)
+// Download to default directory (./chroma)
 const extensionPath = await downloadAndExtractPolkadotExtension()
+```
+
+#### `extractTalismanExtension(targetDir?)`
+Extract the bundled Talisman extension to specified directory.
+
+```typescript
+import { extractTalismanExtension } from '@avalix/chroma'
+
+// Extract to custom directory
+const extensionPath = await extractTalismanExtension('./my-extensions')
+
+// Extract to default directory (./chroma)
+const extensionPath = await extractTalismanExtension()
 ```
 
 ## Configuration
 
-The extension will be automatically downloaded to `./extensions` directory in your project root. You can customize this by passing a different path to the download function.
+Extensions will be automatically downloaded/extracted to `./.chroma` directory in your project root. You can customize this by passing a different path to the extraction functions.
 
 ## Requirements
 
