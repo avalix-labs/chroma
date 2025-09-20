@@ -1,5 +1,11 @@
 # @avalix/chroma
 
+## 0.0.5
+
+### Patch Changes
+
+- [#10](https://github.com/avalix-labs/chroma/pull/10) [`1b15767`](https://github.com/avalix-labs/chroma/commit/1b15767f285f3ac4f450dc85444ce4d2106644db) Thanks [@preschian](https://github.com/preschian)! - chore: adjust readme
+
 ## 0.0.4
 
 ### Patch Changes
