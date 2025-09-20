@@ -65,7 +65,7 @@ test('sign transaction with Talisman', async ({ page, importAccount, authorize, 
 });
 
 // thirdweb embedded wallet
-test('sign in with thirdweb embedded wallet', async ({ page, importAccount, authorize, approveTx }) => {
+test('thirdweb embedded wallet', async ({ page, importAccount, authorize }) => {
   await importAccount({
     seed: DOT_TEST_MNEMONIC,
     password: DOT_TEST_PASSWORD,
@@ -86,7 +86,7 @@ test('sign in with thirdweb embedded wallet', async ({ page, importAccount, auth
 })
 
 // privy.io embedded wallet
-test('sign in with privy.io embedded wallet', async ({ page, importAccount, authorize, approveTx }) => {
+test('privy.io embedded wallet', async ({ page, importAccount, authorize, approveTx }) => {
   await importAccount({
     seed: DOT_TEST_MNEMONIC,
     password: DOT_TEST_PASSWORD,
