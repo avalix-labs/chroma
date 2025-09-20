@@ -48,9 +48,7 @@ test('sign transaction with Talisman', async ({ page, importAccount, authorize, 
 
   // Test the dApp
   const insertNumber = Math.floor(Math.random() * 10000)
-  await page.getByRole('textbox', { name: 'Share your thoughts with the' }).fill(`
-    gm Polkadot! - ${insertNumber}
-  `)
+  await page.getByRole('textbox', { name: 'Share your thoughts with the' }).fill(`gm Polkadot! - ${insertNumber}`)
   await page.getByRole('button', { name: 'Post' }).click()
 
   // Sign transaction
@@ -59,7 +57,7 @@ test('sign transaction with Talisman', async ({ page, importAccount, authorize, 
   // Verify transaction
   await page.waitForTimeout(10000)
   await page.reload()
-  await page.locator('div').filter({ hasText: /^gm Polkadot! - ${insertNumber}$/ }).waitFor({ state: 'visible' })
+  await page.locator('div').filter({ hasText: new RegExp(`^gm Polkadot! - ${insertNumber}$`) }).waitFor({ state: 'visible' })
 
   console.log('🎉 Talisman test completed successfully!')
 });
@@ -94,6 +92,7 @@ test('privy.io embedded wallet', async ({ page, importAccount, authorize, approv
   })
   
   await page.goto('https://demo.privy.io/')
+  await page.getByRole('button', { name: 'REJECT ALL' }).click()
   await page.getByRole('button', { name: 'Continue with a wallet' }).click()
   await page.getByPlaceholder('Search wallets').fill('Talisman')
   await page.getByRole('button', { name: 'Talisman' }).click()
