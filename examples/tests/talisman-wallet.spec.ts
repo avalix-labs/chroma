@@ -48,8 +48,10 @@ test('sign transaction with Talisman', async ({ page, importAccount, authorize, 
 
   // Test the dApp
   const insertNumber = Math.floor(Math.random() * 10000)
-  await page.getByPlaceholder('Enter a number').fill(insertNumber.toString())
-  await page.getByRole('button', { name: 'Store Number' }).click()
+  await page.getByRole('textbox', { name: 'Share your thoughts with the' }).fill(`
+    gm Polkadot! - ${insertNumber}
+  `)
+  await page.getByRole('button', { name: 'Post' }).click()
 
   // Sign transaction
   await approveTx()
@@ -57,16 +59,13 @@ test('sign transaction with Talisman', async ({ page, importAccount, authorize, 
   // Verify transaction
   await page.waitForTimeout(10000)
   await page.reload()
-  await page.getByPlaceholder('Enter a number').fill(insertNumber.toString())
-  await page.getByText(`contract value: ${insertNumber}`).waitFor({ state: 'visible' })
-
-  // await page.pause()
+  await page.locator('div').filter({ hasText: /^gm Polkadot! - ${insertNumber}$/ }).waitFor({ state: 'visible' })
 
   console.log('🎉 Talisman test completed successfully!')
 });
 
-// thirdweb smart wallet
-test('sign in with thirdweb smart wallet', async ({ page, importAccount, authorize, approveTx }) => {
+// thirdweb embedded wallet
+test('sign in with thirdweb embedded wallet', async ({ page, importAccount, authorize, approveTx }) => {
   await importAccount({
     seed: DOT_TEST_MNEMONIC,
     password: DOT_TEST_PASSWORD,
@@ -82,12 +81,12 @@ test('sign in with thirdweb smart wallet', async ({ page, importAccount, authori
 
   await page.locator('[data-test="connected-wallet-details"]').click()
 
-  console.log('🎉 Thirdweb smart wallet test completed successfully!')
+  console.log('🎉 Thirdweb embedded wallet test completed successfully!')
   await page.waitForTimeout(5000)
 })
 
-// privy.io smart wallet
-test('sign in with privy.io smart wallet', async ({ page, importAccount, authorize, approveTx }) => {
+// privy.io embedded wallet
+test('sign in with privy.io embedded wallet', async ({ page, importAccount, authorize, approveTx }) => {
   await importAccount({
     seed: DOT_TEST_MNEMONIC,
     password: DOT_TEST_PASSWORD,
@@ -103,6 +102,6 @@ test('sign in with privy.io smart wallet', async ({ page, importAccount, authori
   await approveTx()
   await page.getByText('0xf39...266').waitFor({ state: 'visible' })
 
-  console.log('🎉 Privy.io smart wallet test completed successfully!')
+  console.log('🎉 Privy.io embedded wallet test completed successfully!')
   await page.waitForTimeout(5000)
 })
