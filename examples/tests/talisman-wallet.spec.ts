@@ -55,15 +55,14 @@ test('sign transaction with Talisman', async ({ page, importAccount, authorize, 
   await approveTx()
 
   // Verify transaction
-  await page.waitForTimeout(10000)
-  await page.reload()
   await page.locator('div').filter({ hasText: new RegExp(`^gm Polkadot! - ${insertNumber}$`) }).waitFor({ state: 'visible' })
 
   console.log('🎉 Talisman test completed successfully!')
+  await page.waitForTimeout(3000)
 });
 
-// thirdweb embedded wallet
-test('thirdweb embedded wallet', async ({ page, importAccount, authorize }) => {
+// thirdweb and privy.io embedded wallet
+test('embedded wallets', async ({ page, importAccount, authorize, approveTx }) => {
   await importAccount({
     seed: DOT_TEST_MNEMONIC,
     password: DOT_TEST_PASSWORD,
@@ -80,17 +79,8 @@ test('thirdweb embedded wallet', async ({ page, importAccount, authorize }) => {
   await page.locator('[data-test="connected-wallet-details"]').click()
 
   console.log('🎉 Thirdweb embedded wallet test completed successfully!')
-  await page.waitForTimeout(5000)
-})
+  await page.waitForTimeout(3000)
 
-// privy.io embedded wallet
-test('privy.io embedded wallet', async ({ page, importAccount, authorize, approveTx }) => {
-  await importAccount({
-    seed: DOT_TEST_MNEMONIC,
-    password: DOT_TEST_PASSWORD,
-    name: 'Talisman Account 1',
-  })
-  
   await page.goto('https://demo.privy.io/')
   await page.getByRole('button', { name: 'REJECT ALL' }).click()
   await page.getByRole('button', { name: 'Continue with a wallet' }).click()
@@ -102,5 +92,5 @@ test('privy.io embedded wallet', async ({ page, importAccount, authorize, approv
   await page.getByText('0xf39...266').waitFor({ state: 'visible' })
 
   console.log('🎉 Privy.io embedded wallet test completed successfully!')
-  await page.waitForTimeout(5000)
+  await page.waitForTimeout(3000)
 })
