@@ -104,7 +104,7 @@ const customTest = createWalletTest({
     customPath: './custom-extension', // Optional: path to custom extension
     downloadUrl: 'https://...' // Optional: custom download URL
   },
-  headless: false, // Optional: run in headless mode (default: false)
+  headless: true, // Optional: run in headless mode
   slowMo: 150 // Optional: slow motion delay in ms (default: 150)
 })
 ```
@@ -181,7 +181,7 @@ The Polkadot JS extension will be automatically downloaded to `./.chroma` direct
 2. Using `createWalletTest()` with `walletConfig.customPath`
 
 ### Browser Settings
-- **Headless Mode**: Disabled by default for better debugging
+- **Headless Mode**: Supported via `channel: 'chromium'` (disabled by default for better debugging)
 - **Slow Motion**: 150ms delay between actions (configurable)
 - **Extension Loading**: Automatically loads only the Polkadot JS extension
 
