@@ -181,7 +181,7 @@ The Polkadot JS extension will be automatically downloaded to `./.chroma` direct
 2. Using `createWalletTest()` with `walletConfig.customPath`
 
 ### Browser Settings
-- **Headless Mode**: Supported via `channel: 'chromium'` (disabled by default for better debugging)
+- **Headless Mode**: Disabled by default for better debugging
 - **Slow Motion**: 150ms delay between actions (configurable)
 - **Extension Loading**: Automatically loads only the Polkadot JS extension
 
