@@ -83,6 +83,7 @@ test('embedded wallets', async ({ page, importAccount, authorize, approveTx }) =
 
   await page.goto('https://demo.privy.io/')
   await page.getByRole('button', { name: 'REJECT ALL' }).click()
+  await page.waitForTimeout(3000)
   await page.getByRole('button', { name: 'Continue with a wallet' }).click()
   await page.getByPlaceholder('Search wallets').fill('Talisman')
   await page.getByRole('button', { name: 'Talisman' }).click()

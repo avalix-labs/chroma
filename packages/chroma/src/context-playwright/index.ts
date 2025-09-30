@@ -275,6 +275,7 @@ export function createWalletTest(options: ChromaTestOptions = {}): ReturnType<ty
 
       const context = await chromium.launchPersistentContext('', {
         headless,
+        channel: 'chromium',
         args: [
           `--load-extension=${extensionPath}`,
           `--disable-extensions-except=${extensionPath}`,
