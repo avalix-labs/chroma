@@ -104,7 +104,7 @@ const customTest = createWalletTest({
     customPath: './custom-extension', // Optional: path to custom extension
     downloadUrl: 'https://...' // Optional: custom download URL
   },
-  headless: false, // Optional: run in headless mode (default: false)
+  headless: true, // Optional: run in headless mode
   slowMo: 150 // Optional: slow motion delay in ms (default: 150)
 })
 ```
