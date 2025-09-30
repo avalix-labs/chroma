@@ -79,7 +79,6 @@ test('embedded wallets', async ({ page, importAccount, authorize, approveTx }) =
   await page.locator('[data-test="connected-wallet-details"]').click()
 
   console.log('🎉 Thirdweb embedded wallet test completed successfully!')
-  await page.waitForTimeout(3000)
 
   await page.goto('https://demo.privy.io/')
   await page.getByRole('button', { name: 'REJECT ALL' }).click()
@@ -93,5 +92,4 @@ test('embedded wallets', async ({ page, importAccount, authorize, approveTx }) =
   await page.getByText('0xf39...266').waitFor({ state: 'visible' })
 
   console.log('🎉 Privy.io embedded wallet test completed successfully!')
-  await page.waitForTimeout(3000)
 })

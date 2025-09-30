@@ -1,8 +1,14 @@
-import { test, expect } from '@avalix/chroma';
+import { createWalletTest } from '@avalix/chroma';
 
 const POLKADOT_DAPP_URL = 'https://polkadot-starter-next-dedot.vercel.app/'
 const DOT_TEST_MNEMONIC = 'test test test test test test test test test test test junk'
 const DOT_TEST_PASSWORD = 'secure123!'
+
+const test = createWalletTest({ 
+  walletType: 'polkadot-js',
+  headless: true,
+  slowMo: 100
+});
 
 test('sign transaction', async ({ page, importAccount, authorize, approveTx }) => {
   await importAccount({
