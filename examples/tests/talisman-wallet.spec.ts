@@ -7,7 +7,7 @@ const DOT_TEST_PASSWORD = 'secure123!'
 // Create a test with Talisman wallet
 const test = createWalletTest({ 
   walletType: 'talisman',
-  headless: false,
+  headless: true,
   slowMo: 100
 });
 
