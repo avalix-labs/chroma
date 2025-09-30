@@ -1,5 +1,11 @@
 # @avalix/chroma
 
+## 0.0.6
+
+### Patch Changes
+
+- [#12](https://github.com/avalix-labs/chroma/pull/12) [`c5f219f`](https://github.com/avalix-labs/chroma/commit/c5f219f1924e4a15693ce285ea0fe83347ae14d3) Thanks [@preschian](https://github.com/preschian)! - test: add Polkadot dApp integration test
+
 ## 0.0.5
 
 ### Patch Changes

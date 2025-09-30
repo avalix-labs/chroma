@@ -1,7 +1,7 @@
 {
   "name": "@avalix/chroma",
   "type": "module",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "End-to-end testing library for Polkadot wallet interactions",
   "author": "Avalix Labs",
   "license": "MIT",
