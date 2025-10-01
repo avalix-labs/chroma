@@ -15,15 +15,11 @@ import { createWalletInstance } from './wallet-factory.js'
 
 // Helper function to get extension path for a wallet config
 async function getExtensionPathForWallet(config: WalletConfig): Promise<string> {
-  const { type, customPath, downloadUrl } = config
-
-  if (customPath) {
-    return customPath
-  }
+  const { type } = config
 
   switch (type) {
     case 'polkadot-js':
-      return await getPolkadotJSExtensionPath({ customPath, downloadUrl })
+      return await getPolkadotJSExtensionPath()
     case 'talisman':
       // TODO: Implement Talisman download function
       throw new Error('Talisman wallet is not yet implemented. Please use polkadot-js for now.')

@@ -1,10 +1,11 @@
 import type { BrowserContext, Page } from '@playwright/test'
 import type { WalletAccount } from '../context-playwright/types.js'
-import { downloadAndExtractPolkadotExtension } from '../context-playwright/download-polkadot-js.js'
+import { downloadAndExtractExtension } from '../utils/download-extension.js'
 
 // Polkadot-JS specific configuration
 export const POLKADOT_JS_CONFIG = {
   downloadUrl: 'https://github.com/polkadot-js/extension/releases/download/v0.61.7/master-chrome-build.zip',
+  extensionName: 'polkadot-extension-chrome',
 } as const
 
 // Helper function to find extension popup
@@ -19,14 +20,11 @@ async function findExtensionPopup(context: BrowserContext, extensionId: string):
 }
 
 // Get Polkadot-JS extension path
-export async function getPolkadotJSExtensionPath(config?: { customPath?: string, downloadUrl?: string }): Promise<string> {
-  const { customPath } = config || {}
-
-  if (customPath) {
-    return customPath
-  }
-
-  return await downloadAndExtractPolkadotExtension()
+export async function getPolkadotJSExtensionPath(): Promise<string> {
+  return await downloadAndExtractExtension({
+    downloadUrl: POLKADOT_JS_CONFIG.downloadUrl,
+    extensionName: POLKADOT_JS_CONFIG.extensionName,
+  })
 }
 
 // Polkadot-JS specific account import implementation
