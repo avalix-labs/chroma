@@ -19,9 +19,11 @@ npm install @avalix/chroma @playwright/test
 ```typescript
 import { expect, test } from '@avalix/chroma'
 
-test('should connect wallet and sign transaction', async ({ page, importAccount, authorize, approveTx }) => {
+test('should connect wallet and sign transaction', async ({ page, wallets }) => {
+  const polkadotJs = wallets['polkadot-js']
+
   // Import a test account
-  await importAccount({
+  await polkadotJs.importMnemonic({
     seed: 'bottom drive obey lake curtain smoke basket hold race lonely fit walk',
     name: 'Test Account',
     password: 'securePassword123'
@@ -32,11 +34,11 @@ test('should connect wallet and sign transaction', async ({ page, importAccount,
 
   // Connect wallet
   await page.click('button:has-text("Connect Wallet")')
-  await authorize()
+  await polkadotJs.authorize()
 
   // Perform transaction
   await page.click('button:has-text("Send Transaction")')
-  await approveTx({ password: 'securePassword123' })
+  await polkadotJs.approveTx({ password: 'securePassword123' })
 
   // Verify transaction success
   await expect(page.locator('.transaction-success')).toBeVisible()
@@ -48,23 +50,65 @@ test('should connect wallet and sign transaction', async ({ page, importAccount,
 ```typescript
 import { createWalletTest, expect } from '@avalix/chroma'
 
-// Create test with custom configuration
-const customTest = createWalletTest({
-  walletType: 'polkadot-js',
-  walletConfig: {
-    customPath: './my-custom-extension'
-  },
+// Single wallet with custom path
+const singleWalletTest = createWalletTest({
+  wallets: [
+    {
+      type: 'polkadot-js',
+      customPath: './my-custom-extension'
+    }
+  ],
   headless: false,
   slowMo: 100
 })
 
-customTest('test with custom config', async ({ page, importAccount, authorize }) => {
-  // Your test code here
-  await importAccount({
+singleWalletTest('test with custom config', async ({ page, wallets }) => {
+  const polkadotJs = wallets['polkadot-js']
+
+  await polkadotJs.importMnemonic({
     seed: 'your seed phrase here...',
     name: 'My Test Account'
   })
-  // ... rest of your test
+  await page.goto('http://localhost:3000')
+  await polkadotJs.authorize()
+})
+```
+
+### Multiple Wallets
+
+```typescript
+import { createWalletTest, expect } from '@avalix/chroma'
+
+// Test with multiple wallet extensions
+const multiWalletTest = createWalletTest({
+  wallets: [
+    { type: 'polkadot-js' },
+    { type: 'talisman' } // When available
+  ],
+  headless: false,
+  slowMo: 150
+})
+
+multiWalletTest('test with multiple wallets', async ({ page, wallets }) => {
+  const polkadotJs = wallets['polkadot-js']
+  const talisman = wallets.talisman
+
+  // Import to both wallets
+  await polkadotJs.importMnemonic({
+    seed: 'bottom drive obey lake curtain smoke basket hold race lonely fit walk',
+    name: 'Alice'
+  })
+
+  await talisman.importMnemonic({
+    seed: 'another seed phrase...',
+    name: 'Bob'
+  })
+
+  await page.goto('http://localhost:3000')
+
+  // Use specific wallet
+  await polkadotJs.authorize()
+  await polkadotJs.approveTx()
 })
 ```
 
@@ -75,6 +119,7 @@ customTest('test with custom config', async ({ page, importAccount, authorize })
 - 📝 **Account Management**: Import accounts with seed phrases and custom names
 - ✅ **Transaction Approval**: Approve transactions with password authentication
 - 🔗 **dApp Authorization**: Connect wallet to decentralized applications
+- 🔀 **Multi-Wallet Support**: Test with multiple wallet extensions simultaneously
 - ⚙️ **Configurable**: Custom extension paths, headless mode, and slow motion settings
 
 ## API Reference
@@ -87,62 +132,128 @@ Pre-configured test function with Polkadot JS extension.
 ```typescript
 import { test } from '@avalix/chroma'
 
-test('my wallet test', async ({ page, importAccount, authorize, approveTx }) => {
-  // Test implementation
+test('my wallet test', async ({ page, wallets }) => {
+  const polkadotJs = wallets['polkadot-js']
+
+  await polkadotJs.importMnemonic({ seed: '...' })
+  await polkadotJs.authorize()
 })
 ```
 
 #### `createWalletTest(options?: ChromaTestOptions)`
-Create a custom test function with specific configuration.
+Create a custom test function with specific configuration. Supports single and multi-wallet modes.
 
 ```typescript
 import { createWalletTest } from '@avalix/chroma'
 
+// Single wallet (default)
+const test = createWalletTest()
+
+// Single wallet with custom config
 const customTest = createWalletTest({
-  walletType: 'polkadot-js', // Currently only 'polkadot-js' is supported
-  walletConfig: {
-    customPath: './custom-extension', // Optional: path to custom extension
-    downloadUrl: 'https://...' // Optional: custom download URL
-  },
-  headless: true, // Optional: run in headless mode
-  slowMo: 150 // Optional: slow motion delay in ms (default: 150)
+  wallets: [
+    {
+      type: 'polkadot-js',
+      customPath: './custom-extension',
+      downloadUrl: 'https://...'
+    }
+  ],
+  headless: false,
+  slowMo: 150
+})
+
+// Multiple wallets
+const multiTest = createWalletTest({
+  wallets: [
+    { type: 'polkadot-js' },
+    { type: 'talisman', customPath: './talisman-ext' }
+  ]
+})
+
+// Usage
+test('example', async ({ page, wallets }) => {
+  const polkadotJs = wallets['polkadot-js']
+
+  await polkadotJs.importMnemonic({ seed: '...' })
+  await polkadotJs.authorize()
+  await polkadotJs.approveTx()
 })
 ```
 
 ### Test Fixtures
 
-#### `importAccount(options: WalletAccount)`
-Import a wallet account using seed phrase.
+#### `page`
+Playwright page instance with wallet extension(s) loaded.
+
+#### `wallets`
+Typed object containing wallet instances for each configured wallet. Provides full TypeScript autocomplete.
 
 ```typescript
+// Base wallet instance (common methods)
+interface BaseWalletInstance {
+  extensionId: string
+  importMnemonic: (options: WalletAccount) => Promise<void>
+  authorize: () => Promise<void>
+  approveTx: (options?: { password?: string }) => Promise<void>
+}
+
+// Polkadot-JS wallet instance
+interface PolkadotJsWalletInstance extends BaseWalletInstance {
+  type: 'polkadot-js'
+}
+
+// Talisman wallet instance (with additional methods)
+interface TalismanWalletInstance extends BaseWalletInstance {
+  type: 'talisman'
+  importPrivateKey: (options: { privateKey: string, name?: string, password?: string }) => Promise<void>
+}
+
+// Wallets collection - each wallet has its specific type
+interface Wallets {
+  'polkadot-js': PolkadotJsWalletInstance
+  'talisman': TalismanWalletInstance
+}
+
 interface WalletAccount {
   seed: string
   name?: string // Default: 'Test Account'
   password?: string // Default: 'h3llop0lkadot!'
 }
+```
 
-await importAccount({
-  seed: 'your twelve word seed phrase here...',
-  name: 'My Test Account',
-  password: 'securePassword123'
+**Usage:**
+
+```typescript
+test('example', async ({ page, wallets }) => {
+  const polkadotJs = wallets['polkadot-js'] // Type: PolkadotJsWalletInstance
+
+  // Import mnemonic (available on all wallets)
+  await polkadotJs.importMnemonic({
+    seed: 'bottom drive obey lake curtain smoke basket hold race lonely fit walk',
+    name: 'Test Account',
+    password: 'securePassword123'
+  })
+
+  await page.goto('http://localhost:3000')
+  await polkadotJs.authorize()
+  await polkadotJs.approveTx({ password: 'securePassword123' })
 })
-```
 
-#### `authorize()`
-Authorize the dApp to connect with the wallet. Call this after triggering wallet connection from your dApp.
+// Talisman-specific features
+test('talisman example', async ({ page, wallets }) => {
+  const talisman = wallets.talisman // Type: TalismanWalletInstance
 
-```typescript
-await authorize()
-```
+  // Talisman-specific method: import private key
+  await talisman.importPrivateKey({
+    privateKey: '0x...',
+    name: 'My Account',
+    password: 'mypassword'
+  })
 
-#### `approveTx(options?)`
-Approve a transaction with the wallet password.
-
-```typescript
-await approveTx({ password: 'myPassword' })
-
-// Or use default password
-await approveTx()
+  // Common methods also available
+  await talisman.authorize()
+  await talisman.approveTx()
+})
 ```
 
 ### Utility Functions
@@ -158,18 +269,6 @@ const extensionPath = await downloadAndExtractPolkadotExtension('./my-extensions
 
 // Download to default directory (./.chroma)
 const extensionPath = await downloadAndExtractPolkadotExtension()
-```
-
-### TypeScript Types
-
-```typescript
-import type {
-  ChromaTestOptions,
-  WalletAccount,
-  WalletConfig,
-  WalletFixtures,
-  WalletType
-} from '@avalix/chroma'
 ```
 
 ## Configuration
