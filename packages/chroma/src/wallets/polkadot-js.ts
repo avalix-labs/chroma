@@ -1,5 +1,5 @@
 import type { BrowserContext, Page } from '@playwright/test'
-import type { WalletAccount } from '../context-playwright/index.js'
+import type { WalletAccount } from '../context-playwright/types.js'
 import { downloadAndExtractPolkadotExtension } from '../context-playwright/download-polkadot-js.js'
 
 // Polkadot-JS specific configuration
