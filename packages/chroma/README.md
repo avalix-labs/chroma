@@ -50,19 +50,13 @@ test('should connect wallet and sign transaction', async ({ page, wallets }) => 
 ```typescript
 import { createWalletTest, expect } from '@avalix/chroma'
 
-// Single wallet with custom path
-const singleWalletTest = createWalletTest({
-  wallets: [
-    {
-      type: 'polkadot-js',
-      customPath: './my-custom-extension'
-    }
-  ],
+const customTest = createWalletTest({
+  wallets: [{ type: 'polkadot-js' }],
   headless: false,
   slowMo: 100
 })
 
-singleWalletTest('test with custom config', async ({ page, wallets }) => {
+customTest('test with custom config', async ({ page, wallets }) => {
   const polkadotJs = wallets['polkadot-js']
 
   await polkadotJs.importMnemonic({
@@ -151,13 +145,7 @@ const test = createWalletTest()
 
 // Single wallet with custom config
 const customTest = createWalletTest({
-  wallets: [
-    {
-      type: 'polkadot-js',
-      customPath: './custom-extension',
-      downloadUrl: 'https://...'
-    }
-  ],
+  wallets: [{ type: 'polkadot-js' }],
   headless: false,
   slowMo: 150
 })
@@ -166,7 +154,7 @@ const customTest = createWalletTest({
 const multiTest = createWalletTest({
   wallets: [
     { type: 'polkadot-js' },
-    { type: 'talisman', customPath: './talisman-ext' }
+    { type: 'talisman' }
   ]
 })
 
@@ -256,28 +244,10 @@ test('talisman example', async ({ page, wallets }) => {
 })
 ```
 
-### Utility Functions
-
-#### `downloadAndExtractPolkadotExtension(targetDir?)`
-Download and extract Polkadot JS extension to specified directory.
-
-```typescript
-import { downloadAndExtractPolkadotExtension } from '@avalix/chroma'
-
-// Download to custom directory
-const extensionPath = await downloadAndExtractPolkadotExtension('./my-extensions')
-
-// Download to default directory (./.chroma)
-const extensionPath = await downloadAndExtractPolkadotExtension()
-```
-
 ## Configuration
 
-### Default Directory
-The Polkadot JS extension will be automatically downloaded to `./.chroma` directory in your project root. You can customize this by:
-
-1. Using `downloadAndExtractPolkadotExtension('./custom-path')`
-2. Using `createWalletTest()` with `walletConfig.customPath`
+### Extension Download
+The Polkadot JS extension will be automatically downloaded to `./.chroma` directory in your project root on first run.
 
 ### Browser Settings
 - **Headless Mode**: Disabled by default for better debugging
