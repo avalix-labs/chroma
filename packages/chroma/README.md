@@ -12,6 +12,22 @@ npm install @avalix/chroma @playwright/test
 
 **Note**: `@playwright/test` is a peer dependency and must be installed separately to avoid conflicts.
 
+### Download Extensions
+
+Before running your tests, you need to download the wallet extensions:
+
+```bash
+# Using npx
+npx @avalix/chroma download-extensions
+
+# Or add to your package.json scripts
+npm run download-extensions
+```
+
+This will download the Polkadot JS extension to `./.chroma` directory in your project root.
+
+**Important**: You must run this command before running Playwright tests. If the extension is not found, tests will fail with a helpful error message.
+
 ## Quick Start
 
 ### Basic Usage
@@ -108,7 +124,7 @@ multiWalletTest('test with multiple wallets', async ({ page, wallets }) => {
 
 ## Features
 
-- 🔐 **Automatic Extension Setup**: Downloads and configures Polkadot JS extension automatically
+- 🔐 **Easy Extension Setup**: Simple command to download wallet extensions
 - 🧪 **Test Fixtures**: Ready-to-use Playwright fixtures for wallet operations
 - 📝 **Account Management**: Import accounts with seed phrases and custom names
 - ✅ **Transaction Approval**: Approve transactions with password authentication
@@ -247,7 +263,17 @@ test('talisman example', async ({ page, wallets }) => {
 ## Configuration
 
 ### Extension Download
-The Polkadot JS extension will be automatically downloaded to `./.chroma` directory in your project root on first run.
+Run the download command to get the required wallet extensions:
+
+```bash
+npx @avalix/chroma download-extensions
+```
+
+Extensions will be downloaded to `./.chroma` directory in your project root. Add this directory to your `.gitignore`:
+
+```gitignore
+.chroma/
+```
 
 ### Browser Settings
 - **Headless Mode**: Disabled by default for better debugging

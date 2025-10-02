@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test --ui"
+    "test": "playwright test --ui",
+    "prepare": "npx @avalix/chroma download-extensions"
   },
   "keywords": [],
   "author": "",
