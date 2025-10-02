@@ -4,29 +4,34 @@ import process from 'node:process'
 import { pipeline } from 'node:stream/promises'
 import { Extract } from 'unzipper'
 
-// https://github.com/polkadot-js/extension/releases
-const POLKADOT_JS_EXTENSION = 'https://github.com/polkadot-js/extension/releases/download/v0.61.7/master-chrome-build.zip'
+export interface DownloadExtensionOptions {
+  downloadUrl: string
+  extensionName: string
+  targetDir?: string
+}
 
-export async function downloadAndExtractPolkadotExtension(targetDir?: string): Promise<string> {
+export async function downloadAndExtractExtension(options: DownloadExtensionOptions): Promise<string> {
+  const { downloadUrl, extensionName, targetDir } = options
+
   // Default to a directory in the user's project, not relative to this package
   const extensionsDir = targetDir || path.resolve(process.cwd(), '.chroma')
-  const extensionDir = path.join(extensionsDir, 'polkadot-extension-chrome')
-  const zipPath = path.join(extensionsDir, 'polkadot-extension.zip')
+  const extensionDir = path.join(extensionsDir, extensionName)
+  const zipPath = path.join(extensionsDir, `${extensionName}.zip`)
 
   // Create extensions directory if it doesn't exist
   await fs.promises.mkdir(extensionsDir, { recursive: true })
 
   // Check if extension is already downloaded and extracted
   if (fs.existsSync(extensionDir) && fs.readdirSync(extensionDir).length > 0) {
-    console.log('✅ Polkadot extension already exists at:', extensionDir)
+    console.log(`✅ ${extensionName} already exists at:`, extensionDir)
     return extensionDir
   }
 
   try {
-    console.log('📥 Downloading Polkadot JS extension...')
+    console.log(`📥 Downloading ${extensionName}...`)
 
     // Download the ZIP file
-    const response = await fetch(POLKADOT_JS_EXTENSION)
+    const response = await fetch(downloadUrl)
     if (!response.ok) {
       throw new Error(`Failed to download extension: ${response.status} ${response.statusText}`)
     }
@@ -46,7 +51,7 @@ export async function downloadAndExtractPolkadotExtension(targetDir?: string): P
     // Clean up ZIP file
     await fs.promises.unlink(zipPath)
 
-    console.log('✅ Polkadot extension downloaded and extracted to:', extensionDir)
+    console.log(`✅ ${extensionName} downloaded and extracted to:`, extensionDir)
     return extensionDir
   }
   catch (error) {
@@ -58,6 +63,6 @@ export async function downloadAndExtractPolkadotExtension(targetDir?: string): P
       await fs.promises.rmdir(extensionDir, { recursive: true }).catch(() => {})
     }
 
-    throw new Error(`Failed to download/extract Polkadot extension: ${error instanceof Error ? error.message : String(error)}`)
+    throw new Error(`Failed to download/extract ${extensionName}: ${error instanceof Error ? error.message : String(error)}`)
   }
 }

@@ -1,215 +1,140 @@
-import type { BrowserContext, Page } from '@playwright/test'
+import type {
+  ChromaTestOptions,
+  ExtendedPage,
+  WalletConfig,
+  WalletFixtures,
+  WalletInstance,
+  Wallets,
+  WalletType,
+  WalletWorkerFixtures,
+} from './types.js'
 import { test as base, chromium } from '@playwright/test'
-import { downloadAndExtractPolkadotExtension } from './download-polkadot-js.js'
+import { getPolkadotJSExtensionPath } from '../wallets/polkadot-js.js'
+import { WALLET_TYPES } from './types.js'
+import { createWalletInstance } from './wallet-factory.js'
 
-// Supported wallet types
-export type WalletType = 'polkadot-js' | 'talisman'
+// Helper function to get extension path for a wallet config
+async function getExtensionPathForWallet(config: WalletConfig): Promise<string> {
+  const { type } = config
 
-// Wallet configuration
-export interface WalletConfig {
-  downloadUrl?: string
-  customPath?: string
-}
-
-// Types for our wallet fixtures
-export interface WalletAccount {
-  seed: string
-  name?: string
-  password?: string
-}
-
-// Test configuration options
-export interface ChromaTestOptions {
-  walletType?: WalletType
-  walletConfig?: WalletConfig
-  headless?: boolean
-  slowMo?: number
-}
-
-// Extended page interface with our custom properties
-interface ExtendedPage extends Page {
-  __extensionContext: BrowserContext
-  __extensionId: string
-}
-
-export interface WalletFixtures {
-  page: ExtendedPage
-  walletType: WalletType
-  walletConfig: WalletConfig
-  importAccount: (options: WalletAccount) => Promise<void>
-  authorize: () => Promise<void>
-  approveTx: (options?: { password?: string }) => Promise<void>
-}
-
-// Default wallet configurations
-const DEFAULT_WALLET_CONFIGS: Record<WalletType, WalletConfig> = {
-  'polkadot-js': {
-    downloadUrl: 'https://github.com/polkadot-js/extension/releases/download/v0.61.7/master-chrome-build.zip',
-  },
-  'talisman': {
-    // TODO: Add Talisman download URL when implementation is ready
-  },
-}
-
-// Helper function to get extension path based on wallet type
-async function getExtensionPath(walletType: WalletType, walletConfig: WalletConfig): Promise<string> {
-  const { customPath } = walletConfig
-
-  if (customPath) {
-    return customPath
-  }
-
-  switch (walletType) {
+  switch (type) {
     case 'polkadot-js':
-      return await downloadAndExtractPolkadotExtension()
+      return await getPolkadotJSExtensionPath()
     case 'talisman':
       // TODO: Implement Talisman download function
-      throw new Error('Talisman wallet download not implemented yet')
+      throw new Error('Talisman wallet is not yet implemented. Please use polkadot-js for now.')
     default:
-      throw new Error(`Unsupported wallet type: ${walletType}`)
+      throw new Error(`Unsupported wallet type: ${type}`)
   }
-}
-
-// Helper function to find extension popup
-async function findExtensionPopup(context: BrowserContext, extensionId: string): Promise<Page> {
-  const pages = context.pages()
-  for (const p of pages) {
-    if (p.url().includes(`chrome-extension://${extensionId}/`)) {
-      return p
-    }
-  }
-  throw new Error(`Extension popup not found for ID: ${extensionId}`)
 }
 
 // Create a test function with wallet configuration
-export function createWalletTest(options: ChromaTestOptions = {}): ReturnType<typeof base.extend<WalletFixtures>> {
-  const { walletType = 'polkadot-js', walletConfig, headless = false, slowMo = 150 } = options
-  const finalWalletConfig = walletConfig || DEFAULT_WALLET_CONFIGS[walletType]
+// Supports single and multi-wallet modes
+export function createWalletTest(options: ChromaTestOptions = {}): ReturnType<typeof base.extend<WalletFixtures, WalletWorkerFixtures>> {
+  const { headless = false, slowMo = 150 } = options
 
-  return base.extend<WalletFixtures>({
-    // Wallet type fixture
-    // eslint-disable-next-line no-empty-pattern
-    walletType: async ({}, use) => {
-      await use(walletType)
-    },
+  // Default to polkadot-js if no wallets specified
+  const walletConfigs: WalletConfig[] = options.wallets && options.wallets.length > 0
+    ? options.wallets
+    : [{ type: 'polkadot-js' }]
 
-    // Wallet configuration fixture
-    // eslint-disable-next-line no-empty-pattern
-    walletConfig: async ({}, use) => {
-      await use(finalWalletConfig)
-    },
+  const isMultiWallet = walletConfigs.length > 1
 
-    // Main page with extension context
+  return base.extend<WalletFixtures, WalletWorkerFixtures>({
+    // Worker-scoped: Browser context with extension(s) (persists across all tests in worker)
     // eslint-disable-next-line no-empty-pattern
-    page: async ({}, use) => {
-      // Get extension path based on wallet type
-      const extensionPath = await getExtensionPath(walletType, finalWalletConfig)
+    walletContext: [async ({}, use) => {
+      // Get all extension paths
+      const extensionPaths = await Promise.all(
+        walletConfigs.map(config => getExtensionPathForWallet(config)),
+      )
+
+      // Join paths with comma for Chrome args
+      const extensionPathsString = extensionPaths.join(',')
 
       const context = await chromium.launchPersistentContext('', {
         headless,
         channel: 'chromium',
         args: [
-          `--load-extension=${extensionPath}`,
-          `--disable-extensions-except=${extensionPath}`,
+          `--load-extension=${extensionPathsString}`,
+          `--disable-extensions-except=${extensionPathsString}`,
         ],
         slowMo,
       })
 
-      const page = context.pages()[0] || await context.newPage()
-
-      // Store context and extensionId on page for internal use
-      const extendedPage = page as ExtendedPage
-      extendedPage.__extensionContext = context
-
-      // Get extension ID from service worker
-      let [background] = context.serviceWorkers()
-      if (!background) {
-        background = await context.waitForEvent('serviceworker')
-      }
-      extendedPage.__extensionId = background.url().split('/')[2]
-
-      await use(page)
+      await use(context)
       await context.close()
-    },
+    }, { scope: 'worker' }],
 
-    // Fixture to create wallet account
-    importAccount: async ({ page }, use) => {
-      const importAccount = async ({ seed, name = 'Test Account', password = 'h3llop0lkadot!' }: WalletAccount) => {
-        const context = page.__extensionContext
-        const extensionId = page.__extensionId
+    // Worker-scoped: Map of wallet type to extension ID
+    walletExtensionIds: [async ({ walletContext }, use) => {
+      const extensionIds = new Map<string, string>()
 
-        const extensionPopupUrl = `chrome-extension://${extensionId}/index.html`
-        const extensionPage = await context.newPage()
-
-        try {
-          await extensionPage.goto(extensionPopupUrl)
-
-          // Handle "Understood, let me continue" button if it exists
-          const understoodButton = extensionPage.getByRole('button', { name: 'Understood, let me continue' })
-          if (await understoodButton.count() > 0) {
-            await understoodButton.click()
-            await extensionPage.waitForTimeout(100)
-          }
-
-          // Navigate to import seed page
-          await extensionPage.goto(`${extensionPopupUrl}#/account/import-seed`)
-
-          // Fill seed phrase and account details
-          await extensionPage.locator('textarea').fill(seed)
-          await extensionPage.locator('button:has-text("Next")').click()
-          await extensionPage.locator('input[type="text"]').fill(name)
-          await extensionPage.locator('input[type="password"]').fill(password)
-          await extensionPage.locator('div').filter({ hasText: /^Repeat password for verification$/ }).getByRole('textbox').fill(password)
-          await extensionPage.getByRole('button', { name: 'Add the account with the supplied seed' }).click()
-
-          console.log(`✅ Created wallet account: ${name}`)
-        }
-        finally {
-          await extensionPage.close()
-        }
+      // Wait for all service workers to load
+      const serviceWorkers = walletContext.serviceWorkers()
+      if (serviceWorkers.length === 0) {
+        // Wait for at least one service worker
+        await walletContext.waitForEvent('serviceworker')
       }
 
-      await use(importAccount)
-    },
-
-    // Fixture to connect wallet to dApp
-    authorize: async ({ page }, use) => {
-      const authorize = async () => {
-        const context = page.__extensionContext
-        const extensionId = page.__extensionId
+      // Give some time for all extensions to load
+      if (isMultiWallet) {
         await new Promise(resolve => setTimeout(resolve, 1000))
-
-        const extensionPopup = await findExtensionPopup(context, extensionId)
-        await extensionPopup.getByText('Select all').click()
-        await extensionPopup.getByRole('button', { name: /Connect \d+ account\(s\)/ }).click()
-
-        console.log('✅ Wallet connected successfully')
       }
 
-      await use(authorize)
+      // Get all service workers (one per extension)
+      const allServiceWorkers = walletContext.serviceWorkers()
+
+      // Map service workers to wallet types
+      // Note: The order should match the walletConfigs order
+      for (let i = 0; i < walletConfigs.length && i < allServiceWorkers.length; i++) {
+        const extensionId = allServiceWorkers[i].url().split('/')[2]
+        const walletType = walletConfigs[i].type
+        extensionIds.set(walletType, extensionId)
+        console.log(`✅ Loaded ${walletType} extension with ID: ${extensionId}`)
+      }
+
+      await use(extensionIds)
+    }, { scope: 'worker' }],
+
+    // Main page with extension context (uses worker-scoped context)
+    page: async ({ walletContext, walletExtensionIds }, use) => {
+      const page = walletContext.pages()[0] || await walletContext.newPage()
+
+      // Store context and extension IDs on page
+      const extendedPage = page as ExtendedPage
+      extendedPage.__extensionContext = walletContext
+      extendedPage.__walletExtensionIds = walletExtensionIds
+
+      await use(extendedPage)
+      // Note: Don't close the page or context here since they're worker-scoped
     },
 
-    approveTx: async ({ page }, use) => {
-      const approveTx = async (options: { password?: string } = {}) => {
-        const { password = 'h3llop0lkadot!' } = options
-        const context = page.__extensionContext
-        const extensionId = page.__extensionId
+    // Wallet instances for each configured wallet
+    wallets: async ({ walletContext, walletExtensionIds }, use) => {
+      // Build wallets object - all configured wallets will be available
+      const walletMap = {} as Record<WalletType, WalletInstance>
 
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        const extensionPopup = await findExtensionPopup(context, extensionId)
-
-        await extensionPopup.getByRole('textbox').fill(password)
-        await extensionPopup.getByRole('button', { name: 'Sign the transaction' }).click()
-
-        console.log('✅ Transaction signed successfully')
+      // Create wallet instance for each configured wallet
+      for (const [walletType, extensionId] of walletExtensionIds) {
+        // Type guard to ensure walletType is valid
+        if (WALLET_TYPES.includes(walletType as WalletType)) {
+          walletMap[walletType as WalletType] = createWalletInstance(
+            walletType,
+            extensionId,
+            walletContext,
+          )
+        }
       }
 
-      await use(approveTx)
+      // Type assertion: TypeScript will trust that all WalletType keys exist
+      // Runtime: only configured wallets will actually be present
+      await use(walletMap as Wallets)
     },
   })
 }
 
-// Default test with Polkadot JS wallet
+// Default test with Polkadot JS wallet (with persistent wallet support via worker-scoped fixtures)
 export const test: ReturnType<typeof createWalletTest> = createWalletTest()
 
 export { expect } from '@playwright/test'

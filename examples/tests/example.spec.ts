@@ -8,8 +8,9 @@ const test = createWalletTest({
   headless: false,
 })
 
-test('sign transaction', async ({ page, importAccount, authorize, approveTx }) => {
-  await importAccount({
+test('sign transaction', async ({ page, wallets }) => {
+  const wallet = wallets['polkadot-js']
+  await wallet.importMnemonic({
     seed: DOT_TEST_MNEMONIC,
     password: DOT_TEST_PASSWORD,
     name: 'Account 1',
@@ -28,13 +29,13 @@ test('sign transaction', async ({ page, importAccount, authorize, approveTx }) =
     console.log('🔗 Clicked CONNECT button')
   }
 
-  await authorize()
+  await wallet.authorize()
 
   await page.getByText('Account 1').click()
 
   await page.getByRole('button', { name: 'Sign Transaction' }).nth(3).click()
 
-  await approveTx({ password: DOT_TEST_PASSWORD })
+  await wallet.approveTx({ password: DOT_TEST_PASSWORD })
   await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
 
   console.log('🎉 Test completed successfully!')

@@ -1,4 +1,4 @@
-import { createWalletTest } from '@avalix/chroma';
+import { createWalletTest } from '../src/index.js'
 
 const POLKADOT_DAPP_URLS = [
   'https://polkadot-starter-vue-dedot.vercel.app/',
@@ -10,18 +10,23 @@ const DOT_TEST_MNEMONIC = 'bottom drive obey lake curtain smoke basket hold race
 const DOT_TEST_PASSWORD = 'secure123!'
 
 const test = createWalletTest({
-  headless: true,
+  headless: false,
+})
+
+// increase playwright timeout
+test.setTimeout(30_000 * 10) // default is 30000
+
+test.beforeAll(async ({ wallets }) => {
+  await wallets['polkadot-js'].importMnemonic({
+    seed: DOT_TEST_MNEMONIC,
+    password: DOT_TEST_PASSWORD,
+    name: ACCOUNT_NAME,
+  })
 })
 
 for (const url of POLKADOT_DAPP_URLS) {
   test(`sign transaction on ${url}`, async ({ page, wallets }) => {
     console.log(`🧪 Testing ${url}`)
-    const wallet = wallets['polkadot-js']
-    await wallet.importMnemonic({
-      seed: DOT_TEST_MNEMONIC,
-      password: DOT_TEST_PASSWORD,
-      name: ACCOUNT_NAME,
-    })
 
     await page.goto(url)
     await page.waitForLoadState('networkidle')
@@ -36,18 +41,19 @@ for (const url of POLKADOT_DAPP_URLS) {
       console.log('🔗 Clicked CONNECT button')
     }
 
-    await wallet.authorize()
+    await wallets['polkadot-js'].authorize()
 
     await page.getByText(ACCOUNT_NAME).click()
 
     await page.getByRole('button', { name: 'Sign Transaction' }).nth(3).click()
-    
-    if (url.includes('papi')) await page.waitForTimeout(3000)
-    await wallet.approveTx({ password: DOT_TEST_PASSWORD })
-    await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
 
+    if (url.includes('papi'))
+      await page.waitForTimeout(3000)
+    await wallets['polkadot-js'].approveTx({ password: DOT_TEST_PASSWORD })
+    await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
+    await page.getByText('Transaction successful!').waitFor({ state: 'visible' })
     console.log(`🎉 Test completed successfully for ${url}!`)
 
-    await page.waitForTimeout(3000)
+    await page.waitForTimeout(5000)
   })
 }
