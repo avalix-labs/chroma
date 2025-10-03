@@ -1,6 +1,7 @@
 name: Playwright Tests
 
 on:
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -16,7 +17,7 @@ jobs:
     
     - uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: 'lts/*'
     
     - name: Setup Bun
       uses: oven-sh/setup-bun@v1
@@ -33,24 +34,24 @@ jobs:
     
     - name: Install Playwright Browsers
       run: |
-        cd examples
-        npx playwright install --with-deps
+        cd packages/chroma
+        npx playwright install --with-deps chromium
     
     - name: Run Playwright tests
       run: |
-        cd examples
+        cd packages/chroma
         xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- npx playwright test --reporter=html
     
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
         name: playwright-report
-        path: examples/playwright-report/
+        path: packages/chroma/playwright-report/
         retention-days: 30
     
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: playwright-test-results
-        path: examples/test-results/
+        path: packages/chroma/test-results/
         retention-days: 30

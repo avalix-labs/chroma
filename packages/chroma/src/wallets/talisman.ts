@@ -157,3 +157,16 @@ export async function approveTalismanTx(
 
   await extensionPopup.getByRole('button', { name: 'Approve' }).click()
 }
+
+// Talisman specific transaction rejection implementation
+export async function rejectTalismanTx(
+  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+): Promise<void> {
+  const context = page.__extensionContext
+  const extensionId = page.__extensionId
+
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  const extensionPopup = await findExtensionPopup(context, extensionId)
+
+  await extensionPopup.getByTestId('connection-reject-button').click()
+}

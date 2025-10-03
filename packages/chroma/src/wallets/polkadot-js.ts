@@ -112,3 +112,18 @@ export async function approvePolkadotJSTx(
 
   console.log('✅ Polkadot-JS transaction signed successfully')
 }
+
+// Polkadot-JS specific transaction rejection implementation
+export async function rejectPolkadotJSTx(
+  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+): Promise<void> {
+  const context = page.__extensionContext
+  const extensionId = page.__extensionId
+
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  const extensionPopup = await findExtensionPopup(context, extensionId)
+
+  await extensionPopup.getByRole('link', { name: 'Cancel' }).click()
+
+  console.log('✅ Polkadot-JS transaction rejected successfully')
+}
