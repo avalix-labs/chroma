@@ -98,13 +98,8 @@ export async function importEthPrivateKey(
     // Bring the onboarding page to front
     await extensionPage.bringToFront()
 
-    // Reload the onboarding page to ensure fresh state
-    console.log('🔄 Reloading onboarding page for fresh state...')
-    await extensionPage.reload()
-
     // Wait for the page to load and become interactive
     await extensionPage.waitForLoadState('domcontentloaded')
-    // await extensionPage.waitForTimeout(20000) // Give Talisman more time to initialize
 
     // Click the get started button
     await extensionPage.getByTestId('onboarding-get-started-button').click()
