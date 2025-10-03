@@ -1,5 +1,11 @@
 # @avalix/chroma
 
+## 0.0.8
+
+### Patch Changes
+
+- [#17](https://github.com/avalix-labs/chroma/pull/17) [`854a6ba`](https://github.com/avalix-labs/chroma/commit/854a6ba36157db041682ef610264106bd70b43b3) Thanks [@preschian](https://github.com/preschian)! - fix: include src folder in npm package for download-extensions script
+
 ## 0.0.7
 
 ### Patch Changes
