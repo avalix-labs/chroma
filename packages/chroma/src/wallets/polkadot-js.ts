@@ -12,12 +12,25 @@ export const POLKADOT_JS_CONFIG = {
 
 // Helper function to find extension popup
 async function findExtensionPopup(context: BrowserContext, extensionId: string): Promise<Page> {
-  const pages = context.pages()
-  for (const p of pages) {
-    if (p.url().includes(`chrome-extension://${extensionId}/`)) {
-      return p
+  // Wait for extension popup to appear with retry logic
+  const maxAttempts = 10
+  const retryDelay = 500
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const pages = context.pages()
+    for (const p of pages) {
+      if (p.url().includes(`chrome-extension://${extensionId}/`)) {
+        await p.waitForLoadState('domcontentloaded')
+        return p
+      }
+    }
+
+    // If not found, wait a bit before retrying
+    if (attempt < maxAttempts - 1) {
+      await new Promise(resolve => setTimeout(resolve, retryDelay))
     }
   }
+
   throw new Error(`Extension popup not found for ID: ${extensionId}`)
 }
 
@@ -84,7 +97,6 @@ export async function authorizePolkadotJS(
 ): Promise<void> {
   const context = page.__extensionContext
   const extensionId = page.__extensionId
-  await new Promise(resolve => setTimeout(resolve, 1000))
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
   await extensionPopup.getByText('Select all').click()
@@ -102,9 +114,7 @@ export async function approvePolkadotJSTx(
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 
-  await new Promise(resolve => setTimeout(resolve, 1000))
   const extensionPopup = await findExtensionPopup(context, extensionId)
-
   await extensionPopup.getByRole('textbox').fill(password)
   await extensionPopup.getByRole('button', { name: 'Sign the transaction' }).click()
 
@@ -118,9 +128,7 @@ export async function rejectPolkadotJSTx(
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 
-  await new Promise(resolve => setTimeout(resolve, 1000))
   const extensionPopup = await findExtensionPopup(context, extensionId)
-
   await extensionPopup.getByRole('link', { name: 'Cancel' }).click()
 
   console.log('✅ Polkadot-JS transaction rejected successfully')
