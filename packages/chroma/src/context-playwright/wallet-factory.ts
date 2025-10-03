@@ -11,6 +11,11 @@ import {
   authorizePolkadotJS,
   importPolkadotJSAccount,
 } from '../wallets/polkadot-js.js'
+import {
+  approveTalismanTx,
+  authorizeTalisman,
+  importEthPrivateKey,
+} from '../wallets/talisman.js'
 
 // Helper to create extended page with wallet context
 function createExtendedPage(page: Page, context: BrowserContext, extensionId: string) {
@@ -26,6 +31,9 @@ export function createWalletInstance(
   extensionId: string,
   context: BrowserContext,
 ): WalletInstance {
+  // Store the imported account name for later use
+  let importedAccountName: string | undefined
+
   // Common methods for all wallets
   const baseInstance: BaseWalletInstance = {
     extensionId,
@@ -33,26 +41,33 @@ export function createWalletInstance(
       const page = context.pages()[0] || await context.newPage()
       const extPage = createExtendedPage(page, context, extensionId)
 
+      // Store the account name for future authorize calls
+      importedAccountName = options.name || 'Test Account'
+
       switch (walletType) {
         case 'polkadot-js':
           await importPolkadotJSAccount(extPage, options)
           break
         case 'talisman':
-          throw new Error('Talisman account import is not yet implemented.')
+          throw new Error('Talisman importMnemonic is not yet implemented.')
         default:
           throw new Error(`Unsupported wallet type: ${walletType}`)
       }
     },
-    authorize: async () => {
+    authorize: async (options: { accountName?: string } = {}) => {
       const page = context.pages()[0] || await context.newPage()
       const extPage = createExtendedPage(page, context, extensionId)
+
+      // Use provided account name or fall back to the imported one
+      const accountName = options.accountName || importedAccountName
 
       switch (walletType) {
         case 'polkadot-js':
           await authorizePolkadotJS(extPage)
           break
         case 'talisman':
-          throw new Error('Talisman authorization is not yet implemented.')
+          await authorizeTalisman(extPage, { accountName })
+          break
         default:
           throw new Error(`Unsupported wallet type: ${walletType}`)
       }
@@ -66,7 +81,8 @@ export function createWalletInstance(
           await approvePolkadotJSTx(extPage, options)
           break
         case 'talisman':
-          throw new Error('Talisman transaction approval is not yet implemented.')
+          await approveTalismanTx(extPage)
+          break
         default:
           throw new Error(`Unsupported wallet type: ${walletType}`)
       }
@@ -85,9 +101,19 @@ export function createWalletInstance(
       return {
         ...baseInstance,
         type: 'talisman',
-        importPrivateKey: async (_options: { privateKey: string, name?: string, password?: string }) => {
-          // TODO: Implement Talisman private key import
-          throw new Error('Talisman importPrivateKey is not yet implemented.')
+        importEthPrivateKey: async (options: { privateKey: string, name?: string, password?: string }) => {
+          const page = context.pages()[0] || await context.newPage()
+          const extPage = createExtendedPage(page, context, extensionId)
+
+          // Store the account name for future authorize calls
+          importedAccountName = options.name || 'Test Account'
+
+          // Use the seed property to pass the private key
+          await importEthPrivateKey(extPage, {
+            seed: options.privateKey,
+            name: options.name,
+            password: options.password,
+          })
         },
       } as TalismanWalletInstance
 

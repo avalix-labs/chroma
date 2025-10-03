@@ -7,7 +7,7 @@ import process from 'node:process'
 // Polkadot-JS specific configuration
 export const POLKADOT_JS_CONFIG = {
   downloadUrl: 'https://github.com/polkadot-js/extension/releases/download/v0.61.7/master-chrome-build.zip',
-  extensionName: 'polkadot-extension-chrome',
+  extensionName: 'polkadot-extension-0.61.7',
 } as const
 
 // Helper function to find extension popup

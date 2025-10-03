@@ -11,6 +11,6 @@ export default defineConfig({
     'unzipper',
   ],
   dts: {
-    oxc: true,
+    // oxc: true, // Disabled to avoid isolatedDeclarations requirement
   },
 })

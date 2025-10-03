@@ -42,7 +42,7 @@
     "dev": "tsdown --watch",
     "lint": "eslint --fix .",
     "prepublishOnly": "npm run build",
-    "download-extensions": "tsx scripts/download-extensions.ts"
+    "download-extensions": "rm -rf .chroma && tsx scripts/download-extensions.ts"
   },
   "peerDependencies": {
     "@playwright/test": "^1.55.0"

@@ -23,7 +23,7 @@ export interface WalletConfig {
 export interface BaseWalletInstance {
   extensionId: string
   importMnemonic: (options: WalletAccount) => Promise<void>
-  authorize: () => Promise<void>
+  authorize: (options?: { accountName?: string }) => Promise<void>
   approveTx: (options?: { password?: string }) => Promise<void>
 }
 
@@ -35,16 +35,24 @@ export interface PolkadotJsWalletInstance extends BaseWalletInstance {
 // Talisman specific wallet instance (with additional methods)
 export interface TalismanWalletInstance extends BaseWalletInstance {
   type: 'talisman'
-  importPrivateKey: (options: { privateKey: string, name?: string, password?: string }) => Promise<void>
+  importEthPrivateKey: (options: { privateKey: string, name?: string, password?: string }) => Promise<void>
 }
 
 // Union type of all wallet instances
 export type WalletInstance = PolkadotJsWalletInstance | TalismanWalletInstance
 
-// Wallets collection - each wallet type has its specific instance type
-export interface Wallets {
+// Map wallet type to its instance
+export interface WalletTypeMap {
   'polkadot-js': PolkadotJsWalletInstance
   'talisman': TalismanWalletInstance
+}
+
+// Wallets collection - all wallet types
+export type Wallets = WalletTypeMap
+
+// Helper type to build a wallets object based on configured wallet types
+export type ConfiguredWallets<T extends readonly WalletConfig[]> = {
+  [K in T[number]['type']]: WalletTypeMap[K]
 }
 
 // Extended page with wallet context
@@ -54,18 +62,18 @@ export type ExtendedPage = Page & {
 }
 
 // Complete test configuration - supports single and multi-wallet
-export interface ChromaTestOptions {
+export interface ChromaTestOptions<T extends readonly WalletConfig[] = WalletConfig[]> {
   // Wallet configuration (single or multiple)
-  wallets?: WalletConfig[]
+  wallets?: T
   // Common options
   headless?: boolean
   slowMo?: number
 }
 
 // Test fixtures (test-scoped: recreated per test)
-export interface WalletFixtures {
+export interface WalletFixtures<W = Wallets> {
   page: ExtendedPage
-  wallets: Wallets
+  wallets: W
 }
 
 // Worker fixtures (worker-scoped: persisted across tests)

@@ -2,7 +2,7 @@
 
 End-to-end testing library for Polkadot wallet interactions using Playwright.
 
-> **Current Status**: This library currently supports **Polkadot JS Extension** only. Support for other wallets like Talisman is planned for future releases.
+> **⚠️ Active Development**: This library is currently under active development. The API may change and breaking changes can occur between versions. Please pin your version and review changelogs carefully when updating.
 
 ## Installation
 
@@ -17,14 +17,10 @@ npm install @avalix/chroma @playwright/test
 Before running your tests, you need to download the wallet extensions:
 
 ```bash
-# Using npx
 npx @avalix/chroma download-extensions
-
-# Or add to your package.json scripts
-npm run download-extensions
 ```
 
-This will download the Polkadot JS extension to `./.chroma` directory in your project root.
+This will download the wallet extensions (Polkadot JS and Talisman) to `./.chroma` directory in your project root.
 
 **Important**: You must run this command before running Playwright tests. If the extension is not found, tests will fail with a helpful error message.
 
@@ -93,7 +89,7 @@ import { createWalletTest, expect } from '@avalix/chroma'
 const multiWalletTest = createWalletTest({
   wallets: [
     { type: 'polkadot-js' },
-    { type: 'talisman' } // When available
+    { type: 'talisman' }
   ],
   headless: false,
   slowMo: 150
@@ -103,14 +99,15 @@ multiWalletTest('test with multiple wallets', async ({ page, wallets }) => {
   const polkadotJs = wallets['polkadot-js']
   const talisman = wallets.talisman
 
-  // Import to both wallets
+  // Import to Polkadot JS
   await polkadotJs.importMnemonic({
     seed: 'bottom drive obey lake curtain smoke basket hold race lonely fit walk',
     name: 'Alice'
   })
 
-  await talisman.importMnemonic({
-    seed: 'another seed phrase...',
+  // Import to Talisman using Ethereum private key
+  await talisman.importEthPrivateKey({
+    privateKey: '0x...',
     name: 'Bob'
   })
 
@@ -197,7 +194,7 @@ Typed object containing wallet instances for each configured wallet. Provides fu
 interface BaseWalletInstance {
   extensionId: string
   importMnemonic: (options: WalletAccount) => Promise<void>
-  authorize: () => Promise<void>
+  authorize: (options?: { accountName?: string }) => Promise<void>
   approveTx: (options?: { password?: string }) => Promise<void>
 }
 
@@ -209,8 +206,10 @@ interface PolkadotJsWalletInstance extends BaseWalletInstance {
 // Talisman wallet instance (with additional methods)
 interface TalismanWalletInstance extends BaseWalletInstance {
   type: 'talisman'
-  importPrivateKey: (options: { privateKey: string, name?: string, password?: string }) => Promise<void>
+  importEthPrivateKey: (options: { privateKey: string, name?: string, password?: string }) => Promise<void>
 }
+
+// Note: Talisman currently does not support importMnemonic - use importEthPrivateKey instead
 
 // Wallets collection - each wallet has its specific type
 interface Wallets {
@@ -247,15 +246,15 @@ test('example', async ({ page, wallets }) => {
 test('talisman example', async ({ page, wallets }) => {
   const talisman = wallets.talisman // Type: TalismanWalletInstance
 
-  // Talisman-specific method: import private key
-  await talisman.importPrivateKey({
+  // Talisman-specific method: import Ethereum private key
+  await talisman.importEthPrivateKey({
     privateKey: '0x...',
     name: 'My Account',
     password: 'mypassword'
   })
 
   // Common methods also available
-  await talisman.authorize()
+  await talisman.authorize({ accountName: 'My Account' })
   await talisman.approveTx()
 })
 ```
@@ -278,14 +277,14 @@ Extensions will be downloaded to `./.chroma` directory in your project root. Add
 ### Browser Settings
 - **Headless Mode**: Disabled by default for better debugging
 - **Slow Motion**: 150ms delay between actions (configurable)
-- **Extension Loading**: Automatically loads only the Polkadot JS extension
+- **Extension Loading**: Automatically loads configured wallet extensions
 
 ## Supported Wallets
 
 | Wallet | Status | Version |
 |--------|--------|---------|
 | Polkadot JS Extension | ✅ Supported | v0.61.7 |
-| Talisman | ⏳ Planned | - |
+| Talisman | ✅ Supported | v3.0.5 |
 | SubWallet | ⏳ Planned | - |
 
 ## Requirements
@@ -296,8 +295,9 @@ Extensions will be downloaded to `./.chroma` directory in your project root. Add
 ## Contributing
 
 This project is in active development. Currently focusing on:
-- Polkadot JS Extension support
+- Polkadot JS Extension and Talisman support
 - Core testing fixtures
+- Additional wallet integrations
 - Documentation improvements
 
 ## License

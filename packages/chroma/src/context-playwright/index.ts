@@ -1,5 +1,6 @@
 import type {
   ChromaTestOptions,
+  ConfiguredWallets,
   ExtendedPage,
   WalletConfig,
   WalletFixtures,
@@ -10,6 +11,7 @@ import type {
 } from './types.js'
 import { test as base, chromium } from '@playwright/test'
 import { getPolkadotJSExtensionPath } from '../wallets/polkadot-js.js'
+import { getTalismanExtensionPath } from '../wallets/talisman.js'
 import { WALLET_TYPES } from './types.js'
 import { createWalletInstance } from './wallet-factory.js'
 
@@ -21,8 +23,7 @@ async function getExtensionPathForWallet(config: WalletConfig): Promise<string> 
     case 'polkadot-js':
       return await getPolkadotJSExtensionPath()
     case 'talisman':
-      // TODO: Implement Talisman download function
-      throw new Error('Talisman wallet is not yet implemented. Please use polkadot-js for now.')
+      return await getTalismanExtensionPath()
     default:
       throw new Error(`Unsupported wallet type: ${type}`)
   }
@@ -30,17 +31,22 @@ async function getExtensionPathForWallet(config: WalletConfig): Promise<string> 
 
 // Create a test function with wallet configuration
 // Supports single and multi-wallet modes
-export function createWalletTest(options: ChromaTestOptions = {}): ReturnType<typeof base.extend<WalletFixtures, WalletWorkerFixtures>> {
+export function createWalletTest<const T extends readonly WalletConfig[]>(
+  options: ChromaTestOptions<T> = {} as ChromaTestOptions<T>,
+) {
   const { headless = false, slowMo = 150 } = options
 
   // Default to polkadot-js if no wallets specified
-  const walletConfigs: WalletConfig[] = options.wallets && options.wallets.length > 0
+  const walletConfigs: readonly WalletConfig[] = options.wallets && options.wallets.length > 0
     ? options.wallets
     : [{ type: 'polkadot-js' }]
 
   const isMultiWallet = walletConfigs.length > 1
 
-  return base.extend<WalletFixtures, WalletWorkerFixtures>({
+  // Compute the expected wallets type
+  type ExpectedWallets = T extends readonly WalletConfig[] ? ConfiguredWallets<T> : Wallets
+
+  return base.extend<WalletFixtures<ExpectedWallets>, WalletWorkerFixtures>({
     // Worker-scoped: Browser context with extension(s) (persists across all tests in worker)
     // eslint-disable-next-line no-empty-pattern
     walletContext: [async ({}, use) => {
@@ -112,24 +118,17 @@ export function createWalletTest(options: ChromaTestOptions = {}): ReturnType<ty
 
     // Wallet instances for each configured wallet
     wallets: async ({ walletContext, walletExtensionIds }, use) => {
-      // Build wallets object - all configured wallets will be available
-      const walletMap = {} as Record<WalletType, WalletInstance>
+      const walletMap: Partial<ExpectedWallets> = {}
 
       // Create wallet instance for each configured wallet
       for (const [walletType, extensionId] of walletExtensionIds) {
-        // Type guard to ensure walletType is valid
         if (WALLET_TYPES.includes(walletType as WalletType)) {
-          walletMap[walletType as WalletType] = createWalletInstance(
-            walletType,
-            extensionId,
-            walletContext,
-          )
+          const instance = createWalletInstance(walletType, extensionId, walletContext);
+          (walletMap as Record<string, WalletInstance>)[walletType] = instance
         }
       }
 
-      // Type assertion: TypeScript will trust that all WalletType keys exist
-      // Runtime: only configured wallets will actually be present
-      await use(walletMap as Wallets)
+      await use(walletMap as ExpectedWallets)
     },
   })
 }
