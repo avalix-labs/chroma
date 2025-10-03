@@ -37,6 +37,11 @@ jobs:
         cd packages/chroma
         npx playwright install --with-deps chromium
     
+    - name: Download wallet extensions
+      run: |
+        cd packages/chroma
+        bun run download-extensions
+    
     - name: Run Playwright tests
       run: |
         cd packages/chroma
