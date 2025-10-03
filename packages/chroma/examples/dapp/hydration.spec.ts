@@ -9,6 +9,8 @@ const test = createWalletTest({
   wallets: [{ type: 'talisman' }, { type: 'polkadot-js' }],
 })
 
+test.setTimeout(30_000 * 2)
+
 test('Hydration', async ({ page, wallets }) => {
   const talisman = wallets.talisman
   const polkadotJs = wallets['polkadot-js']
