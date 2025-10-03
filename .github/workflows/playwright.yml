@@ -7,7 +7,7 @@ on:
 jobs:
   test:
     timeout-minutes: 60
-    runs-on: ubuntu-8-core
+    runs-on: ubuntu-latest
     
     env:
       CI: true
