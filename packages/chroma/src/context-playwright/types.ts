@@ -42,7 +42,7 @@ export interface TalismanWalletInstance extends BaseWalletInstance {
 export type WalletInstance = PolkadotJsWalletInstance | TalismanWalletInstance
 
 // Map wallet type to its instance
-interface WalletTypeMap {
+export interface WalletTypeMap {
   'polkadot-js': PolkadotJsWalletInstance
   'talisman': TalismanWalletInstance
 }
