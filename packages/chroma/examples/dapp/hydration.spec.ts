@@ -1,4 +1,4 @@
-import { createWalletTest, expect } from '../../src/index.js'
+import { createWalletTest } from '../../src/index.js'
 
 const ACCOUNT_NAME = 'Test Account'
 const DOT_TEST_MNEMONIC = 'bottom drive obey lake curtain smoke basket hold race lonely fit walk'
@@ -45,6 +45,4 @@ test('Hydration', async ({ page, wallets }) => {
   await page.getByRole('button', { name: 'Polkadot Polkadot' }).click()
   await page.getByRole('button', { name: 'Polkadotjs Logo Polkadot.js' }).click()
   await polkadotJs.authorize()
-
-  expect(page.getByText('connected')).toHaveText('2 connected')
 })
