@@ -35,7 +35,8 @@
   },
   "files": [
     "dist",
-    "scripts"
+    "scripts",
+    "src"
   ],
   "scripts": {
     "build": "tsdown",
