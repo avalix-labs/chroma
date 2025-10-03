@@ -1,5 +1,13 @@
 # @avalix/chroma
 
+## 0.0.7
+
+### Patch Changes
+
+- [#14](https://github.com/avalix-labs/chroma/pull/14) [`6e7a6e1`](https://github.com/avalix-labs/chroma/commit/6e7a6e1afdc9f8c2f602b0bbab559d99169c9cc1) Thanks [@preschian](https://github.com/preschian)! - feat: add extension download CLI and prepare multi-wallet support
+
+- [#16](https://github.com/avalix-labs/chroma/pull/16) [`f8b4627`](https://github.com/avalix-labs/chroma/commit/f8b46277b6e99de0917d30ede0abecff442407fa) Thanks [@preschian](https://github.com/preschian)! - feat(wallets): add Talisman wallet support
+
 ## 0.0.6
 
 ### Patch Changes
