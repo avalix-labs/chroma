@@ -1,5 +1,13 @@
 # @avalix/chroma
 
+## 0.0.9
+
+### Patch Changes
+
+- [#19](https://github.com/avalix-labs/chroma/pull/19) [`f5c9e16`](https://github.com/avalix-labs/chroma/commit/f5c9e167e2a1daf537727eda3c15e006fcd4cf5d) Thanks [@preschian](https://github.com/preschian)! - feat: add rejectTx method and Talisman ETH import support
+
+- [#21](https://github.com/avalix-labs/chroma/pull/21) [`f2ecae5`](https://github.com/avalix-labs/chroma/commit/f2ecae55f9d7476c64b4ffadb086c89277260971) Thanks [@preschian](https://github.com/preschian)! - refactor: replace fixed timeouts with retry logic in wallet implementations
+
 ## 0.0.8
 
 ### Patch Changes
