@@ -25,6 +25,7 @@ export interface BaseWalletInstance {
   importMnemonic: (options: WalletAccount) => Promise<void>
   authorize: (options?: { accountName?: string }) => Promise<void>
   approveTx: (options?: { password?: string }) => Promise<void>
+  rejectTx: () => Promise<void>
 }
 
 // Polkadot-JS specific wallet instance

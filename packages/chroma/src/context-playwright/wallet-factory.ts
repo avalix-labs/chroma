@@ -10,11 +10,13 @@ import {
   approvePolkadotJSTx,
   authorizePolkadotJS,
   importPolkadotJSAccount,
+  rejectPolkadotJSTx,
 } from '../wallets/polkadot-js.js'
 import {
   approveTalismanTx,
   authorizeTalisman,
   importEthPrivateKey,
+  rejectTalismanTx,
 } from '../wallets/talisman.js'
 
 // Helper to create extended page with wallet context
@@ -82,6 +84,21 @@ export function createWalletInstance(
           break
         case 'talisman':
           await approveTalismanTx(extPage)
+          break
+        default:
+          throw new Error(`Unsupported wallet type: ${walletType}`)
+      }
+    },
+    rejectTx: async () => {
+      const page = context.pages()[0] || await context.newPage()
+      const extPage = createExtendedPage(page, context, extensionId)
+
+      switch (walletType) {
+        case 'polkadot-js':
+          await rejectPolkadotJSTx(extPage)
+          break
+        case 'talisman':
+          await rejectTalismanTx(extPage)
           break
         default:
           throw new Error(`Unsupported wallet type: ${walletType}`)

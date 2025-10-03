@@ -31,9 +31,7 @@ export async function getPolkadotJSExtensionPath(): Promise<string> {
     throw new Error(
       `Polkadot-JS extension not found at: ${extensionDir}\n\n`
       + `Please download the extension first by running:\n`
-      + `  npx @avalix/chroma download-extensions\n\n`
-      + `Or if you're using this as a dependency:\n`
-      + `  npm run chroma:download\n`,
+      + `  npx @avalix/chroma download-extensions\n`,
     )
   }
 
@@ -111,4 +109,19 @@ export async function approvePolkadotJSTx(
   await extensionPopup.getByRole('button', { name: 'Sign the transaction' }).click()
 
   console.log('✅ Polkadot-JS transaction signed successfully')
+}
+
+// Polkadot-JS specific transaction rejection implementation
+export async function rejectPolkadotJSTx(
+  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+): Promise<void> {
+  const context = page.__extensionContext
+  const extensionId = page.__extensionId
+
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  const extensionPopup = await findExtensionPopup(context, extensionId)
+
+  await extensionPopup.getByRole('link', { name: 'Cancel' }).click()
+
+  console.log('✅ Polkadot-JS transaction rejected successfully')
 }

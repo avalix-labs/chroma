@@ -1,6 +1,7 @@
 name: Playwright Tests
 
 on:
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -16,7 +17,7 @@ jobs:
     
     - uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: 'lts/*'
     
     - name: Setup Bun
       uses: oven-sh/setup-bun@v1
@@ -31,26 +32,43 @@ jobs:
         cd packages/chroma
         bun run build
     
+    - name: Get Playwright version
+      id: playwright-version
+      run: echo "version=$(cd packages/chroma && npx playwright --version | grep -oP '\d+\.\d+\.\d+')" >> $GITHUB_OUTPUT
+    
+    - name: Cache Playwright browsers
+      uses: actions/cache@v4
+      id: playwright-cache
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+    
     - name: Install Playwright Browsers
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
       run: |
-        cd examples
-        npx playwright install --with-deps
+        cd packages/chroma
+        npx playwright install --with-deps chromium
+    
+    - name: Download wallet extensions
+      run: |
+        cd packages/chroma
+        bun run download-extensions
     
     - name: Run Playwright tests
       run: |
-        cd examples
+        cd packages/chroma
         xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- npx playwright test --reporter=html
     
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
         name: playwright-report
-        path: examples/playwright-report/
+        path: packages/chroma/playwright-report/
         retention-days: 30
     
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: playwright-test-results
-        path: examples/test-results/
+        path: packages/chroma/test-results/
         retention-days: 30

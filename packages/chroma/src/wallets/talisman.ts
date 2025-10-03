@@ -37,9 +37,7 @@ export async function getTalismanExtensionPath(): Promise<string> {
     throw new Error(
       `Talisman extension not found at: ${extensionDir}\n\n`
       + `Please download the extension first by running:\n`
-      + `  npx @avalix/chroma download-extensions\n\n`
-      + `Or if you're using this as a dependency:\n`
-      + `  npm run chroma:download\n`,
+      + `  npx @avalix/chroma download-extensions\n`,
     )
   }
 
@@ -156,4 +154,17 @@ export async function approveTalismanTx(
   const extensionPopup = await findExtensionPopup(context, extensionId)
 
   await extensionPopup.getByRole('button', { name: 'Approve' }).click()
+}
+
+// Talisman specific transaction rejection implementation
+export async function rejectTalismanTx(
+  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+): Promise<void> {
+  const context = page.__extensionContext
+  const extensionId = page.__extensionId
+
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  const extensionPopup = await findExtensionPopup(context, extensionId)
+
+  await extensionPopup.getByTestId('connection-reject-button').click()
 }

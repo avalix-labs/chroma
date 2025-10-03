@@ -1,5 +1,9 @@
 import { createWalletTest } from '../src/index.js'
 
+const ACCOUNT_NAME = 'Test Account'
+const ETH_PRIVATE_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+const PASSWORD = 'h3llop0lkadot!'
+
 // Create a test suite with Talisman wallet
 const test = createWalletTest({
   wallets: [{ type: 'talisman' }],
@@ -13,9 +17,9 @@ test('should import account and connect Talisman wallet', async ({ page, wallets
 
   // Import Ethereum account into Talisman wallet
   await wallet.importEthPrivateKey({
-    privateKey: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-    name: accountName,
-    password: 'h3llop0lkadot!',
+    privateKey: ETH_PRIVATE_KEY,
+    name: ACCOUNT_NAME,
+    password: PASSWORD,
   })
 
   // Navigate to Polkadot JS Apps
