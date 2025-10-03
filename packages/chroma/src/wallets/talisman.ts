@@ -7,7 +7,7 @@ import process from 'node:process'
 // Talisman specific configuration
 export const TALISMAN_CONFIG = {
   downloadUrl: 'https://github.com/avalix-labs/polkadot-wallets/raw/refs/heads/main/talisman/talisman-3.0.5.zip',
-  extensionName: 'talisman-extension-chrome',
+  extensionName: 'talisman-extension-3.0.5',
 } as const
 
 // Helper function to find extension popup

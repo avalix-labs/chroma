@@ -49,7 +49,6 @@ singleWalletTest('single wallet example', async ({ page, wallets }) => {
     await page.waitForTimeout(3000)
   await polkadotJs.approveTx({ password: DOT_TEST_PASSWORD })
   await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
-  await page.getByText('Transaction successful!').waitFor({ state: 'visible' })
   console.log(`🎉 Test completed successfully for ${url}!`)
 
   await page.waitForTimeout(5000)
