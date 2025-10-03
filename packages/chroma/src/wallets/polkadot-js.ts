@@ -31,9 +31,7 @@ export async function getPolkadotJSExtensionPath(): Promise<string> {
     throw new Error(
       `Polkadot-JS extension not found at: ${extensionDir}\n\n`
       + `Please download the extension first by running:\n`
-      + `  npx @avalix/chroma download-extensions\n\n`
-      + `Or if you're using this as a dependency:\n`
-      + `  npm run chroma:download\n`,
+      + `  npx @avalix/chroma download-extensions\n`,
     )
   }
 
