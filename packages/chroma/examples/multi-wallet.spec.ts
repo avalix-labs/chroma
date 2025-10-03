@@ -59,9 +59,8 @@ singleWalletTest('single wallet example', async ({ page, wallets }) => {
 const multiWalletTest = createWalletTest({
   wallets: [
     { type: 'polkadot-js' },
-    // Uncomment when Talisman is implemented:
-    // { type: 'talisman' }
-  ],
+    { type: 'talisman' },
+  ] as const,
   headless: false,
   slowMo: 150,
 })
@@ -77,15 +76,13 @@ multiWalletTest.describe('Multi-Wallet Tests', () => {
       password: 'h3llop0lkadot!',
     })
 
-    // When Talisman is implemented:
-    // const talisman = wallets['talisman']
-    // if (talisman) {
-    //   await talisman.importMnemonic({
-    //     seed: 'another seed phrase here',
-    //     name: 'Bob (Talisman)',
-    //     password: 'talismanpass',
-    //   })
-    // }
+    // Import to Talisman
+    const talisman = wallets.talisman
+    await talisman.importEthPrivateKey({
+      privateKey: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      name: 'Bob (Talisman)',
+      password: 'h3llop0lkadot!',
+    })
 
     console.log('✅ Accounts imported to all wallets')
   })

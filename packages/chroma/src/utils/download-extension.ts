@@ -42,7 +42,7 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
 
     console.log('📦 Extracting extension...')
 
-    // Extract ZIP file
+    // Standard zip extraction
     await pipeline(
       fs.createReadStream(zipPath),
       Extract({ path: extensionDir }),
@@ -60,7 +60,7 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
       await fs.promises.unlink(zipPath).catch(() => {})
     }
     if (fs.existsSync(extensionDir)) {
-      await fs.promises.rmdir(extensionDir, { recursive: true }).catch(() => {})
+      await fs.promises.rm(extensionDir, { recursive: true, force: true }).catch(() => {})
     }
 
     throw new Error(`Failed to download/extract ${extensionName}: ${error instanceof Error ? error.message : String(error)}`)

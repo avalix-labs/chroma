@@ -2,7 +2,7 @@
 
 End-to-end testing library for Polkadot wallet interactions using Playwright.
 
-> **Current Status**: This library currently supports **Polkadot JS Extension** only. Support for other wallets like Talisman is planned for future releases.
+> **Current Status**: This library supports **Polkadot JS Extension** and **Talisman**. Support for other wallets like SubWallet is planned for future releases.
 
 ## Installation
 
@@ -24,7 +24,7 @@ npx @avalix/chroma download-extensions
 npm run download-extensions
 ```
 
-This will download the Polkadot JS extension to `./.chroma` directory in your project root.
+This will download the wallet extensions (Polkadot JS and Talisman) to `./.chroma` directory in your project root.
 
 **Important**: You must run this command before running Playwright tests. If the extension is not found, tests will fail with a helpful error message.
 
@@ -93,7 +93,7 @@ import { createWalletTest, expect } from '@avalix/chroma'
 const multiWalletTest = createWalletTest({
   wallets: [
     { type: 'polkadot-js' },
-    { type: 'talisman' } // When available
+    { type: 'talisman' }
   ],
   headless: false,
   slowMo: 150
@@ -278,14 +278,14 @@ Extensions will be downloaded to `./.chroma` directory in your project root. Add
 ### Browser Settings
 - **Headless Mode**: Disabled by default for better debugging
 - **Slow Motion**: 150ms delay between actions (configurable)
-- **Extension Loading**: Automatically loads only the Polkadot JS extension
+- **Extension Loading**: Automatically loads configured wallet extensions
 
 ## Supported Wallets
 
 | Wallet | Status | Version |
 |--------|--------|---------|
 | Polkadot JS Extension | ✅ Supported | v0.61.7 |
-| Talisman | ⏳ Planned | - |
+| Talisman | ✅ Supported | v3.0.5 |
 | SubWallet | ⏳ Planned | - |
 
 ## Requirements
@@ -296,8 +296,9 @@ Extensions will be downloaded to `./.chroma` directory in your project root. Add
 ## Contributing
 
 This project is in active development. Currently focusing on:
-- Polkadot JS Extension support
+- Polkadot JS Extension and Talisman support
 - Core testing fixtures
+- Additional wallet integrations
 - Documentation improvements
 
 ## License

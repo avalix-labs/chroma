@@ -2,6 +2,7 @@
 import process from 'node:process'
 import { downloadAndExtractExtension } from '../src/utils/download-extension.js'
 import { POLKADOT_JS_CONFIG } from '../src/wallets/polkadot-js.js'
+import { TALISMAN_CONFIG } from '../src/wallets/talisman.js'
 
 async function main() {
   console.log('🚀 Downloading Chroma wallet extensions...\n')
@@ -11,6 +12,12 @@ async function main() {
     await downloadAndExtractExtension({
       downloadUrl: POLKADOT_JS_CONFIG.downloadUrl,
       extensionName: POLKADOT_JS_CONFIG.extensionName,
+    })
+
+    // Download Talisman extension
+    await downloadAndExtractExtension({
+      downloadUrl: TALISMAN_CONFIG.downloadUrl,
+      extensionName: TALISMAN_CONFIG.extensionName,
     })
 
     console.log('\n✅ All extensions downloaded successfully!')
