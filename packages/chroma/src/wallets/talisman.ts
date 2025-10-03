@@ -12,15 +12,23 @@ export const TALISMAN_CONFIG = {
 
 // Helper function to find extension popup
 async function findExtensionPopup(context: BrowserContext, extensionId: string): Promise<Page> {
-  // delay for 1 second
-  await new Promise(resolve => setTimeout(resolve, 1000))
+  // Wait for extension popup to appear with retry logic
+  const maxAttempts = 10
+  const retryDelay = 500
 
-  const pages = context.pages()
-  for (const p of pages) {
-    if (p.url().includes(`chrome-extension://${extensionId}/`)) {
-      p.setViewportSize({ width: 400, height: 600 })
-      p.waitForLoadState('domcontentloaded')
-      return p
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const pages = context.pages()
+    for (const p of pages) {
+      if (p.url().includes(`chrome-extension://${extensionId}/`)) {
+        await p.setViewportSize({ width: 400, height: 600 })
+        await p.waitForLoadState('domcontentloaded')
+        return p
+      }
+    }
+
+    // If not found, wait a bit before retrying
+    if (attempt < maxAttempts - 1) {
+      await new Promise(resolve => setTimeout(resolve, retryDelay))
     }
   }
 
@@ -53,25 +61,37 @@ export async function importEthPrivateKey(
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 
-  // Wait for Talisman to open its onboarding tab
-  await new Promise(resolve => setTimeout(resolve, 2000))
-
-  // Find the onboarding tab
+  // Wait for Talisman to open its onboarding tab with retry logic
+  const maxAttempts = 20
+  const retryDelay = 500
   let extensionPage: Page | null = null
-  const pages = context.pages()
 
-  for (const page of pages) {
-    const url = page.url()
-    console.log(`📄 Found page: ${url}`)
-    if (url.includes('onboarding.html') || url.includes(`chrome-extension://${extensionId}/`)) {
-      extensionPage = page
-      console.log(`✅ Found Talisman onboarding page: ${url}`)
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const pages = context.pages()
+
+    for (const p of pages) {
+      const url = p.url()
+      console.log(`📄 Found page: ${url}`)
+      if (url.includes('onboarding.html') || url.includes(`chrome-extension://${extensionId}/`)) {
+        extensionPage = p
+        console.log(`✅ Found Talisman onboarding page: ${url}`)
+        break
+      }
+    }
+
+    if (extensionPage) {
       break
+    }
+
+    // If not found, wait before retrying
+    if (attempt < maxAttempts - 1) {
+      console.log(`⏳ Attempt ${attempt + 1}/${maxAttempts}: Waiting for onboarding page...`)
+      await new Promise(resolve => setTimeout(resolve, retryDelay))
     }
   }
 
   if (!extensionPage) {
-    throw new Error(`Talisman onboarding page not found`)
+    throw new Error(`Talisman onboarding page not found after ${maxAttempts} attempts`)
   }
 
   try {
@@ -126,7 +146,6 @@ export async function authorizeTalisman(
   const { accountName = 'Test Account' } = options
   const context = page.__extensionContext
   const extensionId = page.__extensionId
-  await new Promise(resolve => setTimeout(resolve, 1000))
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
 
@@ -150,9 +169,7 @@ export async function approveTalismanTx(
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 
-  await new Promise(resolve => setTimeout(resolve, 1000))
   const extensionPopup = await findExtensionPopup(context, extensionId)
-
   await extensionPopup.getByRole('button', { name: 'Approve' }).click()
 }
 
@@ -163,8 +180,6 @@ export async function rejectTalismanTx(
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 
-  await new Promise(resolve => setTimeout(resolve, 1000))
   const extensionPopup = await findExtensionPopup(context, extensionId)
-
   await extensionPopup.getByTestId('connection-reject-button').click()
 }
