@@ -53,6 +53,90 @@ export async function getTalismanExtensionPath(): Promise<string> {
   return extensionDir
 }
 
+// Helper function to check if onboarding is needed and setup wallet
+async function setupTalismanWallet(
+  context: BrowserContext,
+  extensionId: string,
+  password: string,
+): Promise<Page> {
+  let extensionPage: Page | null = null
+
+  // First, check if there's already a Talisman page open (onboarding or dashboard)
+  const pages = context.pages()
+  for (const p of pages) {
+    const url = p.url()
+    if (url.includes('onboarding.html') || url.includes(`chrome-extension://${extensionId}/`)) {
+      extensionPage = p
+      console.log(`✅ Found existing Talisman page: ${url}`)
+      break
+    }
+  }
+
+  // If no page found, try to wait for onboarding (first time setup)
+  if (!extensionPage) {
+    const maxAttempts = 10
+    const retryDelay = 500
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const currentPages = context.pages()
+
+      for (const p of currentPages) {
+        const url = p.url()
+        if (url.includes('onboarding.html')) {
+          extensionPage = p
+          console.log(`✅ Found Talisman onboarding page: ${url}`)
+          break
+        }
+      }
+
+      if (extensionPage) {
+        break
+      }
+
+      // If not found, wait before retrying
+      if (attempt < maxAttempts - 1) {
+        console.log(`⏳ Attempt ${attempt + 1}/${maxAttempts}: Waiting for onboarding page...`)
+        await new Promise(resolve => setTimeout(resolve, retryDelay))
+      }
+    }
+  }
+
+  // If still no page found, manually open the extension dashboard
+  if (!extensionPage) {
+    console.log('📂 Opening Talisman dashboard manually...')
+    const dashboardUrl = `chrome-extension://${extensionId}/dashboard.html`
+    extensionPage = await context.newPage()
+    await extensionPage.goto(dashboardUrl)
+    console.log(`✅ Opened Talisman dashboard: ${dashboardUrl}`)
+  }
+
+  // Bring the page to front
+  await extensionPage.bringToFront()
+  await extensionPage.waitForLoadState('domcontentloaded')
+
+  // Check if we need to do onboarding (get started button exists)
+  const getStartedButton = extensionPage.getByTestId('onboarding-get-started-button')
+  if (await getStartedButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+    console.log('🔧 Running Talisman onboarding setup...')
+
+    // Click the get started button
+    await getStartedButton.click()
+
+    // Fill the password
+    await extensionPage.getByRole('textbox', { name: 'Enter password' }).fill(password)
+    await extensionPage.getByRole('textbox', { name: 'Confirm password' }).fill(password)
+    await extensionPage.getByTestId('onboarding-password-confirm-button').click()
+
+    // Click the no thanks button (skip backup reminder)
+    await extensionPage.getByRole('button', { name: 'No thanks' }).click()
+    await extensionPage.getByTestId('onboarding-enter-talisman-button').click()
+
+    console.log('✅ Talisman onboarding completed')
+  }
+
+  return extensionPage
+}
+
 // Talisman specific Ethereum private key import implementation
 export async function importEthPrivateKey(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
@@ -61,62 +145,18 @@ export async function importEthPrivateKey(
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 
-  // Wait for Talisman to open its onboarding tab with retry logic
-  const maxAttempts = 20
-  const retryDelay = 500
-  let extensionPage: Page | null = null
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const pages = context.pages()
-
-    for (const p of pages) {
-      const url = p.url()
-      console.log(`📄 Found page: ${url}`)
-      if (url.includes('onboarding.html') || url.includes(`chrome-extension://${extensionId}/`)) {
-        extensionPage = p
-        console.log(`✅ Found Talisman onboarding page: ${url}`)
-        break
-      }
-    }
-
-    if (extensionPage) {
-      break
-    }
-
-    // If not found, wait before retrying
-    if (attempt < maxAttempts - 1) {
-      console.log(`⏳ Attempt ${attempt + 1}/${maxAttempts}: Waiting for onboarding page...`)
-      await new Promise(resolve => setTimeout(resolve, retryDelay))
-    }
-  }
-
-  if (!extensionPage) {
-    throw new Error(`Talisman onboarding page not found after ${maxAttempts} attempts`)
-  }
-
   try {
-    // Bring the onboarding page to front
-    await extensionPage.bringToFront()
-
-    // Wait for the page to load and become interactive
-    await extensionPage.waitForLoadState('domcontentloaded')
-
-    // Click the get started button
-    await extensionPage.getByTestId('onboarding-get-started-button').click()
-
-    // Fill the password
-    await extensionPage.getByRole('textbox', { name: 'Enter password' }).fill(password!)
-    await extensionPage.getByRole('textbox', { name: 'Confirm password' }).fill(password!)
-    await extensionPage.getByTestId('onboarding-password-confirm-button').click()
-
-    // Click the no thanks button
-    await extensionPage.getByRole('button', { name: 'No thanks' }).click()
-    await extensionPage.getByTestId('onboarding-enter-talisman-button').click()
+    const extensionPage = await setupTalismanWallet(context, extensionId, password!)
 
     // Import Ethereum account
-    await extensionPage.getByRole('button', { name: 'Add account Create or import' }).click()
+    await extensionPage.getByRole('button', { name: 'Settings' }).click()
+    await extensionPage.getByRole('link', { name: 'Manage Accounts' }).click()
+    await extensionPage.getByRole('button', { name: 'Get Started' }).click()
+    await extensionPage.getByRole('button', { name: 'Add Account' }).click()
     await extensionPage.getByRole('button', { name: 'Import Import an existing' }).click()
     await extensionPage.getByRole('button', { name: 'Import via Private Key' }).click()
+
+    // Fill private key
     await extensionPage.getByRole('button', { name: 'Select account platform' }).click()
     await extensionPage.getByRole('option', { name: 'Ethereum' }).locator('div').click()
     await extensionPage.getByRole('textbox', { name: 'Choose a name' }).fill(name!)
@@ -125,10 +165,45 @@ export async function importEthPrivateKey(
 
     await extensionPage.close()
 
-    console.log('✅ Talisman account import completed')
+    console.log(`✅ Talisman Ethereum account imported: ${name}`)
   }
   catch (error) {
-    console.error('❌ Error during Talisman account import:', error)
+    console.error('❌ Error during Talisman Ethereum account import:', error)
+    throw error
+  }
+}
+
+// Talisman specific Polkadot mnemonic import implementation
+export async function importPolkadotMnemonic(
+  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  { seed, name = 'Test Account', password = 'h3llop0lkadot!' }: WalletAccount,
+): Promise<void> {
+  const context = page.__extensionContext
+  const extensionId = page.__extensionId
+
+  try {
+    const extensionPage = await setupTalismanWallet(context, extensionId, password!)
+
+    // Import Polkadot account via Recovery Phrase
+    await extensionPage.getByRole('button', { name: 'Settings' }).click()
+    await extensionPage.getByRole('link', { name: 'Manage Accounts' }).click()
+    await extensionPage.getByRole('button', { name: 'Get Started' }).click()
+    await extensionPage.getByRole('button', { name: 'Add Account' }).click()
+    await extensionPage.getByRole('button', { name: 'Import Import an existing' }).click()
+    await extensionPage.getByRole('button', { name: 'Import via Recovery Phrase' }).click()
+
+    // Fill mnemonic
+    await extensionPage.getByRole('button', { name: 'Polkadot Relay Chain, Asset' }).click()
+    await extensionPage.getByRole('textbox', { name: 'Choose a name' }).fill(name!)
+    await extensionPage.getByRole('textbox', { name: 'Enter your 12 or 24 word' }).fill(seed!)
+    await extensionPage.getByTestId('account-add-mnemonic-import-button').click()
+
+    await extensionPage.close()
+
+    console.log(`✅ Talisman Polkadot account imported: ${name}`)
+  }
+  catch (error) {
+    console.error('❌ Error during Talisman Polkadot mnemonic import:', error)
     throw error
   }
 }

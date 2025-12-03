@@ -16,6 +16,7 @@ import {
   approveTalismanTx,
   authorizeTalisman,
   importEthPrivateKey,
+  importPolkadotMnemonic,
   rejectTalismanTx,
 } from '../wallets/talisman.js'
 
@@ -33,8 +34,8 @@ export function createWalletInstance(
   extensionId: string,
   context: BrowserContext,
 ): WalletInstance {
-  // Store the imported account name for later use
-  let importedAccountName: string | undefined
+  // Store all imported account names for later use
+  const importedAccountNames: string[] = []
 
   // Common methods for all wallets
   const baseInstance: BaseWalletInstance = {
@@ -44,14 +45,16 @@ export function createWalletInstance(
       const extPage = createExtendedPage(page, context, extensionId)
 
       // Store the account name for future authorize calls
-      importedAccountName = options.name || 'Test Account'
+      const accountName = options.name || 'Test Account'
+      importedAccountNames.push(accountName)
 
       switch (walletType) {
         case 'polkadot-js':
           await importPolkadotJSAccount(extPage, options)
           break
         case 'talisman':
-          throw new Error('Talisman importMnemonic is not yet implemented.')
+          await importPolkadotMnemonic(extPage, options)
+          break
         default:
           throw new Error(`Unsupported wallet type: ${walletType}`)
       }
@@ -60,8 +63,8 @@ export function createWalletInstance(
       const page = context.pages()[0] || await context.newPage()
       const extPage = createExtendedPage(page, context, extensionId)
 
-      // Use provided account name or fall back to the imported one
-      const accountName = options.accountName || importedAccountName
+      // Use provided account name or fall back to the first imported one
+      const accountName = options.accountName || importedAccountNames[0]
 
       switch (walletType) {
         case 'polkadot-js':
@@ -123,7 +126,8 @@ export function createWalletInstance(
           const extPage = createExtendedPage(page, context, extensionId)
 
           // Store the account name for future authorize calls
-          importedAccountName = options.name || 'Test Account'
+          const accountName = options.name || 'Test Account'
+          importedAccountNames.push(accountName)
 
           // Use the seed property to pass the private key
           await importEthPrivateKey(extPage, {
