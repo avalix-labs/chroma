@@ -43,7 +43,8 @@
     "dev": "tsdown --watch",
     "lint": "eslint --fix .",
     "prepublishOnly": "npm run build",
-    "download-extensions": "rm -rf .chroma && tsx scripts/download-extensions.ts"
+    "download-extensions": "tsx scripts/download-extensions.ts",
+    "test": "playwright test --ui"
   },
   "peerDependencies": {
     "@playwright/test": "^1.55.0"
