@@ -1,13 +1,38 @@
 #!/usr/bin/env node
+import fs from 'node:fs'
+import path from 'node:path'
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 import { downloadAndExtractExtension } from '../src/utils/download-extension.js'
 import { POLKADOT_JS_CONFIG } from '../src/wallets/polkadot-js.js'
 import { TALISMAN_CONFIG } from '../src/wallets/talisman.js'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+async function getVersion(): Promise<string> {
+  const packageJsonPath = path.resolve(__dirname, '../package.json')
+  const packageJson = JSON.parse(await fs.promises.readFile(packageJsonPath, 'utf-8'))
+  return packageJson.version
+}
+
+async function clearChromaDir(): Promise<void> {
+  const chromaDir = path.resolve(process.cwd(), '.chroma')
+
+  if (fs.existsSync(chromaDir)) {
+    console.log('🗑️  Clearing existing .chroma directory...')
+    await fs.promises.rm(chromaDir, { recursive: true, force: true })
+  }
+}
+
 async function main() {
-  console.log('🚀 Downloading Chroma wallet extensions...\n')
+  const version = await getVersion()
+  console.log(`🎨 Chroma v${version}\n`)
+  console.log('🚀 Downloading wallet extensions...\n')
 
   try {
+    // Clear existing .chroma directory
+    await clearChromaDir()
+
     // Download Polkadot-JS extension
     await downloadAndExtractExtension({
       downloadUrl: POLKADOT_JS_CONFIG.downloadUrl,

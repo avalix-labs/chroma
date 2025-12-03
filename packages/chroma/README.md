@@ -17,10 +17,20 @@ npm install @avalix/chroma @playwright/test
 Before running your tests, you need to download the wallet extensions:
 
 ```bash
-npx @avalix/chroma download-extensions
+npx chroma download-extensions
 ```
 
 This will download the wallet extensions (Polkadot JS and Talisman) to `./.chroma` directory in your project root.
+
+**Tip**: Add this to your `package.json` scripts for convenience:
+
+```json
+{
+  "scripts": {
+    "prepare": "chroma download-extensions"
+  }
+}
+```
 
 **Important**: You must run this command before running Playwright tests. If the extension is not found, tests will fail with a helpful error message.
 
@@ -265,7 +275,7 @@ test('talisman example', async ({ page, wallets }) => {
 Run the download command to get the required wallet extensions:
 
 ```bash
-npx @avalix/chroma download-extensions
+npx chroma download-extensions
 ```
 
 Extensions will be downloaded to `./.chroma` directory in your project root. Add this directory to your `.gitignore`:
@@ -278,6 +288,14 @@ Extensions will be downloaded to `./.chroma` directory in your project root. Add
 - **Headless Mode**: Disabled by default for better debugging
 - **Slow Motion**: 150ms delay between actions (configurable)
 - **Extension Loading**: Automatically loads configured wallet extensions
+
+## Supported Chains
+
+| Chain | Status |
+|-------|--------|
+| Polkadot | ✅ Supported |
+| Ethereum | ✅ Supported |
+| Solana | ⏳ Planned |
 
 ## Supported Wallets
 
