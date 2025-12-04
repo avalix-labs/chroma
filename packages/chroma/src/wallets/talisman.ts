@@ -8,7 +8,7 @@ import process from 'node:process'
 // https://github.com/TalismanSociety/talisman/tags
 const VERSION = '3.1.13'
 export const TALISMAN_CONFIG = {
-  downloadUrl: `https://github.com/TalismanSociety/talisman/releases/download/v${VERSION}/talisman-${VERSION}.zip`,
+  downloadUrl: `https://github.com/avalix-labs/polkadot-wallets/raw/refs/heads/main/talisman/talisman-${VERSION}.zip`,
   extensionName: `talisman-extension-${VERSION}`,
 } as const
 
