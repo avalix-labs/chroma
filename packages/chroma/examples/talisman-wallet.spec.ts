@@ -55,6 +55,6 @@ test('should import account and connect Talisman wallet', async ({ page, wallets
   // Verify transaction
   await page.locator('div').filter({ hasText: new RegExp(`^gm Polkadot! - ${insertNumber}$`) }).waitFor({ state: 'visible' })
 
-  console.log('🎉 Talisman test completed successfully!')
+  console.log('🎉 talisman wallet test completed successfully!')
   await page.waitForTimeout(3000)
 })
