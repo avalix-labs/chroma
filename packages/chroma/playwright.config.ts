@@ -1,5 +1,5 @@
 import process from 'node:process'
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig } from '@playwright/test'
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -15,11 +15,26 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
 
-  /* Configure projects for major browsers */
   projects: [
+    // Setup project - runs FIRST to import wallet accounts
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'wallet-setup',
+      testMatch: /.*\.setup\.ts/,
+    },
+
+    // Test projects - depend on wallet-setup
+    // fullyParallel: false because tests share the same userDataDir
+    {
+      name: 'talisman-tests',
+      testMatch: /talisman-with-setup\.spec\.ts/,
+      dependencies: ['wallet-setup'],
+      fullyParallel: false, // Chromium can't share userDataDir across parallel workers
+    },
+
+    // Standalone tests (tanpa setup, untuk backward compatibility)
+    {
+      name: 'standalone',
+      testMatch: /talisman-wallet\.spec\.ts/,
     },
   ],
 })

@@ -34,7 +34,7 @@ async function getExtensionPathForWallet(config: WalletConfig): Promise<string> 
 export function createWalletTest<const T extends readonly WalletConfig[]>(
   options: ChromaTestOptions<T> = {} as ChromaTestOptions<T>,
 ) {
-  const { headless = false, slowMo = 150 } = options
+  const { headless = false, slowMo = 150, userDataDir = '' } = options
 
   // Default to polkadot-js if no wallets specified
   const walletConfigs: readonly WalletConfig[] = options.wallets && options.wallets.length > 0
@@ -58,7 +58,9 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
       // Join paths with comma for Chrome args
       const extensionPathsString = extensionPaths.join(',')
 
-      const context = await chromium.launchPersistentContext('', {
+      // Use provided userDataDir for persistent wallet state (like storageState for extensions)
+      // Empty string creates a temporary profile that won't persist
+      const context = await chromium.launchPersistentContext(userDataDir, {
         headless,
         channel: 'chromium',
         args: [

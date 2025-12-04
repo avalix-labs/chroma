@@ -56,7 +56,7 @@ export function createWalletInstance(
           throw new Error(`Unsupported wallet type: ${walletType}`)
       }
     },
-    authorize: async (options: { accountName?: string } = {}) => {
+    authorize: async (options: { accountName?: string, password?: string } = {}) => {
       const page = context.pages()[0] || await context.newPage()
       const extPage = createExtendedPage(page, context, extensionId)
 
@@ -68,7 +68,7 @@ export function createWalletInstance(
           await authorizePolkadotJS(extPage)
           break
         case 'talisman':
-          await authorizeTalisman(extPage, { accountName })
+          await authorizeTalisman(extPage, { accountName, password: options.password })
           break
         default:
           throw new Error(`Unsupported wallet type: ${walletType}`)
@@ -83,7 +83,7 @@ export function createWalletInstance(
           await approvePolkadotJSTx(extPage, options)
           break
         case 'talisman':
-          await approveTalismanTx(extPage)
+          await approveTalismanTx(extPage, options)
           break
         default:
           throw new Error(`Unsupported wallet type: ${walletType}`)

@@ -136,13 +136,22 @@ export async function importEthPrivateKey(
 // Talisman specific authorization implementation
 export async function authorizeTalisman(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
-  options: { accountName?: string } = {},
+  options: { accountName?: string, password?: string } = {},
 ): Promise<void> {
-  const { accountName = 'Test Account' } = options
+  const { accountName = 'Test Account', password = 'h3llop0lkadot!' } = options
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
+
+  // Check if password input exists (wallet is locked)
+  const passwordInput = extensionPopup.getByRole('textbox', { name: 'Enter password' })
+  if (await passwordInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+    console.log('🔐 Wallet is locked, entering password...')
+    await passwordInput.fill(password)
+    await extensionPopup.getByRole('button', { name: 'Unlock' }).click()
+    await extensionPopup.waitForTimeout(500)
+  }
 
   // Authorize Talisman account
   await extensionPopup.getByRole('button', { name: accountName }).click()
@@ -160,11 +169,23 @@ export async function authorizeTalisman(
 // Talisman specific transaction approval implementation
 export async function approveTalismanTx(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  options: { password?: string } = {},
 ): Promise<void> {
+  const { password = 'h3llop0lkadot!' } = options
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
+
+  // Check if password input exists (wallet is locked)
+  const passwordInput = extensionPopup.getByRole('textbox', { name: 'Enter password' })
+  if (await passwordInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+    console.log('🔐 Wallet is locked, entering password...')
+    await passwordInput.fill(password)
+    await extensionPopup.getByRole('button', { name: 'Unlock' }).click()
+    await extensionPopup.waitForTimeout(500)
+  }
+
   await extensionPopup.getByRole('button', { name: 'Approve' }).click()
 }
 
