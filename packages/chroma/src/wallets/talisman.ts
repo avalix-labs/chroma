@@ -5,7 +5,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 // Talisman specific configuration
-// https://github.com/TalismanSociety/talisman/tags
+// https://github.com/avalix-labs/polkadot-wallets/tree/main/talisman
 const VERSION = '3.1.13'
 export const TALISMAN_CONFIG = {
   downloadUrl: `https://github.com/avalix-labs/polkadot-wallets/raw/refs/heads/main/talisman/talisman-${VERSION}.zip`,
