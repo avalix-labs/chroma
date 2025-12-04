@@ -194,25 +194,37 @@ export async function importEthPrivateKey(
   try {
     const extensionPage = await setupTalismanWallet(context, extensionId, password!)
 
-    // Wait for any toast notifications to disappear (they block clicks in CI)
-    // Talisman shows a welcome toast after onboarding that can intercept pointer events
-    const toast = extensionPage.locator('.Toastify__toast')
-    if (await toast.isVisible({ timeout: 2000 }).catch(() => false)) {
-      console.log('⏳ Waiting for toast notification to disappear...')
-      await toast.waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {
-        console.log('⚠️ Toast still visible, continuing anyway...')
-      })
-    }
+    // Wait for page to be fully stable before interacting
+    await extensionPage.waitForLoadState('networkidle').catch(() => {})
 
-    // Wait for the Settings button to be visible before clicking
+    // Dismiss any toast notifications by pressing Escape or clicking outside
+    // Talisman shows a welcome toast after onboarding that can intercept pointer events
+    console.log('⏳ Dismissing any toast notifications...')
+    await extensionPage.keyboard.press('Escape')
+    await extensionPage.waitForTimeout(500)
+
+    // Wait for the Settings button to be visible and stable
     const settingsButton = extensionPage.getByRole('button', { name: 'Settings' })
     await settingsButton.waitFor({ state: 'visible', timeout: 10000 })
 
-    // Import Ethereum account - use force click as fallback if element is still blocked
-    await settingsButton.click({ timeout: 5000 }).catch(async () => {
-      console.log('⚠️ Normal click blocked, using force click...')
-      await settingsButton.click({ force: true })
-    })
+    // Click Settings button - retry if blocked
+    let clicked = false
+    for (let i = 0; i < 3 && !clicked; i++) {
+      try {
+        await settingsButton.click({ timeout: 3000 })
+        clicked = true
+      }
+      catch {
+        console.log(`⏳ Retry ${i + 1}/3: Settings button click failed, pressing Escape...`)
+        await extensionPage.keyboard.press('Escape')
+        await extensionPage.waitForTimeout(500)
+      }
+    }
+
+    if (!clicked) {
+      throw new Error('Failed to click Settings button after 3 attempts')
+    }
+
     await extensionPage.getByRole('link', { name: 'Manage Accounts' }).click()
     await extensionPage.getByRole('button', { name: 'Get Started' }).click()
     await extensionPage.getByRole('button', { name: 'Add Account' }).click()
@@ -247,25 +259,37 @@ export async function importPolkadotMnemonic(
   try {
     const extensionPage = await setupTalismanWallet(context, extensionId, password!)
 
-    // Wait for any toast notifications to disappear (they block clicks in CI)
-    // Talisman shows a welcome toast after onboarding that can intercept pointer events
-    const toast = extensionPage.locator('.Toastify__toast')
-    if (await toast.isVisible({ timeout: 2000 }).catch(() => false)) {
-      console.log('⏳ Waiting for toast notification to disappear...')
-      await toast.waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {
-        console.log('⚠️ Toast still visible, continuing anyway...')
-      })
-    }
+    // Wait for page to be fully stable before interacting
+    await extensionPage.waitForLoadState('networkidle').catch(() => {})
 
-    // Wait for the Settings button to be visible before clicking
+    // Dismiss any toast notifications by pressing Escape or clicking outside
+    // Talisman shows a welcome toast after onboarding that can intercept pointer events
+    console.log('⏳ Dismissing any toast notifications...')
+    await extensionPage.keyboard.press('Escape')
+    await extensionPage.waitForTimeout(500)
+
+    // Wait for the Settings button to be visible and stable
     const settingsButton = extensionPage.getByRole('button', { name: 'Settings' })
     await settingsButton.waitFor({ state: 'visible', timeout: 10000 })
 
-    // Import Polkadot account via Recovery Phrase - use force click as fallback if element is still blocked
-    await settingsButton.click({ timeout: 5000 }).catch(async () => {
-      console.log('⚠️ Normal click blocked, using force click...')
-      await settingsButton.click({ force: true })
-    })
+    // Click Settings button - retry if blocked
+    let clicked = false
+    for (let i = 0; i < 3 && !clicked; i++) {
+      try {
+        await settingsButton.click({ timeout: 3000 })
+        clicked = true
+      }
+      catch {
+        console.log(`⏳ Retry ${i + 1}/3: Settings button click failed, pressing Escape...`)
+        await extensionPage.keyboard.press('Escape')
+        await extensionPage.waitForTimeout(500)
+      }
+    }
+
+    if (!clicked) {
+      throw new Error('Failed to click Settings button after 3 attempts')
+    }
+
     await extensionPage.getByRole('link', { name: 'Manage Accounts' }).click()
     await extensionPage.getByRole('button', { name: 'Get Started' }).click()
     await extensionPage.getByRole('button', { name: 'Add Account' }).click()
