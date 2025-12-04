@@ -72,3 +72,50 @@ jobs:
         name: playwright-test-results
         path: packages/chroma/test-results/
         retention-days: 30
+
+  test-docker:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: ./packages/chroma/Dockerfile
+        push: false
+        load: true
+        tags: chroma-playwright:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Create results directories
+      run: |
+        mkdir -p playwright-report
+        mkdir -p test-results
+    
+    - name: Run Playwright tests in Docker
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}/playwright-report:/app/packages/chroma/playwright-report \
+          -v ${{ github.workspace }}/test-results:/app/packages/chroma/test-results \
+          chroma-playwright:latest
+    
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report-docker
+        path: playwright-report/
+        retention-days: 30
+    
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: playwright-test-results-docker
+        path: test-results/
+        retention-days: 30
