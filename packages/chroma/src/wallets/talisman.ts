@@ -5,9 +5,11 @@ import path from 'node:path'
 import process from 'node:process'
 
 // Talisman specific configuration
+// https://github.com/TalismanSociety/talisman/tags
+const VERSION = '3.1.13'
 export const TALISMAN_CONFIG = {
-  downloadUrl: 'https://github.com/avalix-labs/polkadot-wallets/raw/refs/heads/main/talisman/talisman-3.0.5.zip',
-  extensionName: 'talisman-extension-3.0.5',
+  downloadUrl: `https://github.com/TalismanSociety/talisman/releases/download/v${VERSION}/talisman-${VERSION}.zip`,
+  extensionName: `talisman-extension-${VERSION}`,
 } as const
 
 // Helper function to find extension popup
