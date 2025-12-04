@@ -47,13 +47,13 @@
     "test": "playwright test --ui"
   },
   "peerDependencies": {
-    "@playwright/test": "^1.55.0"
+    "@playwright/test": "^1.57.0"
   },
   "dependencies": {
     "unzipper": "^0.12.3"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^6.3.0",
+    "@antfu/eslint-config": "^6.4.1",
     "@playwright/test": "^1.57.0",
     "@types/node": "^24.10.1",
     "@types/unzipper": "^0.10.11",
