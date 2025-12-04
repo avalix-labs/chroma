@@ -37,9 +37,14 @@ test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
   await page.getByRole('listitem').filter({ hasText: 'Ethereum' }).click()
   await page.getByText('ETH', { exact: true }).click()
 
+  // Wait for UI to update after selection
+  await page.waitForTimeout(2000)
+
   // Connect Talisman Ethereum
   await page.getByTestId('chain-select-trigger-from').getByRole('button', { name: 'Connect' }).click()
-  await page.getByRole('button', { name: 'Talisman Talisman installed' }).click()
+  const talismanButton = page.getByRole('button', { name: 'Talisman Talisman installed' })
+  await talismanButton.waitFor({ state: 'visible' })
+  await talismanButton.click()
   await talisman.authorize()
   await expect(page.getByRole('button', { name: 'Disconnect' })).toBeVisible()
 
@@ -52,7 +57,9 @@ test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
   // Connect Polkadot.js
   await polkadotJs.authorize()
   await talisman.rejectTx() // somehow talisman popup appears, let's reject it for now
-  await page.getByRole('button', { name: 'Polkadot.js INSTALLED' }).click()
+  const polkadotJsButton = page.getByRole('button', { name: 'Polkadot.js INSTALLED' })
+  await polkadotJsButton.waitFor({ state: 'visible' })
+  await polkadotJsButton.click()
   await page.getByRole('button', { name: 'Test Account 5dfh...qrzv' }).click()
   await expect(page.getByTestId('chain-select-trigger-to').getByRole('button', { name: 'Disconnect' })).toBeVisible()
 })
