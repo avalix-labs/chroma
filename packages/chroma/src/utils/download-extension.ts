@@ -1,8 +1,8 @@
-import { execSync } from 'node:child_process'
 import fs, { createWriteStream } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { pipeline } from 'node:stream/promises'
+import AdmZip from 'adm-zip'
 
 export interface DownloadExtensionOptions {
   downloadUrl: string
@@ -11,8 +11,8 @@ export interface DownloadExtensionOptions {
 }
 
 function unzipFile(zipPath: string, destDir: string): void {
-  // Use system unzip command which handles all zip formats reliably
-  execSync(`unzip -q -o "${zipPath}" -d "${destDir}"`, { stdio: 'pipe' })
+  const zip = new AdmZip(zipPath)
+  zip.extractAllTo(destDir, true)
 }
 
 export async function downloadAndExtractExtension(options: DownloadExtensionOptions): Promise<string> {
