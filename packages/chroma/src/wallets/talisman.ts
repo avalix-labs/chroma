@@ -194,12 +194,25 @@ export async function importEthPrivateKey(
   try {
     const extensionPage = await setupTalismanWallet(context, extensionId, password!)
 
+    // Wait for any toast notifications to disappear (they block clicks in CI)
+    // Talisman shows a welcome toast after onboarding that can intercept pointer events
+    const toast = extensionPage.locator('.Toastify__toast')
+    if (await toast.isVisible({ timeout: 2000 }).catch(() => false)) {
+      console.log('⏳ Waiting for toast notification to disappear...')
+      await toast.waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {
+        console.log('⚠️ Toast still visible, continuing anyway...')
+      })
+    }
+
     // Wait for the Settings button to be visible before clicking
     const settingsButton = extensionPage.getByRole('button', { name: 'Settings' })
     await settingsButton.waitFor({ state: 'visible', timeout: 10000 })
 
-    // Import Ethereum account
-    await settingsButton.click()
+    // Import Ethereum account - use force click as fallback if element is still blocked
+    await settingsButton.click({ timeout: 5000 }).catch(async () => {
+      console.log('⚠️ Normal click blocked, using force click...')
+      await settingsButton.click({ force: true })
+    })
     await extensionPage.getByRole('link', { name: 'Manage Accounts' }).click()
     await extensionPage.getByRole('button', { name: 'Get Started' }).click()
     await extensionPage.getByRole('button', { name: 'Add Account' }).click()
@@ -234,12 +247,25 @@ export async function importPolkadotMnemonic(
   try {
     const extensionPage = await setupTalismanWallet(context, extensionId, password!)
 
+    // Wait for any toast notifications to disappear (they block clicks in CI)
+    // Talisman shows a welcome toast after onboarding that can intercept pointer events
+    const toast = extensionPage.locator('.Toastify__toast')
+    if (await toast.isVisible({ timeout: 2000 }).catch(() => false)) {
+      console.log('⏳ Waiting for toast notification to disappear...')
+      await toast.waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {
+        console.log('⚠️ Toast still visible, continuing anyway...')
+      })
+    }
+
     // Wait for the Settings button to be visible before clicking
     const settingsButton = extensionPage.getByRole('button', { name: 'Settings' })
     await settingsButton.waitFor({ state: 'visible', timeout: 10000 })
 
-    // Import Polkadot account via Recovery Phrase
-    await settingsButton.click()
+    // Import Polkadot account via Recovery Phrase - use force click as fallback if element is still blocked
+    await settingsButton.click({ timeout: 5000 }).catch(async () => {
+      console.log('⚠️ Normal click blocked, using force click...')
+      await settingsButton.click({ force: true })
+    })
     await extensionPage.getByRole('link', { name: 'Manage Accounts' }).click()
     await extensionPage.getByRole('button', { name: 'Get Started' }).click()
     await extensionPage.getByRole('button', { name: 'Add Account' }).click()
