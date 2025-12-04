@@ -7,7 +7,11 @@ on:
 jobs:
   test:
     timeout-minutes: 60
-    runs-on: runner-8
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, runner-8]
+    runs-on: ${{ matrix.runner }}
     
     env:
       CI: true
@@ -62,13 +66,13 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
-        name: playwright-report
+        name: playwright-report-${{ matrix.runner }}
         path: packages/chroma/playwright-report/
         retention-days: 30
     
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: playwright-test-results
+        name: playwright-test-results-${{ matrix.runner }}
         path: packages/chroma/test-results/
         retention-days: 30
