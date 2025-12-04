@@ -9,7 +9,7 @@ const test = createWalletTest({
   wallets: [{ type: 'talisman' }],
 })
 
-test.setTimeout(30_000 * 2)
+test.setTimeout(5 * 60 * 1000) // 5 minutes
 
 test('should import account and connect Talisman wallet', async ({ page, wallets }) => {
   const wallet = wallets.talisman

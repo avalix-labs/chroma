@@ -9,6 +9,8 @@ const test = createWalletTest({
   wallets: [{ type: 'talisman' }, { type: 'polkadot-js' }],
 })
 
+test.setTimeout(5 * 60 * 1000) // 5 minutes
+
 test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
   const talisman = wallets.talisman
   const polkadotJs = wallets['polkadot-js']

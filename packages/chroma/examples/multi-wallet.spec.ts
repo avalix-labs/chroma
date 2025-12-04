@@ -14,7 +14,7 @@ const DOT_TEST_PASSWORD = 'h3llop0lkadot!'
 
 // Single wallet test (default)
 const singleWalletTest = createWalletTest()
-singleWalletTest.setTimeout(30_000 * 10)
+singleWalletTest.setTimeout(5 * 60 * 1000) // 5 minutes
 
 singleWalletTest('single wallet example', async ({ page, wallets }) => {
   const polkadotJs = wallets['polkadot-js']

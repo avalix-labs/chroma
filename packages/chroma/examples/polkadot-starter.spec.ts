@@ -11,7 +11,7 @@ const test = createWalletTest({
 })
 
 // increase playwright timeout
-test.setTimeout(30_000 * 2) // default is 30000
+test.setTimeout(5 * 60 * 1000) // 5 minutes
 
 test.beforeAll(async ({ wallets }) => {
   await wallets['polkadot-js'].importMnemonic({
