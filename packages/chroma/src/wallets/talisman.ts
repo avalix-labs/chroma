@@ -53,28 +53,6 @@ export async function getTalismanExtensionPath(): Promise<string> {
   return extensionDir
 }
 
-// Helper function to find dashboard page
-async function findDashboardPage(context: BrowserContext, extensionId: string): Promise<Page | null> {
-  const maxAttempts = 10
-  const retryDelay = 500
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const pages = context.pages()
-    for (const p of pages) {
-      const url = p.url()
-      if (url.includes(`chrome-extension://${extensionId}/dashboard.html`)) {
-        return p
-      }
-    }
-
-    if (attempt < maxAttempts - 1) {
-      await new Promise(resolve => setTimeout(resolve, retryDelay))
-    }
-  }
-
-  return null
-}
-
 // Helper function to check if onboarding is needed and setup wallet
 async function setupTalismanWallet(
   context: BrowserContext,
@@ -154,30 +132,6 @@ async function setupTalismanWallet(
     await extensionPage.getByTestId('onboarding-enter-talisman-button').click()
 
     console.log('✅ Talisman onboarding completed')
-
-    // After onboarding, the page might redirect or close
-    // Wait for dashboard page to appear and use that instead
-    console.log('⏳ Waiting for dashboard page after onboarding...')
-    const dashboardPage = await findDashboardPage(context, extensionId)
-    if (dashboardPage) {
-      console.log('✅ Found dashboard page after onboarding')
-      await dashboardPage.bringToFront()
-      await dashboardPage.waitForLoadState('domcontentloaded')
-      return dashboardPage
-    }
-
-    // If still on the same page, check if it's still valid
-    try {
-      await extensionPage.waitForLoadState('domcontentloaded', { timeout: 3000 })
-    }
-    catch {
-      // Page might have closed, open dashboard manually
-      console.log('📂 Opening dashboard manually after onboarding...')
-      const dashboardUrl = `chrome-extension://${extensionId}/dashboard.html`
-      extensionPage = await context.newPage()
-      await extensionPage.goto(dashboardUrl)
-      await extensionPage.waitForLoadState('domcontentloaded')
-    }
   }
 
   return extensionPage
@@ -194,25 +148,8 @@ export async function importEthPrivateKey(
   try {
     const extensionPage = await setupTalismanWallet(context, extensionId, password!)
 
-    // Wait for any toast notifications to disappear (they block clicks in CI)
-    // Talisman shows a welcome toast after onboarding that can intercept pointer events
-    const toast = extensionPage.locator('.Toastify__toast')
-    if (await toast.isVisible({ timeout: 2000 }).catch(() => false)) {
-      console.log('⏳ Waiting for toast notification to disappear...')
-      await toast.waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {
-        console.log('⚠️ Toast still visible, continuing anyway...')
-      })
-    }
-
-    // Wait for the Settings button to be visible before clicking
-    const settingsButton = extensionPage.getByRole('button', { name: 'Settings' })
-    await settingsButton.waitFor({ state: 'visible', timeout: 10000 })
-
-    // Import Ethereum account - use force click as fallback if element is still blocked
-    await settingsButton.click({ timeout: 5000 }).catch(async () => {
-      console.log('⚠️ Normal click blocked, using force click...')
-      await settingsButton.click({ force: true })
-    })
+    // Import Ethereum account via Settings -> Manage Accounts
+    await extensionPage.getByRole('button', { name: 'Settings' }).click()
     await extensionPage.getByRole('link', { name: 'Manage Accounts' }).click()
     await extensionPage.getByRole('button', { name: 'Get Started' }).click()
     await extensionPage.getByRole('button', { name: 'Add Account' }).click()
@@ -247,25 +184,8 @@ export async function importPolkadotMnemonic(
   try {
     const extensionPage = await setupTalismanWallet(context, extensionId, password!)
 
-    // Wait for any toast notifications to disappear (they block clicks in CI)
-    // Talisman shows a welcome toast after onboarding that can intercept pointer events
-    const toast = extensionPage.locator('.Toastify__toast')
-    if (await toast.isVisible({ timeout: 2000 }).catch(() => false)) {
-      console.log('⏳ Waiting for toast notification to disappear...')
-      await toast.waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {
-        console.log('⚠️ Toast still visible, continuing anyway...')
-      })
-    }
-
-    // Wait for the Settings button to be visible before clicking
-    const settingsButton = extensionPage.getByRole('button', { name: 'Settings' })
-    await settingsButton.waitFor({ state: 'visible', timeout: 10000 })
-
-    // Import Polkadot account via Recovery Phrase - use force click as fallback if element is still blocked
-    await settingsButton.click({ timeout: 5000 }).catch(async () => {
-      console.log('⚠️ Normal click blocked, using force click...')
-      await settingsButton.click({ force: true })
-    })
+    // Import Polkadot account via Settings -> Manage Accounts
+    await extensionPage.getByRole('button', { name: 'Settings' }).click()
     await extensionPage.getByRole('link', { name: 'Manage Accounts' }).click()
     await extensionPage.getByRole('button', { name: 'Get Started' }).click()
     await extensionPage.getByRole('button', { name: 'Add Account' }).click()
