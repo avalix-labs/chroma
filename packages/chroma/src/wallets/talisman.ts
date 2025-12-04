@@ -167,6 +167,14 @@ export async function approveTalismanTx(
   const extensionId = page.__extensionId
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
+
+  try {
+    await extensionPopup.getByRole('button', { name: 'Yes' }).click()
+  }
+  catch {
+    console.log('No another popup found, skipping')
+  }
+
   await extensionPopup.getByRole('button', { name: 'Approve' }).click()
 }
 
