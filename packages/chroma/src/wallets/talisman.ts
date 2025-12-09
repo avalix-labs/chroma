@@ -120,8 +120,6 @@ export async function importEthPrivateKey(
     await extensionPage.getByRole('button', { name: 'Save' }).click()
 
     await extensionPage.close()
-
-    console.log('✅ Talisman account import completed')
   }
   catch (error) {
     console.error('❌ Error during Talisman account import:', error)
@@ -149,7 +147,6 @@ export async function authorizeTalisman(
     await anotherPopup.getByRole('button', { name: 'Approve' }).click()
   }
   catch {
-    console.log('No another popup found, skipping')
   }
 }
 
