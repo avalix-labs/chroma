@@ -10,7 +10,7 @@ import { WALLET_CONFIG, WALLET_STATE_DIR } from './wallet.config.js'
 // Single wallet test using setup
 const singleWalletTest = createWalletTest({
   wallets: [{ type: 'polkadot-js' }],
-  userDataDir: `${WALLET_STATE_DIR}-polkadot-js`,
+  userDataDir: WALLET_STATE_DIR,
 })
 singleWalletTest.setTimeout(30_000 * 10)
 
@@ -52,7 +52,7 @@ const multiWalletTest = createWalletTest({
     { type: 'polkadot-js' },
     { type: 'talisman' },
   ] as const,
-  userDataDir: `${WALLET_STATE_DIR}-multi`,
+  userDataDir: WALLET_STATE_DIR,
   headless: false,
   slowMo: 150,
 })

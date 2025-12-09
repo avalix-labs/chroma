@@ -8,7 +8,7 @@ const POLKADOT_DAPP_URL = 'https://polkadot-starter-vue-dedot.vercel.app/'
 
 const test = createWalletTest({
   wallets: [{ type: 'polkadot-js' }],
-  userDataDir: `${WALLET_STATE_DIR}-polkadot-js`, // <-- Reuses wallet state from setup!
+  userDataDir: WALLET_STATE_DIR, // <-- Reuses wallet state from setup!
   headless: false,
 })
 

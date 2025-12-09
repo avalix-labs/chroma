@@ -6,7 +6,7 @@ import { WALLET_CONFIG, WALLET_STATE_DIR } from '../wallet.config.js'
 
 const test = createWalletTest({
   wallets: [{ type: 'talisman' }, { type: 'polkadot-js' }],
-  userDataDir: `${WALLET_STATE_DIR}-multi`,
+  userDataDir: WALLET_STATE_DIR,
 })
 
 test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
@@ -36,6 +36,6 @@ test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
   await polkadotJs.authorize()
   await talisman.rejectTx() // somehow talisman popup appears, let's reject it for now
   await page.getByRole('button', { name: 'Polkadot.js INSTALLED' }).click()
-  await page.getByRole('button', { name: `${WALLET_CONFIG.multi.accountName} 5dfh...qrzv` }).click()
+  await page.getByRole('button', { name: `${WALLET_CONFIG.polkadotJs.accountName} 5dfh...qrzv` }).click()
   await expect(page.getByTestId('chain-select-trigger-to').getByRole('button', { name: 'Disconnect' })).toBeVisible()
 })
