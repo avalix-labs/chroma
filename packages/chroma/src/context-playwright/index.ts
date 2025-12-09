@@ -97,7 +97,6 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
         const extensionId = allServiceWorkers[i].url().split('/')[2]
         const walletType = walletConfigs[i].type
         extensionIds.set(walletType, extensionId)
-        console.log(`✅ Loaded ${walletType} extension with ID: ${extensionId}`)
       }
 
       await use(extensionIds)

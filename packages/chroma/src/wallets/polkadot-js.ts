@@ -48,7 +48,6 @@ export async function getPolkadotJSExtensionPath(): Promise<string> {
     )
   }
 
-  console.log(`✅ Found Polkadot-JS extension at: ${extensionDir}`)
   return extensionDir
 }
 
