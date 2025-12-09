@@ -4,7 +4,6 @@ const POLKADOT_DAPP_URL = 'https://polkadot-starter-vue-dedot.vercel.app/'
 
 const ACCOUNT_NAME = '// Alice'
 const DOT_TEST_MNEMONIC = 'bottom drive obey lake curtain smoke basket hold race lonely fit walk'
-const DOT_TEST_PASSWORD = 'secure123!'
 
 const test = createWalletTest({
   headless: false,
@@ -18,7 +17,6 @@ test.beforeAll(async ({ wallets }) => {
 
   await wallets['polkadot-js'].importMnemonic({
     seed: DOT_TEST_MNEMONIC,
-    password: DOT_TEST_PASSWORD,
     name: ACCOUNT_NAME,
   })
 })
@@ -50,8 +48,7 @@ test('sign transaction on polkadot starter', async ({ page, wallets }) => {
 
   // Sign transaction
   await page.getByRole('button', { name: 'Sign Transaction' }).nth(3).click()
-  await wallets['polkadot-js'].approveTx({ password: DOT_TEST_PASSWORD })
+  await wallets['polkadot-js'].approveTx()
   await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
-
   await page.waitForTimeout(5000)
 })

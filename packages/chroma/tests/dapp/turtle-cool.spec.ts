@@ -37,6 +37,7 @@ test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
   ])
 
   await page.goto('https://app.turtle.cool/')
+  await page.waitForLoadState('networkidle')
 
   // Select Ethereum
   await page.getByTestId('chain-select-trigger-from').locator('div').nth(1).click()

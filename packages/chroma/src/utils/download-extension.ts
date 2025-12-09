@@ -2,12 +2,17 @@ import fs, { createWriteStream } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { pipeline } from 'node:stream/promises'
-import { Extract } from 'unzipper'
+import AdmZip from 'adm-zip'
 
 export interface DownloadExtensionOptions {
   downloadUrl: string
   extensionName: string
   targetDir?: string
+}
+
+function unzipFile(zipPath: string, destDir: string): void {
+  const zip = new AdmZip(zipPath)
+  zip.extractAllTo(destDir, true)
 }
 
 export async function downloadAndExtractExtension(options: DownloadExtensionOptions): Promise<string> {
@@ -17,6 +22,7 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
   const extensionsDir = targetDir || path.resolve(process.cwd(), '.chroma')
   const extensionDir = path.join(extensionsDir, extensionName)
   const zipPath = path.join(extensionsDir, `${extensionName}.zip`)
+  const tempExtractDir = path.join(extensionsDir, `${extensionName}-temp`)
 
   // Create extensions directory if it doesn't exist
   await fs.promises.mkdir(extensionsDir, { recursive: true })
@@ -42,11 +48,29 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
 
     console.log('📦 Extracting extension...')
 
-    // Standard zip extraction
-    await pipeline(
-      fs.createReadStream(zipPath),
-      Extract({ path: extensionDir }),
-    )
+    // Extract to temp directory first
+    await fs.promises.mkdir(tempExtractDir, { recursive: true })
+    unzipFile(zipPath, tempExtractDir)
+
+    // Check if it's a nested zip (contains another .zip file)
+    const files = await fs.promises.readdir(tempExtractDir)
+    const nestedZip = files.find(f => f.endsWith('.zip'))
+
+    if (nestedZip) {
+      console.log(`📦 Found nested zip: ${nestedZip}, extracting...`)
+      const nestedZipPath = path.join(tempExtractDir, nestedZip)
+
+      // Extract the nested zip to final location
+      await fs.promises.mkdir(extensionDir, { recursive: true })
+      unzipFile(nestedZipPath, extensionDir)
+
+      // Clean up temp directory
+      await fs.promises.rm(tempExtractDir, { recursive: true, force: true })
+    }
+    else {
+      // No nested zip, just rename temp to final
+      await fs.promises.rename(tempExtractDir, extensionDir)
+    }
 
     // Clean up ZIP file
     await fs.promises.unlink(zipPath)
@@ -61,6 +85,9 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
     }
     if (fs.existsSync(extensionDir)) {
       await fs.promises.rm(extensionDir, { recursive: true, force: true }).catch(() => {})
+    }
+    if (fs.existsSync(tempExtractDir)) {
+      await fs.promises.rm(tempExtractDir, { recursive: true, force: true }).catch(() => {})
     }
 
     throw new Error(`Failed to download/extract ${extensionName}: ${error instanceof Error ? error.message : String(error)}`)

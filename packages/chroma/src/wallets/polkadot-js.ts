@@ -5,9 +5,11 @@ import path from 'node:path'
 import process from 'node:process'
 
 // Polkadot-JS specific configuration
+// https://github.com/polkadot-js/extension/releases
+const VERSION = '0.62.6'
 export const POLKADOT_JS_CONFIG = {
-  downloadUrl: 'https://github.com/polkadot-js/extension/releases/download/v0.61.7/master-chrome-build.zip',
-  extensionName: 'polkadot-extension-0.61.7',
+  downloadUrl: `https://github.com/polkadot-js/extension/releases/download/v${VERSION}/master-chrome-build.zip`,
+  extensionName: `polkadot-extension-${VERSION}`,
 } as const
 
 // Helper function to find extension popup
@@ -72,6 +74,10 @@ export async function importPolkadotJSAccount(
       await extensionPage.waitForTimeout(100)
     }
 
+    if (await extensionPage.getByRole('button', { name: 'I Understand' }).isVisible()) {
+      await extensionPage.getByRole('button', { name: 'I Understand' }).click()
+    }
+
     // Navigate to import seed page
     await extensionPage.goto(`${extensionPopupUrl}#/account/import-seed`)
 
@@ -96,6 +102,11 @@ export async function authorizePolkadotJS(
   const extensionId = page.__extensionId
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
+
+  if (await extensionPopup.getByRole('button', { name: 'I Understand' }).isVisible()) {
+    await extensionPopup.getByRole('button', { name: 'I Understand' }).click()
+  }
+
   await extensionPopup.getByText('Select all').click()
   await extensionPopup.getByRole('button', { name: /Connect \d+ account\(s\)/ }).click()
 }

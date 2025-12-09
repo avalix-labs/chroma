@@ -43,13 +43,14 @@
     "dev": "tsdown --watch",
     "lint": "eslint --fix .",
     "prepublishOnly": "npm run build",
-    "download-extensions": "rm -rf .chroma && tsx scripts/download-extensions.ts"
+    "download-extensions": "rm -rf .chroma && tsx scripts/download-extensions.ts",
+    "test": "playwright test --ui"
   },
   "peerDependencies": {
     "@playwright/test": "^1.57.0"
   },
   "dependencies": {
-    "unzipper": "^0.12.3"
+    "adm-zip": "^0.5.16"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^6.5.1",
