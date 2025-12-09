@@ -46,7 +46,7 @@
     "download-extensions": "rm -rf .chroma && tsx scripts/download-extensions.ts",
     "test": "rm -rf .chroma/wallet-state && playwright test --project=wallet-setup --project=tests --workers=1",
     "test:simple": "playwright test --project=simple",
-    "test:ui": "playwright test --ui --project=wallet-setup --project=tests --workers=1"
+    "test:ui": "rm -rf .chroma/wallet-state && playwright test --ui --project=wallet-setup --project=tests --workers=1"
   },
   "peerDependencies": {
     "@playwright/test": "^1.55.0"
