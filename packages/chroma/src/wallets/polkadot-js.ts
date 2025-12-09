@@ -74,6 +74,10 @@ export async function importPolkadotJSAccount(
       await extensionPage.waitForTimeout(100)
     }
 
+    if (await extensionPage.getByRole('button', { name: 'I Understand' }).isVisible()) {
+      await extensionPage.getByRole('button', { name: 'I Understand' }).click()
+    }
+
     // Navigate to import seed page
     await extensionPage.goto(`${extensionPopupUrl}#/account/import-seed`)
 
@@ -98,6 +102,11 @@ export async function authorizePolkadotJS(
   const extensionId = page.__extensionId
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
+
+  if (await extensionPopup.getByRole('button', { name: 'I Understand' }).isVisible()) {
+    await extensionPopup.getByRole('button', { name: 'I Understand' }).click()
+  }
+
   await extensionPopup.getByText('Select all').click()
   await extensionPopup.getByRole('button', { name: /Connect \d+ account\(s\)/ }).click()
 }
