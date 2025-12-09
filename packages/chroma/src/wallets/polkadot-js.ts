@@ -48,7 +48,6 @@ export async function getPolkadotJSExtensionPath(): Promise<string> {
     )
   }
 
-  console.log(`✅ Found Polkadot-JS extension at: ${extensionDir}`)
   return extensionDir
 }
 
@@ -83,8 +82,6 @@ export async function importPolkadotJSAccount(
     await extensionPage.locator('input[type="password"]').fill(password)
     await extensionPage.locator('div').filter({ hasText: /^Repeat password for verification$/ }).getByRole('textbox').fill(password)
     await extensionPage.getByRole('button', { name: 'Add the account with the supplied seed' }).click()
-
-    console.log(`✅ Created Polkadot-JS wallet account: ${name}`)
   }
   finally {
     await extensionPage.close()
@@ -101,8 +98,6 @@ export async function authorizePolkadotJS(
   const extensionPopup = await findExtensionPopup(context, extensionId)
   await extensionPopup.getByText('Select all').click()
   await extensionPopup.getByRole('button', { name: /Connect \d+ account\(s\)/ }).click()
-
-  console.log('✅ Polkadot-JS wallet connected successfully')
 }
 
 // Polkadot-JS specific transaction approval implementation
@@ -117,8 +112,6 @@ export async function approvePolkadotJSTx(
   const extensionPopup = await findExtensionPopup(context, extensionId)
   await extensionPopup.getByRole('textbox').fill(password)
   await extensionPopup.getByRole('button', { name: 'Sign the transaction' }).click()
-
-  console.log('✅ Polkadot-JS transaction signed successfully')
 }
 
 // Polkadot-JS specific transaction rejection implementation
@@ -130,6 +123,4 @@ export async function rejectPolkadotJSTx(
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
   await extensionPopup.getByRole('link', { name: 'Cancel' }).click()
-
-  console.log('✅ Polkadot-JS transaction rejected successfully')
 }

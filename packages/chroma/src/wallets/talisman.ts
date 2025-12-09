@@ -49,7 +49,6 @@ export async function getTalismanExtensionPath(): Promise<string> {
     )
   }
 
-  console.log(`✅ Found Talisman extension at: ${extensionDir}`)
   return extensionDir
 }
 
@@ -71,10 +70,8 @@ export async function importEthPrivateKey(
 
     for (const p of pages) {
       const url = p.url()
-      console.log(`📄 Found page: ${url}`)
       if (url.includes('onboarding.html') || url.includes(`chrome-extension://${extensionId}/`)) {
         extensionPage = p
-        console.log(`✅ Found Talisman onboarding page: ${url}`)
         break
       }
     }
@@ -85,7 +82,6 @@ export async function importEthPrivateKey(
 
     // If not found, wait before retrying
     if (attempt < maxAttempts - 1) {
-      console.log(`⏳ Attempt ${attempt + 1}/${maxAttempts}: Waiting for onboarding page...`)
       await new Promise(resolve => setTimeout(resolve, retryDelay))
     }
   }
@@ -124,8 +120,6 @@ export async function importEthPrivateKey(
     await extensionPage.getByRole('button', { name: 'Save' }).click()
 
     await extensionPage.close()
-
-    console.log('✅ Talisman account import completed')
   }
   catch (error) {
     console.error('❌ Error during Talisman account import:', error)
@@ -153,7 +147,6 @@ export async function authorizeTalisman(
     await anotherPopup.getByRole('button', { name: 'Approve' }).click()
   }
   catch {
-    console.log('No another popup found, skipping')
   }
 }
 
