@@ -14,6 +14,8 @@ const test = createWalletTest({
 test.setTimeout(30_000 * 2) // default is 30000
 
 test.beforeAll(async ({ wallets }) => {
+  console.log('🚀 Starting test: polkadot-starter.spec.ts')
+
   await wallets['polkadot-js'].importMnemonic({
     seed: DOT_TEST_MNEMONIC,
     password: DOT_TEST_PASSWORD,
@@ -21,9 +23,11 @@ test.beforeAll(async ({ wallets }) => {
   })
 })
 
-test('sign transaction on polkadot starter', async ({ page, wallets }) => {
-  console.log(`🧪 Testing ${POLKADOT_DAPP_URL}`)
+test.afterAll(async () => {
+  console.log('✅ Finished test: polkadot-starter.spec.ts')
+})
 
+test('sign transaction on polkadot starter', async ({ page, wallets }) => {
   await page.goto(POLKADOT_DAPP_URL)
   await page.waitForLoadState('networkidle')
 
@@ -31,10 +35,8 @@ test('sign transaction on polkadot starter', async ({ page, wallets }) => {
 
   const modalVisible = await page.locator('h2:has-text("CONNECT WALLET")').isVisible()
   if (modalVisible) {
-    console.log('✅ Connect wallet modal opened')
     // Click CONNECT button in modal
     await page.getByRole('button', { name: /CONNECT/i }).nth(2).click()
-    console.log('🔗 Clicked CONNECT button')
   }
 
   await wallets['polkadot-js'].authorize()
@@ -50,7 +52,6 @@ test('sign transaction on polkadot starter', async ({ page, wallets }) => {
   await page.getByRole('button', { name: 'Sign Transaction' }).nth(3).click()
   await wallets['polkadot-js'].approveTx({ password: DOT_TEST_PASSWORD })
   await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
-  console.log(`🎉 Test completed successfully for ${POLKADOT_DAPP_URL}!`)
 
   await page.waitForTimeout(5000)
 })

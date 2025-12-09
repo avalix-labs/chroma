@@ -46,19 +46,19 @@
     "download-extensions": "rm -rf .chroma && tsx scripts/download-extensions.ts"
   },
   "peerDependencies": {
-    "@playwright/test": "^1.55.0"
+    "@playwright/test": "^1.57.0"
   },
   "dependencies": {
     "unzipper": "^0.12.3"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^5.3.0",
-    "@playwright/test": "^1.55.0",
-    "@types/node": "^24.3.3",
-    "@types/unzipper": "^0.10.10",
-    "eslint": "^9.35.0",
+    "@antfu/eslint-config": "^6.5.1",
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^24.10.2",
+    "@types/unzipper": "^0.10.11",
+    "eslint": "^9.39.1",
     "tsdown": "latest",
-    "tsx": "^4.20.6"
+    "tsx": "^4.21.0"
   },
   "publishConfig": {
     "access": "public"
