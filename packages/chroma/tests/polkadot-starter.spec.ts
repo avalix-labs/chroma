@@ -44,9 +44,11 @@ test('sign transaction on polkadot starter', async ({ page, wallets }) => {
   await page.getByRole('button', { name: 'Sign Transaction' }).first().click()
   await wallets['polkadot-js'].rejectTx()
   await page.getByText('Error: Cancelled').waitFor({ state: 'visible' })
+  await page.waitForTimeout(5000)
 
   // Sign transaction
   await page.getByRole('button', { name: 'Sign Transaction' }).nth(3).click()
   await wallets['polkadot-js'].approveTx()
   await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
+  await page.waitForTimeout(5000)
 })
