@@ -5,12 +5,10 @@
  * The wallet is already imported, so we can skip the import step!
  */
 import { createWalletTest } from '../src/index.js'
-import { WALLET_CONFIG, WALLET_STATE_DIR } from './wallet.config.js'
+import { WALLET_CONFIG } from './wallet.config.js'
 
-// Use the SAME userDataDir as the setup project
 const test = createWalletTest({
   wallets: [{ type: 'talisman' }],
-  userDataDir: WALLET_STATE_DIR, // <-- Reuses wallet state from setup!
 })
 
 test.setTimeout(30_000 * 2)

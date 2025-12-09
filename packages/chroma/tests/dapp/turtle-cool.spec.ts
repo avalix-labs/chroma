@@ -2,11 +2,10 @@
  * Turtle.cool test using pre-configured multi-wallet setup
  */
 import { createWalletTest, expect } from '../../src/index.js'
-import { WALLET_CONFIG, WALLET_STATE_DIR } from '../wallet.config.js'
+import { WALLET_CONFIG } from '../wallet.config.js'
 
 const test = createWalletTest({
   wallets: [{ type: 'talisman' }, { type: 'polkadot-js' }],
-  userDataDir: WALLET_STATE_DIR,
 })
 
 test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {

@@ -2,13 +2,12 @@
  * Tests that use pre-configured Polkadot.js wallet state
  */
 import { createWalletTest } from '../src/index.js'
-import { WALLET_CONFIG, WALLET_STATE_DIR } from './wallet.config.js'
+import { WALLET_CONFIG } from './wallet.config.js'
 
 const POLKADOT_DAPP_URL = 'https://polkadot-starter-vue-dedot.vercel.app/'
 
 const test = createWalletTest({
   wallets: [{ type: 'polkadot-js' }],
-  userDataDir: WALLET_STATE_DIR, // <-- Reuses wallet state from setup!
   headless: false,
 })
 

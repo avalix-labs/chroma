@@ -3,9 +3,6 @@
  * This file can be imported by both setup and test files
  */
 
-// Path to store wallet state (like storageState but for extensions)
-export const WALLET_STATE_DIR = '.chroma/wallet-state'
-
 // Wallet credentials (for testing only!)
 export const WALLET_CONFIG = {
   talisman: {

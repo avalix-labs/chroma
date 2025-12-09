@@ -2,11 +2,9 @@
  * Hydration test using pre-configured multi-wallet setup
  */
 import { createWalletTest } from '../../src/index.js'
-import { WALLET_STATE_DIR } from '../wallet.config.js'
 
 const test = createWalletTest({
   wallets: [{ type: 'talisman' }, { type: 'polkadot-js' }],
-  userDataDir: WALLET_STATE_DIR,
 })
 
 test.setTimeout(30_000 * 2)

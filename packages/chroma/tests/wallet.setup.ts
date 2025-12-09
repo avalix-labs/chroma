@@ -4,12 +4,11 @@
  * This file sets up wallet accounts ONCE before all tests run.
  * Similar to Playwright's auth setup pattern: https://playwright.dev/docs/auth
  *
- * The wallet state is stored in `.chroma/wallet-state` directory.
  * A marker file `.chroma/.setup-complete` indicates setup is done.
  */
 import fs from 'node:fs'
 import { createWalletTest } from '../src/index.js'
-import { WALLET_CONFIG, WALLET_STATE_DIR } from './wallet.config.js'
+import { WALLET_CONFIG } from './wallet.config.js'
 
 // Marker file to indicate setup is complete
 const SETUP_MARKER_FILE = '.chroma/.setup-complete'
@@ -17,7 +16,6 @@ const SETUP_MARKER_FILE = '.chroma/.setup-complete'
 // Setup both Talisman and Polkadot.js wallets
 const setup = createWalletTest({
   wallets: [{ type: 'talisman' }, { type: 'polkadot-js' }],
-  userDataDir: WALLET_STATE_DIR,
 })
 
 setup('setup wallets', async ({ wallets, page }) => {
@@ -48,5 +46,4 @@ setup('setup wallets', async ({ wallets, page }) => {
   fs.writeFileSync(SETUP_MARKER_FILE, `Setup completed at: ${new Date().toISOString()}\n`)
 
   console.log('✅ Wallets setup complete!')
-  console.log(`📁 Wallet state saved to: ${WALLET_STATE_DIR}`)
 })

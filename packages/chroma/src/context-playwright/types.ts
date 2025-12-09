@@ -66,9 +66,6 @@ export type ExtendedPage = Page & {
 export interface ChromaTestOptions<T extends readonly WalletConfig[] = WalletConfig[]> {
   // Wallet configuration (single or multiple)
   wallets?: T
-  // User data directory path for persistent wallet state (like storageState but for extensions)
-  // Use the same path in setup project and test projects to share wallet state
-  userDataDir?: string
   // Common options
   headless?: boolean
   slowMo?: number
