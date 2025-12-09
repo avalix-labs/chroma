@@ -1,29 +1,21 @@
 /**
- * Example: Using Multiple Wallet Extensions in Tests
+ * Example: Using Multiple Wallet Extensions with Pre-configured Setup
  *
- * This example demonstrates how to use the unified createWalletTest API
- * for both single and multiple wallet extensions.
+ * These tests use pre-configured wallet state from wallet.setup.ts
  */
 
 import { createWalletTest } from '../src/index.js'
+import { WALLET_CONFIG, WALLET_STATE_DIR } from './wallet.config.js'
 
-// Constants
-const ACCOUNT_NAME = '// Alice'
-const DOT_TEST_MNEMONIC = 'bottom drive obey lake curtain smoke basket hold race lonely fit walk'
-const DOT_TEST_PASSWORD = 'h3llop0lkadot!'
-
-// Single wallet test (default)
-const singleWalletTest = createWalletTest()
+// Single wallet test using setup
+const singleWalletTest = createWalletTest({
+  wallets: [{ type: 'polkadot-js' }],
+  userDataDir: `${WALLET_STATE_DIR}-polkadot-js`,
+})
 singleWalletTest.setTimeout(30_000 * 10)
 
-singleWalletTest('single wallet example', async ({ page, wallets }) => {
+singleWalletTest('single wallet example with setup', async ({ page, wallets }) => {
   const polkadotJs = wallets['polkadot-js']
-
-  await polkadotJs.importMnemonic({
-    seed: DOT_TEST_MNEMONIC,
-    name: ACCOUNT_NAME,
-    password: DOT_TEST_PASSWORD,
-  })
 
   const url = 'https://polkadot-starter-vue-dedot.vercel.app/'
   await page.goto(url)
@@ -41,61 +33,44 @@ singleWalletTest('single wallet example', async ({ page, wallets }) => {
 
   await polkadotJs.authorize()
 
-  await page.getByText(ACCOUNT_NAME).click()
+  await page.getByText(WALLET_CONFIG.polkadotJs.accountName).click()
 
   await page.getByRole('button', { name: 'Sign Transaction' }).nth(3).click()
 
   if (url.includes('papi'))
     await page.waitForTimeout(3000)
-  await polkadotJs.approveTx({ password: DOT_TEST_PASSWORD })
+  await polkadotJs.approveTx({ password: WALLET_CONFIG.polkadotJs.password })
   await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
   console.log(`🎉 Test completed successfully for ${url}!`)
 
   await page.waitForTimeout(5000)
 })
 
-// Multi-wallet test
+// Multi-wallet test using setup
 const multiWalletTest = createWalletTest({
   wallets: [
     { type: 'polkadot-js' },
     { type: 'talisman' },
   ] as const,
+  userDataDir: `${WALLET_STATE_DIR}-multi`,
   headless: false,
   slowMo: 150,
 })
 
 multiWalletTest.describe('Multi-Wallet Tests', () => {
-  multiWalletTest('should import accounts to multiple wallets', async ({ wallets }) => {
+  multiWalletTest('should use pre-configured wallets', async ({ wallets }) => {
     const polkadotJs = wallets['polkadot-js']
-
-    // Import account to Polkadot-JS
-    await polkadotJs.importMnemonic({
-      seed: 'bottom drive obey lake curtain smoke basket hold race lonely fit walk',
-      name: 'Alice (Polkadot-JS)',
-      password: 'h3llop0lkadot!',
-    })
-
-    // Import to Talisman
     const talisman = wallets.talisman
-    await talisman.importEthPrivateKey({
-      privateKey: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-      name: 'Bob (Talisman)',
-      password: 'h3llop0lkadot!',
-    })
 
-    console.log('✅ Accounts imported to all wallets')
+    console.log('✅ Wallets are already configured from setup!')
+    console.log('Polkadot-JS Extension ID:', polkadotJs.extensionId)
+    console.log('Talisman Extension ID:', talisman.extensionId)
   })
 
-  multiWalletTest('should connect with specific wallet', async ({ page, wallets }) => {
+  multiWalletTest('should connect with polkadot-js wallet', async ({ page, wallets }) => {
     const polkadotJs = wallets['polkadot-js']
 
-    // Import account first
-    await polkadotJs.importMnemonic({
-      seed: 'bottom drive obey lake curtain smoke basket hold race lonely fit walk',
-      name: 'Test Account',
-    })
-
-    // Navigate to dApp
+    // Navigate to dApp - wallet already has account imported!
     await page.goto('https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fwestend-rpc.polkadot.io#/explorer')
     await page.waitForTimeout(2000)
 
@@ -103,13 +78,5 @@ multiWalletTest.describe('Multi-Wallet Tests', () => {
     await polkadotJs.authorize()
 
     console.log('✅ Connected with Polkadot-JS wallet')
-  })
-
-  multiWalletTest('should access extension IDs', async ({ wallets }) => {
-    const polkadotJs = wallets['polkadot-js']
-    console.log('Polkadot-JS Extension ID:', polkadotJs.extensionId)
-
-    const talisman = wallets.talisman
-    console.log('Talisman Extension ID:', talisman.extensionId)
   })
 })

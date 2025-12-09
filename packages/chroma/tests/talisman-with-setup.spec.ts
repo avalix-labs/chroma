@@ -10,7 +10,7 @@ import { WALLET_CONFIG, WALLET_STATE_DIR } from './wallet.config.js'
 // Use the SAME userDataDir as the setup project
 const test = createWalletTest({
   wallets: [{ type: 'talisman' }],
-  userDataDir: WALLET_STATE_DIR, // <-- Reuses wallet state from setup!
+  userDataDir: `${WALLET_STATE_DIR}-talisman`, // <-- Reuses wallet state from setup!
 })
 
 test.setTimeout(30_000 * 2)
@@ -43,7 +43,7 @@ test('should connect pre-configured Talisman wallet', async ({ page, wallets }) 
     }
 
     // Authorize - wallet already has the account imported!
-    await wallet.authorize({ accountName: WALLET_CONFIG.accountName, password: WALLET_CONFIG.password })
+    await wallet.authorize({ accountName: WALLET_CONFIG.talisman.accountName, password: WALLET_CONFIG.talisman.password })
 
     try {
       await wallet.approveTx()
@@ -58,7 +58,7 @@ test('should connect pre-configured Talisman wallet', async ({ page, wallets }) 
   await page.getByRole('textbox', { name: 'Share your thoughts with the' }).fill(`gm Polkadot! - ${insertNumber}`)
   await page.getByRole('button', { name: 'Post' }).click()
 
-  await wallet.approveTx({ password: WALLET_CONFIG.password })
+  await wallet.approveTx({ password: WALLET_CONFIG.talisman.password })
 
   await page.locator('div').filter({ hasText: new RegExp(`^gm Polkadot! - ${insertNumber}$`) }).waitFor({ state: 'visible' })
 
@@ -86,7 +86,7 @@ test('should post another message', async ({ page, wallets }) => {
     if (modalVisible) {
       await page.getByRole('button', { name: /CONNECT/i }).nth(1).click()
     }
-    await wallet.authorize({ accountName: WALLET_CONFIG.accountName, password: WALLET_CONFIG.password })
+    await wallet.authorize({ accountName: WALLET_CONFIG.talisman.accountName, password: WALLET_CONFIG.talisman.password })
     try {
       await wallet.approveTx()
     }
@@ -100,7 +100,7 @@ test('should post another message', async ({ page, wallets }) => {
   await page.getByRole('textbox', { name: 'Share your thoughts with the' }).fill(`Hello again! - ${insertNumber}`)
   await page.getByRole('button', { name: 'Post' }).click()
 
-  await wallet.approveTx({ password: WALLET_CONFIG.password })
+  await wallet.approveTx({ password: WALLET_CONFIG.talisman.password })
 
   await page.locator('div').filter({ hasText: new RegExp(`^Hello again! - ${insertNumber}$`) }).waitFor({ state: 'visible' })
 

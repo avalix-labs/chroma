@@ -1,25 +1,19 @@
+/**
+ * Tests that use pre-configured Polkadot.js wallet state
+ */
 import { createWalletTest } from '../src/index.js'
+import { WALLET_CONFIG, WALLET_STATE_DIR } from './wallet.config.js'
 
 const POLKADOT_DAPP_URL = 'https://polkadot-starter-vue-dedot.vercel.app/'
 
-const ACCOUNT_NAME = '// Alice'
-const DOT_TEST_MNEMONIC = 'bottom drive obey lake curtain smoke basket hold race lonely fit walk'
-const DOT_TEST_PASSWORD = 'secure123!'
-
 const test = createWalletTest({
+  wallets: [{ type: 'polkadot-js' }],
+  userDataDir: `${WALLET_STATE_DIR}-polkadot-js`, // <-- Reuses wallet state from setup!
   headless: false,
 })
 
 // increase playwright timeout
 test.setTimeout(30_000 * 2) // default is 30000
-
-test.beforeAll(async ({ wallets }) => {
-  await wallets['polkadot-js'].importMnemonic({
-    seed: DOT_TEST_MNEMONIC,
-    password: DOT_TEST_PASSWORD,
-    name: ACCOUNT_NAME,
-  })
-})
 
 test('sign transaction on polkadot starter', async ({ page, wallets }) => {
   console.log(`🧪 Testing ${POLKADOT_DAPP_URL}`)
@@ -38,7 +32,7 @@ test('sign transaction on polkadot starter', async ({ page, wallets }) => {
   }
 
   await wallets['polkadot-js'].authorize()
-  await page.getByText(ACCOUNT_NAME).click()
+  await page.getByText(WALLET_CONFIG.polkadotJs.accountName).click()
 
   // Reject transaction
   await page.getByRole('button', { name: 'Sign Transaction' }).first().click()
@@ -48,7 +42,7 @@ test('sign transaction on polkadot starter', async ({ page, wallets }) => {
 
   // Sign transaction
   await page.getByRole('button', { name: 'Sign Transaction' }).nth(3).click()
-  await wallets['polkadot-js'].approveTx({ password: DOT_TEST_PASSWORD })
+  await wallets['polkadot-js'].approveTx({ password: WALLET_CONFIG.polkadotJs.password })
   await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
   console.log(`🎉 Test completed successfully for ${POLKADOT_DAPP_URL}!`)
 

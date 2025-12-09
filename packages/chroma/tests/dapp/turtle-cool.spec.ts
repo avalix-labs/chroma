@@ -1,32 +1,17 @@
+/**
+ * Turtle.cool test using pre-configured multi-wallet setup
+ */
 import { createWalletTest, expect } from '../../src/index.js'
-
-const ACCOUNT_NAME = 'Test Account'
-const DOT_TEST_MNEMONIC = 'bottom drive obey lake curtain smoke basket hold race lonely fit walk'
-const ETH_PRIVATE_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
-const PASSWORD = 'h3llop0lkadot!'
+import { WALLET_CONFIG, WALLET_STATE_DIR } from '../wallet.config.js'
 
 const test = createWalletTest({
   wallets: [{ type: 'talisman' }, { type: 'polkadot-js' }],
+  userDataDir: `${WALLET_STATE_DIR}-multi`,
 })
 
 test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
   const talisman = wallets.talisman
   const polkadotJs = wallets['polkadot-js']
-  const accountName = ACCOUNT_NAME
-
-  // Import accounts to both wallets
-  await Promise.all([
-    talisman.importEthPrivateKey({
-      privateKey: ETH_PRIVATE_KEY,
-      name: accountName,
-      password: PASSWORD,
-    }),
-    polkadotJs.importMnemonic({
-      seed: DOT_TEST_MNEMONIC,
-      password: PASSWORD,
-      name: accountName,
-    }),
-  ])
 
   await page.goto('https://app.turtle.cool/')
 
@@ -51,6 +36,6 @@ test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
   await polkadotJs.authorize()
   await talisman.rejectTx() // somehow talisman popup appears, let's reject it for now
   await page.getByRole('button', { name: 'Polkadot.js INSTALLED' }).click()
-  await page.getByRole('button', { name: 'Test Account 5dfh...qrzv' }).click()
+  await page.getByRole('button', { name: `${WALLET_CONFIG.multi.accountName} 5dfh...qrzv` }).click()
   await expect(page.getByTestId('chain-select-trigger-to').getByRole('button', { name: 'Disconnect' })).toBeVisible()
 })
