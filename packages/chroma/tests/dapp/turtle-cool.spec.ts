@@ -8,7 +8,8 @@ const test = createWalletTest({
   wallets: [{ type: 'talisman' }, { type: 'polkadot-js' }],
 })
 
-test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
+// TODO: turtle dapp have some issue with multiple wallets installed
+test.skip('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
   const talisman = wallets.talisman
   const polkadotJs = wallets['polkadot-js']
 

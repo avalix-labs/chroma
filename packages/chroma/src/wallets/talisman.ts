@@ -52,7 +52,6 @@ export async function getTalismanExtensionPath(): Promise<string> {
     )
   }
 
-  console.log(`✅ Found Talisman extension at: ${extensionDir}`)
   return extensionDir
 }
 
@@ -75,10 +74,8 @@ export async function importEthPrivateKey(
 
     for (const p of pages) {
       const url = p.url()
-      console.log(`📄 Found page: ${url}`)
       if (url.includes('onboarding.html') || url.includes(`chrome-extension://${extensionId}/`)) {
         extensionPage = p
-        console.log(`✅ Found Talisman onboarding page: ${url}`)
         break
       }
     }

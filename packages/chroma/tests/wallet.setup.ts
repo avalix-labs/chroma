@@ -11,7 +11,7 @@ import { createWalletTest } from '../src/index.js'
 import { WALLET_CONFIG } from './wallet.config.js'
 
 // Marker file to indicate setup is complete
-const SETUP_MARKER_FILE = '.chroma/.setup-complete'
+const SETUP_MARKER_FILE = '.chroma/wallet-state/.setup-complete'
 
 // Setup both Talisman and Polkadot.js wallets
 const setup = createWalletTest({

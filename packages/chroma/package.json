@@ -44,10 +44,9 @@
     "lint": "eslint --fix .",
     "prepublishOnly": "npm run build",
     "download-extensions": "rm -rf .chroma && tsx scripts/download-extensions.ts",
-    "test": "playwright test --project=wallet-setup --project=tests",
+    "test": "rm -rf .chroma/wallet-state && playwright test --project=wallet-setup --project=tests --workers=1",
     "test:simple": "playwright test --project=simple",
-    "test:ui": "playwright test --ui",
-    "test:setup": "playwright test --project=wallet-setup"
+    "test:ui": "playwright test --ui --project=wallet-setup --project=tests --workers=1"
   },
   "peerDependencies": {
     "@playwright/test": "^1.55.0"
