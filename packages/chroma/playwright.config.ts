@@ -28,29 +28,14 @@ export default defineConfig({
       testMatch: /simple\.spec\.ts/,
     },
 
-    // Test projects with Talisman wallet - depend on wallet-setup
+    // All other tests - depend on wallet-setup
     // fullyParallel: false because tests share the same userDataDir
     {
-      name: 'talisman-tests',
-      testMatch: /talisman-with-setup\.spec\.ts/,
+      name: 'tests',
+      testMatch: /.*\.spec\.ts/,
+      testIgnore: /simple\.spec\.ts/,
       dependencies: ['wallet-setup'],
       fullyParallel: false, // Chromium can't share userDataDir across parallel workers
-    },
-
-    // Test projects with Polkadot.js wallet - depend on wallet-setup
-    {
-      name: 'polkadot-js-tests',
-      testMatch: /polkadot-starter\.spec\.ts/,
-      dependencies: ['wallet-setup'],
-      fullyParallel: false,
-    },
-
-    // Test projects with multiple wallets - depend on wallet-setup
-    {
-      name: 'multi-wallet-tests',
-      testMatch: /multi-wallet\.spec\.ts|dapp\/.+\.spec\.ts/,
-      dependencies: ['wallet-setup'],
-      fullyParallel: false,
     },
   ],
 })
