@@ -11,6 +11,14 @@ const test = createWalletTest({
 
 test.setTimeout(30_000 * 2)
 
+test.beforeAll(async () => {
+  console.log('🚀 Starting test: talisman-wallet.spec.ts')
+})
+
+test.afterAll(async () => {
+  console.log('✅ Finished test: talisman-wallet.spec.ts')
+})
+
 test('should import account and connect Talisman wallet', async ({ page, wallets }) => {
   const wallet = wallets.talisman
   const accountName = 'Test Account'
@@ -30,10 +38,8 @@ test('should import account and connect Talisman wallet', async ({ page, wallets
 
   const modalVisible = await page.locator('h2:has-text("CONNECT WALLET")').isVisible()
   if (modalVisible) {
-    console.log('✅ Connect wallet modal opened')
     // Click CONNECT button in modal
     await page.getByRole('button', { name: /CONNECT/i }).nth(1).click()
-    console.log('🔗 Clicked CONNECT button')
   }
   await wallet.authorize({ accountName })
 
@@ -41,7 +47,7 @@ test('should import account and connect Talisman wallet', async ({ page, wallets
     await wallet.approveTx()
   }
   catch {
-    console.log('No another popup found, skipping')
+    // No another popup found, skipping
   }
 
   // Test the dApp
@@ -55,6 +61,5 @@ test('should import account and connect Talisman wallet', async ({ page, wallets
   // Verify transaction
   await page.locator('div').filter({ hasText: new RegExp(`^gm Polkadot! - ${insertNumber}$`) }).waitFor({ state: 'visible' })
 
-  console.log('🎉 Talisman test completed successfully!')
   await page.waitForTimeout(3000)
 })

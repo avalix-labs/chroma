@@ -11,6 +11,14 @@ const test = createWalletTest({
 
 test.setTimeout(30_000 * 2)
 
+test.beforeAll(async () => {
+  console.log('🚀 Starting test: dapp/hydration.spec.ts')
+})
+
+test.afterAll(async () => {
+  console.log('✅ Finished test: dapp/hydration.spec.ts')
+})
+
 test('Hydration', async ({ page, wallets }) => {
   const talisman = wallets.talisman
   const polkadotJs = wallets['polkadot-js']

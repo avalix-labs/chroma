@@ -9,6 +9,14 @@ const test = createWalletTest({
   wallets: [{ type: 'talisman' }, { type: 'polkadot-js' }],
 })
 
+test.beforeAll(async () => {
+  console.log('🚀 Starting test: dapp/turtle-cool.spec.ts')
+})
+
+test.afterAll(async () => {
+  console.log('✅ Finished test: dapp/turtle-cool.spec.ts')
+})
+
 test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
   const talisman = wallets.talisman
   const polkadotJs = wallets['polkadot-js']
