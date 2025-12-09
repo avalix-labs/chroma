@@ -41,7 +41,7 @@ test('sign transaction on polkadot starter', async ({ page, wallets }) => {
 
   // Sign transaction
   await page.getByRole('button', { name: 'Sign Transaction' }).nth(3).click()
-  await wallets['polkadot-js'].approveTx({ password: WALLET_CONFIG.polkadotJs.password })
+  await wallets['polkadot-js'].approveTx()
   await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
   console.log(`🎉 Test completed successfully for ${POLKADOT_DAPP_URL}!`)
 

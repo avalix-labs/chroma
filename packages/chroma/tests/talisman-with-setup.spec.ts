@@ -41,7 +41,7 @@ test('should connect pre-configured Talisman wallet', async ({ page, wallets }) 
     }
 
     // Authorize - wallet already has the account imported!
-    await wallet.authorize({ accountName: WALLET_CONFIG.talisman.accountName, password: WALLET_CONFIG.talisman.password })
+    await wallet.authorize({ accountName: WALLET_CONFIG.talisman.accountName })
 
     try {
       await wallet.approveTx()
@@ -56,7 +56,7 @@ test('should connect pre-configured Talisman wallet', async ({ page, wallets }) 
   await page.getByRole('textbox', { name: 'Share your thoughts with the' }).fill(`gm Polkadot! - ${insertNumber}`)
   await page.getByRole('button', { name: 'Post' }).click()
 
-  await wallet.approveTx({ password: WALLET_CONFIG.talisman.password })
+  await wallet.approveTx()
 
   await page.locator('div').filter({ hasText: new RegExp(`^gm Polkadot! - ${insertNumber}$`) }).waitFor({ state: 'visible' })
 
@@ -84,7 +84,7 @@ test('should post another message', async ({ page, wallets }) => {
     if (modalVisible) {
       await page.getByRole('button', { name: /CONNECT/i }).nth(1).click()
     }
-    await wallet.authorize({ accountName: WALLET_CONFIG.talisman.accountName, password: WALLET_CONFIG.talisman.password })
+    await wallet.authorize({ accountName: WALLET_CONFIG.talisman.accountName })
     try {
       await wallet.approveTx()
     }
@@ -98,7 +98,7 @@ test('should post another message', async ({ page, wallets }) => {
   await page.getByRole('textbox', { name: 'Share your thoughts with the' }).fill(`Hello again! - ${insertNumber}`)
   await page.getByRole('button', { name: 'Post' }).click()
 
-  await wallet.approveTx({ password: WALLET_CONFIG.talisman.password })
+  await wallet.approveTx()
 
   await page.locator('div').filter({ hasText: new RegExp(`^Hello again! - ${insertNumber}$`) }).waitFor({ state: 'visible' })
 

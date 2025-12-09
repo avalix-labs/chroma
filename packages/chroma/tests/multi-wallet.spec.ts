@@ -38,7 +38,7 @@ singleWalletTest('single wallet example with setup', async ({ page, wallets }) =
 
   if (url.includes('papi'))
     await page.waitForTimeout(3000)
-  await polkadotJs.approveTx({ password: WALLET_CONFIG.polkadotJs.password })
+  await polkadotJs.approveTx()
   await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
   console.log(`🎉 Test completed successfully for ${url}!`)
 

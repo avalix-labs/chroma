@@ -4,6 +4,9 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 
+// Default password for all wallet operations
+const DEFAULT_PASSWORD = 'h3llop0lkadot!'
+
 // Talisman specific configuration
 export const TALISMAN_CONFIG = {
   downloadUrl: 'https://github.com/avalix-labs/polkadot-wallets/raw/refs/heads/main/talisman/talisman-3.0.5.zip',
@@ -56,8 +59,9 @@ export async function getTalismanExtensionPath(): Promise<string> {
 // Talisman specific Ethereum private key import implementation
 export async function importEthPrivateKey(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
-  { seed, name = 'Test Account', password = 'h3llop0lkadot!' }: WalletAccount,
+  { seed, name = 'Test Account' }: WalletAccount,
 ): Promise<void> {
+  const password = DEFAULT_PASSWORD
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 
@@ -105,8 +109,8 @@ export async function importEthPrivateKey(
     await extensionPage.getByTestId('onboarding-get-started-button').click()
 
     // Fill the password
-    await extensionPage.getByRole('textbox', { name: 'Enter password' }).fill(password!)
-    await extensionPage.getByRole('textbox', { name: 'Confirm password' }).fill(password!)
+    await extensionPage.getByRole('textbox', { name: 'Enter password' }).fill(password)
+    await extensionPage.getByRole('textbox', { name: 'Confirm password' }).fill(password)
     await extensionPage.getByTestId('onboarding-password-confirm-button').click()
 
     // Click the no thanks button
@@ -119,8 +123,8 @@ export async function importEthPrivateKey(
     await extensionPage.getByRole('button', { name: 'Import via Private Key' }).click()
     await extensionPage.getByRole('button', { name: 'Select account platform' }).click()
     await extensionPage.getByRole('option', { name: 'Ethereum' }).locator('div').click()
-    await extensionPage.getByRole('textbox', { name: 'Choose a name' }).fill(name!)
-    await extensionPage.getByRole('textbox', { name: 'Enter your private key' }).fill(seed!)
+    await extensionPage.getByRole('textbox', { name: 'Choose a name' }).fill(name)
+    await extensionPage.getByRole('textbox', { name: 'Enter your private key' }).fill(seed)
     await extensionPage.getByRole('button', { name: 'Save' }).click()
 
     await extensionPage.close()
@@ -136,9 +140,10 @@ export async function importEthPrivateKey(
 // Talisman specific authorization implementation
 export async function authorizeTalisman(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
-  options: { accountName?: string, password?: string } = {},
+  options: { accountName?: string } = {},
 ): Promise<void> {
-  const { accountName = 'Test Account', password = 'h3llop0lkadot!' } = options
+  const { accountName = 'Test Account' } = options
+  const password = DEFAULT_PASSWORD
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 
@@ -169,9 +174,8 @@ export async function authorizeTalisman(
 // Talisman specific transaction approval implementation
 export async function approveTalismanTx(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
-  options: { password?: string } = {},
 ): Promise<void> {
-  const { password = 'h3llop0lkadot!' } = options
+  const password = DEFAULT_PASSWORD
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 

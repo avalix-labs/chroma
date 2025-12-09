@@ -52,11 +52,15 @@ export async function getPolkadotJSExtensionPath(): Promise<string> {
   return extensionDir
 }
 
+// Default password for all wallet operations
+const DEFAULT_PASSWORD = 'h3llop0lkadot!'
+
 // Polkadot-JS specific account import implementation
 export async function importPolkadotJSAccount(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
-  { seed, name = 'Test Account', password = 'h3llop0lkadot!' }: WalletAccount,
+  { seed, name = 'Test Account' }: WalletAccount,
 ): Promise<void> {
+  const password = DEFAULT_PASSWORD
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 
@@ -108,9 +112,8 @@ export async function authorizePolkadotJS(
 // Polkadot-JS specific transaction approval implementation
 export async function approvePolkadotJSTx(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
-  options: { password?: string } = {},
 ): Promise<void> {
-  const { password = 'h3llop0lkadot!' } = options
+  const password = DEFAULT_PASSWORD
   const context = page.__extensionContext
   const extensionId = page.__extensionId
 

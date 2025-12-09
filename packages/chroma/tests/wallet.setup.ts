@@ -33,12 +33,10 @@ setup('setup wallets', async ({ wallets, page }) => {
     wallets.talisman.importEthPrivateKey({
       privateKey: WALLET_CONFIG.talisman.ethPrivateKey,
       name: WALLET_CONFIG.talisman.accountName,
-      password: WALLET_CONFIG.talisman.password,
     }),
     wallets['polkadot-js'].importMnemonic({
       seed: WALLET_CONFIG.polkadotJs.mnemonic,
       name: WALLET_CONFIG.polkadotJs.accountName,
-      password: WALLET_CONFIG.polkadotJs.password,
     }),
   ])
 

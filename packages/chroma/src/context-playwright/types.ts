@@ -10,7 +10,6 @@ export const WALLET_TYPES: readonly WalletType[] = ['polkadot-js', 'talisman'] a
 export interface WalletAccount {
   seed: string
   name?: string
-  password?: string
 }
 
 // Configuration for a single wallet
@@ -23,8 +22,8 @@ export interface WalletConfig {
 export interface BaseWalletInstance {
   extensionId: string
   importMnemonic: (options: WalletAccount) => Promise<void>
-  authorize: (options?: { accountName?: string, password?: string }) => Promise<void>
-  approveTx: (options?: { password?: string }) => Promise<void>
+  authorize: (options?: { accountName?: string }) => Promise<void>
+  approveTx: () => Promise<void>
   rejectTx: () => Promise<void>
 }
 
@@ -36,7 +35,7 @@ export interface PolkadotJsWalletInstance extends BaseWalletInstance {
 // Talisman specific wallet instance (with additional methods)
 export interface TalismanWalletInstance extends BaseWalletInstance {
   type: 'talisman'
-  importEthPrivateKey: (options: { privateKey: string, name?: string, password?: string }) => Promise<void>
+  importEthPrivateKey: (options: { privateKey: string, name?: string }) => Promise<void>
 }
 
 // Union type of all wallet instances
