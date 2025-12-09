@@ -12,8 +12,9 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@avalix/chroma": "workspace:*",
     "@playwright/test": "^1.55.0",
     "@types/node": "^24.3.3",
-    "@avalix/chroma": "workspace:*"
+    "tsx": "^4.21.0"
   }
 }

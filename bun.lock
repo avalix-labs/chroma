@@ -16,6 +16,7 @@
         "@avalix/chroma": "workspace:*",
         "@playwright/test": "^1.55.0",
         "@types/node": "^24.3.3",
+        "tsx": "^4.21.0",
       },
     },
     "packages/chroma": {
