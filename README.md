@@ -41,6 +41,25 @@ test('connect wallet', async ({ page, wallets }) => {
 | Talisman | Supported |
 | SubWallet | Planned |
 
+## Running Tests with Docker
+
+You can run the Playwright tests in a Docker container for consistent CI/CD environments.
+
+```bash
+# Build the Docker image
+docker build -t chroma-test .
+
+# Run tests
+docker run --rm --shm-size=2gb chroma-test
+
+# Run specific tests
+docker run --rm --shm-size=2gb chroma-test \
+  sh -c "xvfb-run --auto-servernum -- npx playwright test polkadot-starter.spec.ts"
+
+# Interactive debugging
+docker run -it --rm --shm-size=2gb chroma-test bash
+```
+
 ## Documentation
 
 See [@avalix/chroma](./packages/chroma) for detailed documentation.
