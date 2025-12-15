@@ -24,12 +24,12 @@
     "blockchain"
   ],
   "exports": {
-    ".": "./dist/index.js",
+    ".": "./dist/index.mjs",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "bin": {
     "chroma": "./scripts/cli.js"
   },
