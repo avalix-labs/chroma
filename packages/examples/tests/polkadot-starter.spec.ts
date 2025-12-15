@@ -10,8 +10,10 @@ const DOT_TEST_MNEMONIC = 'bottom drive obey lake curtain smoke basket hold race
 const DOT_TEST_PASSWORD = 'secure123!'
 
 const test = createWalletTest({
-  headless: true,
+  headless: false,
 })
+
+test.describe.configure({ mode: 'default' })
 
 for (const url of POLKADOT_DAPP_URLS) {
   test(`sign transaction on ${url}`, async ({ page, wallets }) => {
