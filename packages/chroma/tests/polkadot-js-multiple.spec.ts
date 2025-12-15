@@ -19,6 +19,8 @@ const test = createWalletTest({
   headless: false,
 })
 
+test.describe.configure({ mode: 'default' })
+
 // increase playwright timeout
 test.setTimeout(30_000 * 2)
 
