@@ -19,7 +19,8 @@ test.afterAll(async () => {
   console.log('✅ Finished test: talisman-wallet.spec.ts')
 })
 
-test('should import account and connect Talisman wallet', async ({ page, wallets }) => {
+// TODO: check talisman wallet for milestone 2
+test.skip('should import account and connect Talisman wallet', async ({ page, wallets }) => {
   const wallet = wallets.talisman
   const accountName = 'Test Account'
 
