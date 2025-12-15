@@ -20,7 +20,7 @@ WORKDIR /app
 # Copy package files first for better caching
 COPY package.json bun.lock ./
 COPY packages/chroma/package.json ./packages/chroma/
-COPY examples/package.json ./examples/
+COPY packages/examples/package.json ./packages/examples/
 
 # Install dependencies (ignore scripts as chroma isn't built yet)
 RUN bun install --ignore-scripts

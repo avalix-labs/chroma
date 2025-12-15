@@ -9,6 +9,8 @@ packages/*/dist/
 # Test artifacts
 playwright-report/
 test-results/
+packages/examples/playwright-report/
+packages/examples/test-results/
 
 # Wallet extensions (will be downloaded during build)
 .chroma/
