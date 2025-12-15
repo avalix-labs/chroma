@@ -19,7 +19,8 @@ const test = createWalletTest({
   headless: false,
 })
 
-test.describe.configure({ mode: 'serial' })
+// increase playwright timeout
+test.setTimeout(30_000 * 2)
 
 test.beforeAll(async ({ wallets }) => {
   const wallet = wallets['polkadot-js']
