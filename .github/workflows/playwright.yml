@@ -10,7 +10,7 @@ on:
 jobs:
   test:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-8-core
     
     env:
       CI: true
@@ -78,7 +78,7 @@ jobs:
 
   test-docker:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-8-core
 
     steps:
     - uses: actions/checkout@v4
