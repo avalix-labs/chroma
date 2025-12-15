@@ -9,9 +9,6 @@ const test = createWalletTest({
   headless: false,
 })
 
-// increase playwright timeout
-test.setTimeout(30_000 * 2) // default is 30000
-
 test.beforeAll(async ({ wallets }) => {
   console.log('🚀 Starting test: polkadot-starter.spec.ts')
 
