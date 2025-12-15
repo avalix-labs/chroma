@@ -38,4 +38,4 @@ RUN cd packages/chroma && bun run download-extensions
 WORKDIR /app/packages/chroma
 
 # Default command to run tests
-CMD ["sh", "-c", "xvfb-run --auto-servernum --server-args='-screen 0 1280x960x24' -- npx playwright test --reporter=html"]
+CMD ["sh", "-c", "xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' -- npx playwright test --reporter=html"]

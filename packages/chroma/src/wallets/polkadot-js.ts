@@ -107,7 +107,14 @@ export async function authorizePolkadotJS(
     await extensionPopup.getByRole('button', { name: 'I Understand' }).click()
   }
 
-  await extensionPopup.getByText('Select all').click()
+  // Check if "Select all" checkbox is already checked
+  const selectAllCheckbox = extensionPopup.getByText('Select all').locator('..').locator('input[type="checkbox"]')
+  const isChecked = await selectAllCheckbox.isChecked().catch(() => false)
+
+  if (!isChecked) {
+    await extensionPopup.getByText('Select all').click()
+  }
+
   await extensionPopup.getByRole('button', { name: /Connect \d+ account\(s\)/ }).click()
 }
 
