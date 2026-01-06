@@ -10,7 +10,7 @@ on:
 jobs:
   test:
     timeout-minutes: 60
-    runs-on: ubuntu-8-core
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     
     env:
       CI: true
@@ -78,7 +78,7 @@ jobs:
 
   test-docker:
     timeout-minutes: 60
-    runs-on: ubuntu-8-core
+    runs-on: blacksmith-8vcpu-ubuntu-2404
 
     steps:
     - uses: actions/checkout@v4
