@@ -1,5 +1,21 @@
 # @avalix/chroma
 
+## 0.0.10
+
+### Patch Changes
+
+- [#29](https://github.com/avalix-labs/chroma/pull/29) [`4adfa16`](https://github.com/avalix-labs/chroma/commit/4adfa160ae126e803b3d034c3629e8fd161ef880) Thanks [@preschian](https://github.com/preschian)! - chore: rename testDir
+
+- [#36](https://github.com/avalix-labs/chroma/pull/36) [`801dd42`](https://github.com/avalix-labs/chroma/commit/801dd426f2b0378e8d77ffdf5fbfc3b77365b623) Thanks [@preschian](https://github.com/preschian)! - refactor: move examples to packages directory
+
+- [#22](https://github.com/avalix-labs/chroma/pull/22) [`e6f0fc6`](https://github.com/avalix-labs/chroma/commit/e6f0fc639e54f4cff584fe758fb953a9a17450fe) Thanks [@preschian](https://github.com/preschian)! - feat: improve CLI command and update documentation
+
+- [#24](https://github.com/avalix-labs/chroma/pull/24) [`4e1d559`](https://github.com/avalix-labs/chroma/commit/4e1d559b50c09173c8439ddd9de8981138e45459) Thanks [@preschian](https://github.com/preschian)! - chore: update wallet extension versions
+
+- [#30](https://github.com/avalix-labs/chroma/pull/30) [`4027d2a`](https://github.com/avalix-labs/chroma/commit/4027d2aa73f8b97b5d875adefbd67c91b9e1c7b3) Thanks [@preschian](https://github.com/preschian)! - chore: replace chromium with chrome-testing
+
+- [#35](https://github.com/avalix-labs/chroma/pull/35) [`b797e3b`](https://github.com/avalix-labs/chroma/commit/b797e3b5dec043cbdb2e019b834d4b5e3be07dd7) Thanks [@preschian](https://github.com/preschian)! - fix: add multi-dapp tests for polkadot-js wallet
+
 ## 0.0.9
 
 ### Patch Changes
