@@ -1,0 +1,39 @@
+name: Playwright Tests (Docker)
+
+on:
+  schedule:
+    # Run every Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  test-docker:
+    timeout-minutes: 60
+    runs-on: blacksmith-8vcpu-ubuntu-2404
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: docker build -t chroma-test .
+
+    - name: Run Playwright tests
+      run: |
+        docker run --rm --shm-size=2gb \
+          -v ${{ github.workspace }}/packages/chroma/playwright-report:/app/packages/chroma/playwright-report \
+          -v ${{ github.workspace }}/packages/chroma/test-results:/app/packages/chroma/test-results \
+          chroma-test
+
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report-docker
+        path: packages/chroma/playwright-report/
+        retention-days: 30
+
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: playwright-test-results-docker
+        path: packages/chroma/test-results/
+        retention-days: 30
