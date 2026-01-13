@@ -2,8 +2,8 @@ import { createWalletTest } from '../src/index.js'
 
 const POLKADOT_DAPP_URLS = [
   'https://polkadot-starter-next-dedot.vercel.app/',
-  'https://polkadot-starter-next-papi.vercel.app/',
-  // 'https://polkadot-starter-nuxt-dedot.vercel.app/', // reduce ci/cd limits
+  // 'https://polkadot-starter-next-papi.vercel.app/', // reduce ci/cd limits
+  // 'https://polkadot-starter-nuxt-dedot.vercel.app/',
   // 'https://polkadot-starter-nuxt-papi.vercel.app/',
   // 'https://polkadot-starter-react-dedot.vercel.app/',
   // 'https://polkadot-starter-react-papi.vercel.app/',
