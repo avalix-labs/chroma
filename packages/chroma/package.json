@@ -58,7 +58,7 @@
     "@types/node": "^24.10.2",
     "@types/unzipper": "^0.10.11",
     "eslint": "^9.39.1",
-    "tsdown": "latest",
+    "tsdown": "^0.20.1",
     "tsx": "^4.21.0"
   },
   "publishConfig": {
