@@ -50,7 +50,7 @@ jobs:
       if: steps.playwright-cache.outputs.cache-hit != 'true'
       run: |
         cd packages/chroma
-        npx playwright install --with-deps chromium
+        npx playwright install --with-deps chromium --only-shell
     
     - name: Download wallet extensions
       run: |
