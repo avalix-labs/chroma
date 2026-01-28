@@ -37,7 +37,7 @@ jobs:
     
     - name: Get Playwright version
       id: playwright-version
-      run: echo "version=$(cd packages/chroma && npx playwright --version | grep -oP '\d+\.\d+\.\d+')" >> $GITHUB_OUTPUT
+      run: echo "version=$(cd tests/e2e-polkadot-js && npx playwright --version | grep -oP '\d+\.\d+\.\d+')" >> $GITHUB_OUTPUT
     
     - name: Cache Playwright browsers
       uses: actions/cache@v4
@@ -49,29 +49,29 @@ jobs:
     - name: Install Playwright Browsers
       if: steps.playwright-cache.outputs.cache-hit != 'true'
       run: |
-        cd packages/chroma
+        cd tests/e2e-polkadot-js
         npx playwright install --with-deps chromium
     
     - name: Download wallet extensions
       run: |
-        cd packages/chroma
-        bun run download-extensions
+        cd tests/e2e-polkadot-js
+        bun run test:prepare
     
     - name: Run Playwright tests
       run: |
-        cd packages/chroma
+        cd tests/e2e-polkadot-js
         xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" -- npx playwright test --reporter=html
     
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
         name: playwright-report
-        path: packages/chroma/playwright-report/
+        path: tests/e2e-polkadot-js/playwright-report/
         retention-days: 30
     
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: playwright-test-results
-        path: packages/chroma/test-results/
+        path: tests/e2e-polkadot-js/test-results/
         retention-days: 30

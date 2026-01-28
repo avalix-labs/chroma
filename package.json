@@ -20,7 +20,8 @@
   },
   "homepage": "https://github.com/avalix-labs/chroma#readme",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "tests/*"
   ],
   "dependencies": {
     "@changesets/changelog-github": "^0.5.1",
