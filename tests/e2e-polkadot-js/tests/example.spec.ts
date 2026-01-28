@@ -6,9 +6,11 @@ const DOT_TEST_MNEMONIC = 'bottom drive obey lake curtain smoke basket hold race
 const DOT_TEST_PASSWORD = 'secure123!'
 
 test(`test with polkadot-js wallet`, async ({ page, wallets }) => {
+  console.log('[INFO] Testing with polkadot-js extension')
+
   const wallet = wallets['polkadot-js']
 
-  // cover importMnemonic function
+  console.log('[INFO] wallet.importMnemonic')
   await wallet.importMnemonic({
     seed: DOT_TEST_MNEMONIC,
     password: DOT_TEST_PASSWORD,
@@ -22,26 +24,23 @@ test(`test with polkadot-js wallet`, async ({ page, wallets }) => {
 
   const modalVisible = await page.locator('h2:has-text("CONNECT WALLET")').isVisible()
   if (modalVisible) {
-    console.log('✅ Connect wallet modal opened')
-    // Click CONNECT button in modal
     await page.getByRole('button', { name: /CONNECT/i }).nth(2).click()
-    console.log('🔗 Clicked CONNECT button')
   }
 
-  // cover authorize function
+  console.log('[INFO] wallet.authorize')
   await wallet.authorize()
   await page.getByText(ACCOUNT_NAME).click()
 
-  // cover rejectTx function
+  console.log('[INFO] wallet.rejectTx')
   await page.getByRole('button', { name: 'Sign Transaction' }).first().click()
   await wallets['polkadot-js'].rejectTx()
   await page.getByText('Error: Cancelled').waitFor({ state: 'visible' })
   await page.waitForTimeout(3000)
 
-  // cover approveTx function
+  console.log('[INFO] wallet.approveTx')
   await page.getByRole('button', { name: 'Sign Transaction' }).nth(3).click()
   await wallet.approveTx({ password: DOT_TEST_PASSWORD })
   await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
 
-  console.log(`🎉 Test completed successfully!`)
+  console.log('[INFO] Test completed')
 })

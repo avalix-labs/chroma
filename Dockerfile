@@ -1,7 +1,7 @@
 # Dockerfile for Chroma E2E Testing
 # This image is optimized for running Playwright tests with wallet extensions
 
-FROM mcr.microsoft.com/playwright:v1.57.0-noble
+FROM mcr.microsoft.com/playwright:v1.58.0-noble
 
 # Set environment variables
 ENV CI=true
@@ -21,6 +21,7 @@ WORKDIR /app
 COPY package.json bun.lock ./
 COPY packages/chroma/package.json ./packages/chroma/
 COPY packages/examples/package.json ./packages/examples/
+COPY tests/e2e-polkadot-js/package.json ./tests/e2e-polkadot-js/
 
 # Install dependencies (ignore scripts as chroma isn't built yet)
 RUN bun install --ignore-scripts
@@ -31,11 +32,11 @@ COPY . .
 # Build the Chroma package
 RUN cd packages/chroma && bun run build
 
-# Download wallet extensions
+# Download wallet extensions using chroma CLI from packages/chroma
 RUN cd packages/chroma && bun run download-extensions
 
-# Set working directory to chroma package
-WORKDIR /app/packages/chroma
+# Set working directory to e2e-polkadot-js test folder
+WORKDIR /app/tests/e2e-polkadot-js
 
-# Default command to run tests
+# Default command to run tests with xvfb for headless browser
 CMD ["sh", "-c", "xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' -- npx playwright test --reporter=html"]
