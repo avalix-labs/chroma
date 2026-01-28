@@ -50,6 +50,7 @@
       },
       "devDependencies": {
         "@antfu/eslint-config": "^7.0.1",
+        "@avalix/chroma": "workspace:*",
         "@dedot/chaintypes": "^0.216.0",
         "@iconify-json/mdi": "^1.2.3",
         "@iconify-json/token-branded": "^1.2.37",
