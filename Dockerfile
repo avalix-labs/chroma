@@ -21,7 +21,7 @@ WORKDIR /app
 COPY package.json bun.lock ./
 COPY packages/chroma/package.json ./packages/chroma/
 COPY packages/examples/package.json ./packages/examples/
-COPY tests/e2e-polkadot-js/package.json ./tests/e2e-polkadot-js/
+COPY packages/e2e-polkadot-js/package.json ./packages/e2e-polkadot-js/
 
 # Install dependencies (ignore scripts as chroma isn't built yet)
 RUN bun install --ignore-scripts
@@ -36,10 +36,10 @@ RUN cd packages/chroma && bun run build
 RUN bun install
 
 # Download wallet extensions for e2e tests
-RUN cd tests/e2e-polkadot-js && bun run test:prepare
+RUN cd packages/e2e-polkadot-js && bun run test:prepare
 
 # Set working directory to e2e-polkadot-js test folder
-WORKDIR /app/tests/e2e-polkadot-js
+WORKDIR /app/packages/e2e-polkadot-js
 
 # Default command to run tests with xvfb for headless browser
 CMD ["sh", "-c", "xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' -- npx playwright test --reporter=html"]

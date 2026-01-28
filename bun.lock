@@ -31,16 +31,7 @@
         "@playwright/test": "^1.57.0",
       },
     },
-    "packages/examples": {
-      "name": "examples",
-      "version": "1.0.0",
-      "devDependencies": {
-        "@avalix/chroma": "workspace:*",
-        "@playwright/test": "^1.55.0",
-        "@types/node": "^24.3.3",
-      },
-    },
-    "tests/e2e-polkadot-js": {
+    "packages/e2e-polkadot-js": {
       "name": "e2e-polkadot-js",
       "version": "0.0.0",
       "dependencies": {
@@ -66,6 +57,15 @@
         "typescript": "~5.9.3",
         "vite": "^7.3.0",
         "vue-tsc": "^3.2.2",
+      },
+    },
+    "packages/examples": {
+      "name": "examples",
+      "version": "1.0.0",
+      "devDependencies": {
+        "@avalix/chroma": "workspace:*",
+        "@playwright/test": "^1.55.0",
+        "@types/node": "^24.3.3",
       },
     },
   },
@@ -734,7 +734,7 @@
 
     "dts-resolver": ["dts-resolver@2.1.3", "", { "peerDependencies": { "oxc-resolver": ">=11.0.0" }, "optionalPeers": ["oxc-resolver"] }, "sha512-bihc7jPC90VrosXNzK0LTE2cuLP6jr0Ro8jk+kMugHReJVLIpHz/xadeq3MhuwyO4TD4OA3L1Q8pBBFRc08Tsw=="],
 
-    "e2e-polkadot-js": ["e2e-polkadot-js@workspace:tests/e2e-polkadot-js"],
+    "e2e-polkadot-js": ["e2e-polkadot-js@workspace:packages/e2e-polkadot-js"],
 
     "electron-to-chromium": ["electron-to-chromium@1.5.267", "", {}, "sha512-0Drusm6MVRXSOJpGbaSVgcQsuB4hEkMpHXaVstcPmhu5LIedxs1xNK/nIxmQIU/RPC0+1/o0AVZfBTkTNJOdUw=="],
 
