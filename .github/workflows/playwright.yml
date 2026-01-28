@@ -54,8 +54,8 @@ jobs:
     
     - name: Download wallet extensions
       run: |
-        cd packages/chroma
-        bun run download-extensions
+        cd tests/e2e-polkadot-js
+        bun run test:prepare
     
     - name: Run Playwright tests
       run: |
