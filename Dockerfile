@@ -32,8 +32,11 @@ COPY . .
 # Build the Chroma package
 RUN cd packages/chroma && bun run build
 
-# Download wallet extensions using chroma CLI from packages/chroma
-RUN cd packages/chroma && bun run download-extensions
+# Re-run install to link the chroma CLI bin after build
+RUN bun install
+
+# Download wallet extensions for e2e tests
+RUN cd tests/e2e-polkadot-js && bun run test:prepare
 
 # Set working directory to e2e-polkadot-js test folder
 WORKDIR /app/tests/e2e-polkadot-js
