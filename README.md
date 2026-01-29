@@ -49,12 +49,11 @@ You can run the Playwright tests in a Docker container for consistent CI/CD envi
 # Build the Docker image
 docker build -t chroma-test .
 
-# Run tests
-docker run --rm --shm-size=2gb chroma-test
+# Run e2e-polkadot-js tests
+docker run --rm --shm-size=2gb -e E2E_TARGET=polkadot-js chroma-test
 
-# Run specific tests
-docker run --rm --shm-size=2gb chroma-test \
-  sh -c "xvfb-run --auto-servernum -- npx playwright test polkadot-starter.spec.ts"
+# Run e2e-evm tests
+docker run --rm --shm-size=2gb -e E2E_TARGET=evm chroma-test
 
 # Interactive debugging
 docker run -it --rm --shm-size=2gb chroma-test bash
