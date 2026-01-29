@@ -20,7 +20,6 @@ WORKDIR /app
 # Copy package files first for better caching
 COPY package.json bun.lock ./
 COPY packages/chroma/package.json ./packages/chroma/
-COPY packages/examples/package.json ./packages/examples/
 COPY packages/e2e-polkadot-js/package.json ./packages/e2e-polkadot-js/
 COPY packages/e2e-evm/package.json ./packages/e2e-evm/
 
