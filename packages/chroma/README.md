@@ -301,13 +301,13 @@ Extensions will be downloaded to `./.chroma` directory in your project root. Add
 
 | Wallet | Status | Version |
 |--------|--------|---------|
-| Polkadot JS Extension | ✅ Supported | v0.61.7 |
-| Talisman | ✅ Supported | v3.0.5 |
+| Polkadot JS Extension | ✅ Supported | v0.62.6 |
+| Talisman | ✅ Supported | v3.1.13 |
 | SubWallet | ⏳ Planned | - |
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 24+
 - @playwright/test ^1.55.0
 
 ## Contributing
