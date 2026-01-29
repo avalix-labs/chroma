@@ -1,4 +1,4 @@
-name: Playwright Tests (Docker)
+name: Playwright (Docker)
 
 on:
   push:
@@ -14,6 +14,11 @@ jobs:
     timeout-minutes: 60
     runs-on: blacksmith-8vcpu-ubuntu-2404
 
+    strategy:
+      fail-fast: false
+      matrix:
+        e2e-target: [polkadot-js, evm]
+
     steps:
     - uses: actions/checkout@v4
 
@@ -23,20 +28,21 @@ jobs:
     - name: Run Playwright tests
       run: |
         docker run --rm --shm-size=2gb \
-          -v ${{ github.workspace }}/packages/e2e-polkadot-js/playwright-report:/app/packages/e2e-polkadot-js/playwright-report \
-          -v ${{ github.workspace }}/packages/e2e-polkadot-js/test-results:/app/packages/e2e-polkadot-js/test-results \
+          -e E2E_TARGET=${{ matrix.e2e-target }} \
+          -v ${{ github.workspace }}/packages/e2e-${{ matrix.e2e-target }}/playwright-report:/app/packages/e2e-${{ matrix.e2e-target }}/playwright-report \
+          -v ${{ github.workspace }}/packages/e2e-${{ matrix.e2e-target }}/test-results:/app/packages/e2e-${{ matrix.e2e-target }}/test-results \
           chroma-test
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
-        name: playwright-report-docker
-        path: packages/e2e-polkadot-js/playwright-report/
+        name: playwright-report-docker-${{ matrix.e2e-target }}
+        path: packages/e2e-${{ matrix.e2e-target }}/playwright-report/
         retention-days: 30
 
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: playwright-test-results-docker
-        path: packages/e2e-polkadot-js/test-results/
+        name: playwright-test-results-docker-${{ matrix.e2e-target }}
+        path: packages/e2e-${{ matrix.e2e-target }}/test-results/
         retention-days: 30
