@@ -1,5 +1,13 @@
 # @avalix/chroma
 
+## 0.0.11
+
+### Patch Changes
+
+- [#47](https://github.com/avalix-labs/chroma/pull/47) [`362ca9b`](https://github.com/avalix-labs/chroma/commit/362ca9b3ef7bd56548e1a77fdaa50376c1b31fc9) Thanks [@preschian](https://github.com/preschian)! - test: add vitest unit tests for download-extension utility
+
+- [#39](https://github.com/avalix-labs/chroma/pull/39) [`3a23a1b`](https://github.com/avalix-labs/chroma/commit/3a23a1bf626a22bb3bf5a2fb4fc453e2471ca4c8) Thanks [@preschian](https://github.com/preschian)! - fix: resolve Docker build failures in tsdown configuration
+
 ## 0.0.10
 
 ### Patch Changes
