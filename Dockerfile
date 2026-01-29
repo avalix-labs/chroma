@@ -22,6 +22,7 @@ COPY package.json bun.lock ./
 COPY packages/chroma/package.json ./packages/chroma/
 COPY packages/examples/package.json ./packages/examples/
 COPY packages/e2e-polkadot-js/package.json ./packages/e2e-polkadot-js/
+COPY packages/e2e-evm/package.json ./packages/e2e-evm/
 
 # Install dependencies (ignore scripts as chroma isn't built yet)
 RUN bun install --ignore-scripts
@@ -35,11 +36,12 @@ RUN cd packages/chroma && bun run build
 # Re-run install to link the chroma CLI bin after build
 RUN bun install
 
-# Download wallet extensions for e2e tests
-RUN cd packages/e2e-polkadot-js && bun run test:prepare
+# Set working directory back to app root
+WORKDIR /app
 
-# Set working directory to e2e-polkadot-js test folder
-WORKDIR /app/packages/e2e-polkadot-js
+# E2E_TARGET env var to specify which e2e package to test (required)
+# Examples: polkadot-js, evm, solana (will prepend e2e- automatically)
+ENV E2E_TARGET=""
 
-# Default command to run tests with xvfb for headless browser
-CMD ["sh", "-c", "xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' -- npx playwright test --reporter=html"]
+# Default command: prepare and run tests for specified E2E_TARGET
+CMD ["sh", "-c", "xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' -- sh -c 'cd /app/packages/e2e-$E2E_TARGET && bun run test:prepare && npx playwright test --reporter=html'"]
