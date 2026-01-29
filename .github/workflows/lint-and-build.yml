@@ -40,3 +40,8 @@ jobs:
         cd packages/chroma
         ls -la dist/
         echo "Build completed successfully"
+    
+    - name: Run unit tests
+      run: |
+        cd packages/chroma
+        bun run test:unit:run
