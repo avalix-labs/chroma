@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test --ui",
-    "prepare": "chroma download-extensions"
+    "test:prepare": "chroma download-extensions"
   },
   "keywords": [],
   "author": "",
