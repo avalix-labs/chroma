@@ -1,4 +1,12 @@
 import type { BrowserContext, Page } from '@playwright/test'
+import type {
+  PolkadotJsWalletInstance,
+  TalismanWalletInstance,
+  WalletInstance,
+} from './wallet-factory.js'
+
+// Re-export wallet instance types
+export type { PolkadotJsWalletInstance, TalismanWalletInstance, WalletInstance }
 
 // Wallet types - single source of truth
 export type WalletType = 'polkadot-js' | 'talisman'
@@ -18,30 +26,6 @@ export interface WalletConfig {
   type: WalletType
   downloadUrl?: string
 }
-
-// Base wallet instance - common methods for all wallets
-export interface BaseWalletInstance {
-  extensionId: string
-  importMnemonic: (options: WalletAccount) => Promise<void>
-  authorize: (options?: { accountName?: string }) => Promise<void>
-  approveTx: (options?: { password?: string }) => Promise<void>
-  rejectTx: () => Promise<void>
-}
-
-// Polkadot-JS specific wallet instance
-export interface PolkadotJsWalletInstance extends BaseWalletInstance {
-  type: 'polkadot-js'
-}
-
-// Talisman specific wallet instance (without importMnemonic, has explicit import methods)
-export interface TalismanWalletInstance extends Omit<BaseWalletInstance, 'importMnemonic'> {
-  type: 'talisman'
-  importPolkadotMnemonic: (options: WalletAccount) => Promise<void>
-  importEthPrivateKey: (options: { privateKey: string, name?: string, password?: string }) => Promise<void>
-}
-
-// Union type of all wallet instances
-export type WalletInstance = PolkadotJsWalletInstance | TalismanWalletInstance
 
 // Map wallet type to its instance
 export interface WalletTypeMap {
