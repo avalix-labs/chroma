@@ -92,23 +92,13 @@ export function createTalismanWallet(extensionId: string, context: BrowserContex
   }
 }
 
+// Wallet factories map - auto-inferred types
+export const walletFactories = {
+  'polkadot-js': createPolkadotJsWallet,
+  'talisman': createTalismanWallet,
+}
+
 // Auto-inferred types from factory functions
 export type PolkadotJsWalletInstance = ReturnType<typeof createPolkadotJsWallet>
 export type TalismanWalletInstance = ReturnType<typeof createTalismanWallet>
 export type WalletInstance = PolkadotJsWalletInstance | TalismanWalletInstance
-
-// Create wallet instance based on type
-export function createWalletInstance(
-  walletType: string,
-  extensionId: string,
-  context: BrowserContext,
-): WalletInstance {
-  switch (walletType) {
-    case 'polkadot-js':
-      return createPolkadotJsWallet(extensionId, context)
-    case 'talisman':
-      return createTalismanWallet(extensionId, context)
-    default:
-      throw new Error(`Unsupported wallet type: ${walletType}`)
-  }
-}

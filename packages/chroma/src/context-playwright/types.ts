@@ -11,9 +11,6 @@ export type { PolkadotJsWalletInstance, TalismanWalletInstance, WalletInstance }
 // Wallet types - single source of truth
 export type WalletType = 'polkadot-js' | 'talisman'
 
-// Available wallet types as constant array
-export const WALLET_TYPES: readonly WalletType[] = ['polkadot-js', 'talisman'] as const
-
 // Wallet account configuration
 export interface WalletAccount {
   seed: string
