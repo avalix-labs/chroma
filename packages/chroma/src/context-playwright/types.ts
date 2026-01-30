@@ -33,9 +33,10 @@ export interface PolkadotJsWalletInstance extends BaseWalletInstance {
   type: 'polkadot-js'
 }
 
-// Talisman specific wallet instance (with additional methods)
-export interface TalismanWalletInstance extends BaseWalletInstance {
+// Talisman specific wallet instance (without importMnemonic, has explicit import methods)
+export interface TalismanWalletInstance extends Omit<BaseWalletInstance, 'importMnemonic'> {
   type: 'talisman'
+  importPolkadotMnemonic: (options: WalletAccount) => Promise<void>
   importEthPrivateKey: (options: { privateKey: string, name?: string, password?: string }) => Promise<void>
 }
 

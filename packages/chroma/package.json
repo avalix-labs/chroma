@@ -44,7 +44,8 @@
     "lint": "eslint --fix .",
     "prepublishOnly": "npm run build",
     "download-extensions": "rm -rf .chroma && tsx scripts/download-extensions.ts",
-    "test": "playwright test --ui",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
     "test:unit": "vitest",
     "test:unit:run": "vitest run",
     "test:unit:coverage": "vitest run --coverage"
