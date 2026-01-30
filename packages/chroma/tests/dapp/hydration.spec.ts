@@ -43,7 +43,6 @@ test('Hydration', async ({ page, wallets }) => {
 
   // Connect Polkadot Wallet
   await page.getByRole('button', { name: 'Manage wallets' }).click()
-  await page.getByRole('button', { name: 'Manage wallets' }).click()
   await page.getByRole('button', { name: 'Polkadot Polkadot' }).click()
   await page.getByRole('button', { name: 'Talisman Logo Talisman Connect' }).click()
   await talisman.authorize({ accountName: dotAccount })

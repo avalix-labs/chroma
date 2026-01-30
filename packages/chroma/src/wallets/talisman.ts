@@ -59,30 +59,19 @@ async function findOnboardingPage(
   context: BrowserContext,
   extensionId: string,
 ): Promise<Page> {
-  const maxAttempts = 10
-  const retryDelay = 100
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const pages = context.pages()
-
-    for (const p of pages) {
-      const url = p.url()
-      if (url.includes('onboarding.html') || url.includes(`chrome-extension://${extensionId}/`)) {
-        return p
-      }
-    }
-
-    // If not found, wait before retrying
-    if (attempt < maxAttempts - 1) {
-      await new Promise(resolve => setTimeout(resolve, retryDelay))
-    }
-  }
-
-  // If no extension page found, open the popup page directly
+  // Open new dashboard page
   const popupUrl = `chrome-extension://${extensionId}/dashboard.html`
   const newPage = await context.newPage()
   await newPage.goto(popupUrl)
   await newPage.waitForLoadState('domcontentloaded')
+
+  // Close any other extension tabs that may have been opened automatically
+  for (const p of context.pages()) {
+    if (p !== newPage && p.url().includes(`chrome-extension://${extensionId}/`)) {
+      await p.close()
+    }
+  }
+
   return newPage
 }
 
@@ -97,18 +86,13 @@ async function completeOnboarding(
   // Wait for the page to load and become interactive
   await extensionPage.waitForLoadState('domcontentloaded')
 
-  // Click the get started button
-  await extensionPage.getByTestId('onboarding-get-started-button').click()
-
-  // Click the continue button if the page is already onboarded
-  if (await extensionPage.getByText('You\'ve already set your').isVisible()) {
-    await extensionPage.getByRole('button', { name: 'Continue' }).click()
-    await extensionPage.getByTestId('onboarding-privacy-accept-button').click()
-    await extensionPage.getByTestId('onboarding-enter-talisman-button').click()
-    await extensionPage.getByText('Pin Talisman for easy').click()
+  if (await extensionPage.getByRole('button', { name: 'Settings' }).isVisible()) {
     await extensionPage.getByRole('button', { name: 'Settings' }).click()
     return
   }
+
+  // Click the get started button
+  await extensionPage.getByTestId('onboarding-get-started-button').click()
 
   // Fill the password
   await extensionPage.getByRole('textbox', { name: 'Enter password' }).fill(password)
@@ -120,7 +104,9 @@ async function completeOnboarding(
   await extensionPage.getByTestId('onboarding-enter-talisman-button').click()
 
   // Enable auto risk scan
-  await extensionPage.getByText('Pin Talisman for easy').click()
+  if (await extensionPage.getByText('Pin Talisman for easy').isVisible()) {
+    await extensionPage.getByText('Pin Talisman for easy').click()
+  }
   await extensionPage.getByRole('button', { name: 'Settings' }).click()
   await extensionPage.getByRole('link', { name: 'Security & Privacy' }).click()
   await extensionPage.getByTestId('component-toggle-button').first().click()
@@ -223,11 +209,8 @@ export async function approveTalismanTx(
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
 
-  try {
+  if (await extensionPopup.getByRole('button', { name: 'Yes' }).isVisible()) {
     await extensionPopup.getByRole('button', { name: 'Yes' }).click()
-  }
-  catch {
-    console.log('No another popup found, skipping')
   }
 
   await extensionPopup.getByRole('button', { name: 'Approve' }).click()
