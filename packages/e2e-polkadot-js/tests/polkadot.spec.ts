@@ -9,8 +9,6 @@ const test = createWalletTest({
   wallets: [{ type: 'polkadot-js' }],
 })
 
-test.setTimeout(30_000 * 2)
-
 test.describe('test with polkadot-js wallet', () => {
   test.beforeAll(async ({ wallets }) => {
     console.log('[INFO] Testing with polkadot-js extension')
