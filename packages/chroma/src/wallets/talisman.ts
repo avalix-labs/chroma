@@ -224,5 +224,9 @@ export async function rejectTalismanTx(
   const extensionId = page.__extensionId
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
-  await extensionPopup.getByTestId('connection-reject-button').click()
+
+  const rejectButton = extensionPopup.getByTestId('connection-reject-button')
+    .or(extensionPopup.getByRole('button', { name: 'Cancel' }))
+
+  await rejectButton.click()
 }
