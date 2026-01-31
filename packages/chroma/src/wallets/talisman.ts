@@ -108,7 +108,7 @@ async function completeOnboarding(
     await extensionPage.getByText('Pin Talisman for easy').click()
   }
   await extensionPage.getByRole('button', { name: 'Settings' }).click({ force: true })
-  await extensionPage.screenshot()
+  await extensionPage.screenshot({ path: 'test-results/debug-talisman-settings.png' })
   // await extensionPage.getByRole('link', { name: 'Security & Privacy' }).click()
   // await extensionPage.getByTestId('component-toggle-button').first().click()
 }
