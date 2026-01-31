@@ -103,12 +103,13 @@ async function completeOnboarding(
   await extensionPage.getByRole('button', { name: 'No thanks' }).click()
   await extensionPage.getByTestId('onboarding-enter-talisman-button').click()
 
-  // Enable auto risk scan
-  if (await extensionPage.getByText('Pin Talisman for easy').isVisible()) {
-    await extensionPage.getByText('Pin Talisman for easy').click()
-  }
-  await extensionPage.getByRole('button', { name: 'Settings' }).click({ force: true })
+  // Navigate directly to settings/general page
+  const extensionId = extensionPage.url().match(/chrome-extension:\/\/([^/]+)/)?.[1]
+  await extensionPage.goto(`chrome-extension://${extensionId}/dashboard.html#/settings/general`)
+  await extensionPage.waitForLoadState('domcontentloaded')
   await extensionPage.getByRole('link', { name: 'Security & Privacy' }).click()
+
+  // Toggle the risk scan setting
   await extensionPage.getByTestId('component-toggle-button').first().click()
 }
 
@@ -182,14 +183,18 @@ export async function authorizeTalisman(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
   options: { accountName?: string } = {},
 ): Promise<void> {
-  const { accountName = 'Test Account' } = options
   const context = page.__extensionContext
   const extensionId = page.__extensionId
+  const { accountName = 'Test Account' } = options
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
+  await extensionPopup.waitForLoadState('domcontentloaded')
 
   // Authorize Talisman account
-  await extensionPopup.getByRole('button', { name: accountName }).click()
+  const accountButton = extensionPopup.getByRole('button', { name: accountName })
+  await accountButton.waitFor({ state: 'visible' })
+  await accountButton.scrollIntoViewIfNeeded()
+  await accountButton.click({ force: true })
   await extensionPopup.getByTestId('connection-connect-button').click()
 
   try {

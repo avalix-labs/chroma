@@ -9,5 +9,6 @@
   "linked": [],
   "access": "public",
   "baseBranch": "main",
-  "updateInternalDependencies": "patch"
+  "updateInternalDependencies": "patch",
+  "ignore": ["e2e-evm", "e2e-polkadot-js"]
 }
