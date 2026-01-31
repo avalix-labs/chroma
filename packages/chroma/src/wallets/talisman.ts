@@ -181,15 +181,17 @@ export async function importEthPrivateKey(
 // Talisman specific authorization implementation
 export async function authorizeTalisman(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  options: { accountName?: string } = {},
 ): Promise<void> {
   const context = page.__extensionContext
   const extensionId = page.__extensionId
+  const { accountName = 'Test Account' } = options
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
   await extensionPopup.waitForLoadState('domcontentloaded')
 
   // Authorize Talisman account
-  await extensionPopup.getByRole('button', { name: 'Connect All', exact: true }).click()
+  await extensionPopup.getByRole('button', { name: accountName }).click()
   await extensionPopup.getByTestId('connection-connect-button').click()
 
   try {
