@@ -6,6 +6,7 @@ FROM mcr.microsoft.com/playwright:v1.58.0-noble
 # Set environment variables
 ENV CI=true
 ENV DEBIAN_FRONTEND=noninteractive
+ENV DISPLAY=:99
 
 # Install unzip (required for Bun installation)
 RUN apt-get update && apt-get install -y unzip && rm -rf /var/lib/apt/lists/*
