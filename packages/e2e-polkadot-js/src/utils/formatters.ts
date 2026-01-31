@@ -3,8 +3,6 @@ import { encodeAddress } from 'dedot/utils'
 
 const subscan: Record<Prefix, string> = {
   dot: 'https://polkadot.subscan.io',
-  dot_asset_hub: 'https://assethub-polkadot.subscan.io',
-  pas: 'https://paseo.subscan.io',
   pas_asset_hub: 'https://assethub-paseo.subscan.io',
 }
 
@@ -31,7 +29,7 @@ export function explorerDetail(chain: Prefix, hash: string): string {
 }
 
 export function buyTokenUrl(chainKey: Prefix, address?: string) {
-  if (chainKey === 'dot' || chainKey === 'dot_asset_hub') {
+  if (chainKey === 'dot') {
     const url = new URL('https://checkout.banxa.com')
     url.searchParams.set('coinType', 'DOT')
     url.searchParams.set('blockchain', 'DOT')

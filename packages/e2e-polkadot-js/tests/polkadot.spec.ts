@@ -25,7 +25,9 @@ test.describe('test with polkadot-js wallet', () => {
   test(`test with polkadot-js wallet`, async ({ page, wallets }) => {
     const wallet = wallets['polkadot-js']
     await page.goto('/')
-    await page.waitForLoadState('networkidle')
+    await page.waitForLoadState('domcontentloaded')
+    await page.getByRole('heading', { name: 'Polkadot' }).waitFor({ state: 'visible' })
+    await page.getByRole('heading', { name: 'Paseo Asset Hub' }).waitFor({ state: 'visible' })
 
     await page.getByRole('button', { name: /Connect Wallet/i }).click()
 
@@ -45,7 +47,7 @@ test.describe('test with polkadot-js wallet', () => {
     await page.waitForTimeout(3000)
 
     console.log('[INFO] wallet.approveTx')
-    await page.getByRole('button', { name: 'Sign Transaction' }).nth(2).click()
+    await page.getByRole('button', { name: 'Sign Transaction' }).nth(1).click()
     await wallet.approveTx({ password: DOT_TEST_PASSWORD })
     await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
 
