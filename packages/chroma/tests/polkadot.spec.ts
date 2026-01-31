@@ -82,7 +82,7 @@ testWithTalisman('sign transaction on polkadot starter with talisman wallet', as
     await page.getByRole('button', { name: /CONNECT/i }).nth(1).click()
   }
 
-  await wallets.talisman.authorize()
+  await wallets.talisman.authorize({ accountName: ACCOUNT_NAME })
   await page.getByText(ACCOUNT_NAME).click()
 
   // Reject transaction
