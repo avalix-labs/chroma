@@ -1,5 +1,13 @@
 # @avalix/chroma
 
+## 0.0.12
+
+### Patch Changes
+
+- [#51](https://github.com/avalix-labs/chroma/pull/51) [`3aa47a6`](https://github.com/avalix-labs/chroma/commit/3aa47a636bddbf4bb418295a347ea2dea5ead90d) Thanks [@preschian](https://github.com/preschian)! - test: disable Talisman risk scan toggle for testing
+
+- [#49](https://github.com/avalix-labs/chroma/pull/49) [`5022462`](https://github.com/avalix-labs/chroma/commit/50224621280ae2dec0694dca99a262d0044b93c1) Thanks [@preschian](https://github.com/preschian)! - feat: add Polkadot account import support for Talisman wallet
+
 ## 0.0.11
 
 ### Patch Changes
