@@ -104,7 +104,6 @@ async function completeOnboarding(
   await extensionPage.getByTestId('onboarding-enter-talisman-button').click()
 
   // Navigate directly to settings/general page
-  await extensionPage.pause()
   const extensionId = extensionPage.url().match(/chrome-extension:\/\/([^/]+)/)?.[1]
   await extensionPage.goto(`chrome-extension://${extensionId}/dashboard.html#/settings/general`)
   await extensionPage.waitForLoadState('domcontentloaded')
