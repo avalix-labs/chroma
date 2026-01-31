@@ -109,8 +109,8 @@ async function completeOnboarding(
   }
   await extensionPage.getByRole('button', { name: 'Settings' }).click({ force: true })
   await extensionPage.screenshot({ path: 'test-results/debug-talisman-settings.png' })
-  // await extensionPage.getByRole('link', { name: 'Security & Privacy' }).click()
-  // await extensionPage.getByTestId('component-toggle-button').first().click()
+  await extensionPage.getByRole('link', { name: 'Security & Privacy' }).click()
+  await extensionPage.getByTestId('component-toggle-button').first().click()
 }
 
 // Talisman specific Polkadot mnemonic import implementation
