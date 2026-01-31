@@ -47,7 +47,7 @@ test.describe('test with polkadot-js wallet', () => {
     await page.waitForTimeout(3000)
 
     console.log('[INFO] wallet.approveTx')
-    await page.getByRole('button', { name: 'Sign Transaction' }).nth(3).click()
+    await page.getByRole('button', { name: 'Sign Transaction' }).nth(2).click()
     await wallet.approveTx({ password: DOT_TEST_PASSWORD })
     await page.getByText('Processing transaction...').waitFor({ state: 'visible' })
 
