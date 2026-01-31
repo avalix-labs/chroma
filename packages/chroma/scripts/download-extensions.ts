@@ -26,8 +26,8 @@ async function clearChromaDir(): Promise<void> {
 
 async function main() {
   const version = await getVersion()
-  console.log(`🎨 Chroma v${version}\n`)
-  console.log('🚀 Downloading wallet extensions...\n')
+  console.log(`\n🎨 Chroma v${version}`)
+  console.log('🚀 Downloading wallet extensions...')
 
   try {
     // Clear existing .chroma directory

@@ -1,43 +1,35 @@
 import { createWalletTest, expect } from '../../src/index.js'
 
-const ACCOUNT_NAME = 'Test Account'
-const DOT_TEST_MNEMONIC = 'bottom drive obey lake curtain smoke basket hold race lonely fit walk'
+const DOT_MNEMONIC = 'bottom drive obey lake curtain smoke basket hold race lonely fit walk'
 const ETH_PRIVATE_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const PASSWORD = 'h3llop0lkadot!'
 
 const test = createWalletTest({
-  wallets: [{ type: 'talisman' }, { type: 'polkadot-js' }],
-})
-
-test.beforeAll(async () => {
-  console.log('🚀 Starting test: dapp/turtle-cool.spec.ts')
-})
-
-test.afterAll(async () => {
-  console.log('✅ Finished test: dapp/turtle-cool.spec.ts')
+  wallets: [{ type: 'talisman' }],
 })
 
 test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
   const talisman = wallets.talisman
-  const polkadotJs = wallets['polkadot-js']
-  const accountName = ACCOUNT_NAME
 
   // Import accounts to both wallets
-  await Promise.all([
-    talisman.importEthPrivateKey({
-      privateKey: ETH_PRIVATE_KEY,
-      name: accountName,
-      password: PASSWORD,
-    }),
-    polkadotJs.importMnemonic({
-      seed: DOT_TEST_MNEMONIC,
-      password: PASSWORD,
-      name: accountName,
-    }),
-  ])
+  await talisman.importPolkadotMnemonic({
+    seed: DOT_MNEMONIC,
+    password: PASSWORD,
+    name: 'Dot Test Account',
+  })
+  await talisman.importEthPrivateKey({
+    privateKey: ETH_PRIVATE_KEY,
+    password: PASSWORD,
+    name: 'Eth Test Account',
+  })
 
   await page.goto('https://app.turtle.cool/')
   await page.waitForLoadState('networkidle')
+
+  // scroll to middle of the page
+  await page.evaluate(() => {
+    window.scrollTo(0, document.body.scrollHeight / 2)
+  })
 
   // Select Ethereum
   await page.getByTestId('chain-select-trigger-from').locator('div').nth(1).click()
@@ -57,7 +49,7 @@ test('Can connect wallet with multiple wallets', async ({ page, wallets }) => {
   await page.getByTestId('chain-select-trigger-to').getByRole('button', { name: 'Connect' }).click()
 
   // Connect Polkadot.js
-  await polkadotJs.authorize()
+  await talisman.authorize()
   await talisman.rejectTx() // somehow talisman popup appears, let's reject it for now
   await page.getByRole('button', { name: 'Polkadot.js INSTALLED' }).click()
   await page.getByRole('button', { name: 'Test Account 5dfh...qrzv' }).click()

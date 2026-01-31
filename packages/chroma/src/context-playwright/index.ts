@@ -4,16 +4,13 @@ import type {
   ExtendedPage,
   WalletConfig,
   WalletFixtures,
-  WalletInstance,
   Wallets,
-  WalletType,
   WalletWorkerFixtures,
 } from './types.js'
 import { test as base, chromium } from '@playwright/test'
 import { getPolkadotJSExtensionPath } from '../wallets/polkadot-js.js'
 import { getTalismanExtensionPath } from '../wallets/talisman.js'
-import { WALLET_TYPES } from './types.js'
-import { createWalletInstance } from './wallet-factory.js'
+import { walletFactories } from './wallet-factory.js'
 
 // Helper function to get extension path for a wallet config
 async function getExtensionPathForWallet(config: WalletConfig): Promise<string> {
@@ -117,17 +114,17 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
 
     // Wallet instances for each configured wallet
     wallets: async ({ walletContext, walletExtensionIds }, use) => {
-      const walletMap: Partial<ExpectedWallets> = {}
+      const walletMap = {} as ExpectedWallets
 
       // Create wallet instance for each configured wallet
       for (const [walletType, extensionId] of walletExtensionIds) {
-        if (WALLET_TYPES.includes(walletType as WalletType)) {
-          const instance = createWalletInstance(walletType, extensionId, walletContext);
-          (walletMap as Record<string, WalletInstance>)[walletType] = instance
+        const factory = walletFactories[walletType as keyof typeof walletFactories]
+        if (factory) {
+          walletMap[walletType as keyof ExpectedWallets] = factory(extensionId, walletContext) as ExpectedWallets[keyof ExpectedWallets]
         }
       }
 
-      await use(walletMap as ExpectedWallets)
+      await use(walletMap)
     },
   })
 }

@@ -34,7 +34,7 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
   }
 
   try {
-    console.log(`📥 Downloading ${extensionName}...`)
+    console.log(`\n📥 Downloading ${extensionName}...`)
 
     // Download the ZIP file
     const response = await fetch(downloadUrl)
