@@ -103,13 +103,14 @@ async function completeOnboarding(
   await extensionPage.getByRole('button', { name: 'No thanks' }).click()
   await extensionPage.getByTestId('onboarding-enter-talisman-button').click()
 
-  // Enable auto risk scan
+  // Navigate directly to settings/general page
+  await extensionPage.pause()
+  const extensionId = extensionPage.url().match(/chrome-extension:\/\/([^/]+)/)?.[1]
+  await extensionPage.goto(`chrome-extension://${extensionId}/dashboard.html#/settings/general`)
   await extensionPage.waitForLoadState('domcontentloaded')
-  if (await extensionPage.getByText('Pin Talisman for easy').isVisible()) {
-    await extensionPage.getByText('Pin Talisman for easy').click()
-  }
-  await extensionPage.getByRole('button', { name: 'Settings' }).click({ force: true })
   await extensionPage.getByRole('link', { name: 'Security & Privacy' }).click()
+
+  // Toggle the risk scan setting
   await extensionPage.getByTestId('component-toggle-button').first().click()
 }
 
