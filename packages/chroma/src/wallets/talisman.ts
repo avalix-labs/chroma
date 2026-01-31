@@ -87,7 +87,7 @@ async function completeOnboarding(
   await extensionPage.waitForLoadState('domcontentloaded')
 
   if (await extensionPage.getByRole('button', { name: 'Settings' }).isVisible()) {
-    await extensionPage.getByRole('button', { name: 'Settings' }).click()
+    await extensionPage.getByRole('button', { name: 'Settings' }).click({ force: true })
     return
   }
 
@@ -107,7 +107,7 @@ async function completeOnboarding(
   if (await extensionPage.getByText('Pin Talisman for easy').isVisible()) {
     await extensionPage.getByText('Pin Talisman for easy').click()
   }
-  await extensionPage.getByRole('button', { name: 'Settings' }).click()
+  await extensionPage.getByRole('button', { name: 'Settings' }).click({ force: true })
   await extensionPage.getByRole('link', { name: 'Security & Privacy' }).click()
   await extensionPage.getByTestId('component-toggle-button').first().click()
 }
