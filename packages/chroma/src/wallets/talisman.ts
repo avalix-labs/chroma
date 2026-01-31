@@ -104,6 +104,7 @@ async function completeOnboarding(
   await extensionPage.getByTestId('onboarding-enter-talisman-button').click()
 
   // Enable auto risk scan
+  await extensionPage.waitForLoadState('domcontentloaded')
   if (await extensionPage.getByText('Pin Talisman for easy').isVisible()) {
     await extensionPage.getByText('Pin Talisman for easy').click()
   }
