@@ -191,9 +191,8 @@ export async function authorizeTalisman(
   await extensionPopup.waitForLoadState('domcontentloaded')
 
   // Authorize Talisman account
-  await extensionPopup.setViewportSize({ width: 400, height: 600 })
   const accountButton = extensionPopup.getByRole('button', { name: accountName })
-  await accountButton.waitFor({ state: 'visible', timeout: 10000 })
+  await accountButton.waitFor({ state: 'visible' })
   await accountButton.scrollIntoViewIfNeeded()
   await accountButton.click({ force: true })
   await extensionPopup.getByTestId('connection-connect-button').click()

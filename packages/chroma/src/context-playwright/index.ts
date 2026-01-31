@@ -31,7 +31,7 @@ async function getExtensionPathForWallet(config: WalletConfig): Promise<string> 
 export function createWalletTest<const T extends readonly WalletConfig[]>(
   options: ChromaTestOptions<T> = {} as ChromaTestOptions<T>,
 ) {
-  const { headless = false, slowMo = 150 } = options
+  const { headless = false, slowMo = 200 } = options
 
   // Default to polkadot-js if no wallets specified
   const walletConfigs: readonly WalletConfig[] = options.wallets && options.wallets.length > 0
