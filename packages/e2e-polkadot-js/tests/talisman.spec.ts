@@ -9,7 +9,7 @@ const test = createWalletTest({
   wallets: [{ type: 'talisman' }],
 })
 
-test.setTimeout(30_000 * 2)
+// test.setTimeout(30_000 * 2)
 
 test.describe('test with talisman wallet', () => {
   test.beforeAll(async ({ wallets }) => {

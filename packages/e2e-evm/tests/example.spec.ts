@@ -7,7 +7,7 @@ const PASSWORD = 'h3llop0lkadot!'
 
 const test = createWalletTest({ wallets: [{ type: 'talisman' }] as const })
 
-test.setTimeout(30_000 * 2)
+// test.setTimeout(30_000 * 2)
 
 test.beforeAll(async ({ wallets }) => {
   console.log('[INFO] Testing with talisman extension')
