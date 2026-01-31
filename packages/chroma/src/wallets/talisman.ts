@@ -188,6 +188,7 @@ export async function authorizeTalisman(
   const extensionId = page.__extensionId
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
+  await extensionPopup.waitForLoadState('domcontentloaded')
 
   // Authorize Talisman account
   await extensionPopup.getByRole('button', { name: accountName }).click()
