@@ -19,7 +19,7 @@ async function clearChromaDir(): Promise<void> {
   const chromaDir = path.resolve(process.cwd(), '.chroma')
 
   if (fs.existsSync(chromaDir)) {
-    console.log('🗑️  Clearing existing .chroma directory...')
+    console.log('🗑️ Clearing existing .chroma directory...')
     await fs.promises.rm(chromaDir, { recursive: true, force: true })
   }
 }

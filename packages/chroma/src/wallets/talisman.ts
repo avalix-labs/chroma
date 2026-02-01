@@ -194,6 +194,7 @@ export async function authorizeTalisman(
   const accountButton = extensionPopup.getByRole('button', { name: accountName })
   await accountButton.waitFor({ state: 'visible' })
   await accountButton.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(1000)
   await accountButton.click({ force: true })
   await extensionPopup.getByTestId('connection-connect-button').click()
 
