@@ -84,14 +84,10 @@ test('multi-wallet test', async ({ page, wallets }) => {
 
 ## Features
 
-- **Easy Extension Setup**: Simple command to download wallet extensions
-- **Test Fixtures**: Ready-to-use Playwright fixtures for wallet operations
-- **Account Management**: Import accounts with seed phrases and custom names
-- **Transaction Approval**: Approve transactions with password authentication
-- **dApp Authorization**: Connect wallet to decentralized applications
-- **Multi-Wallet Support**: Test with multiple wallet extensions simultaneously
-- **TypeScript Support**: Full type safety and autocomplete
-- **VS Code Integration**: Works with [Playwright Test for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright) extension
+- Easy wallet extension setup
+- Multi-wallet support
+- TypeScript support
+- [VS Code extension](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright) support
 
 ## Supported Chains
 
