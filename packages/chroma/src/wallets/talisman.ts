@@ -192,7 +192,7 @@ export async function authorizeTalisman(
 
   // Authorize Talisman account
   const accountButton = extensionPopup.getByRole('button', { name: accountName })
-  await accountButton.waitFor({ state: 'visible' })
+  // await accountButton.waitFor({ state: 'visible' })
 
   // Click account button and verify selection indicator appears, retry if needed
   const maxClickAttempts = 3
