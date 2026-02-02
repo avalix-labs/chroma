@@ -197,11 +197,11 @@ export async function authorizeTalisman(
   // Click account button and verify selection indicator appears, retry if needed
   const maxClickAttempts = 3
   for (let attempt = 0; attempt < maxClickAttempts; attempt++) {
-    await accountButton.click()
-
-    // Check if the selection indicator (rounded-full bg-primary) appears inside the button
-    const selectionIndicator = accountButton.locator('div.rounded-full.bg-primary')
     try {
+      await accountButton.click()
+
+      // Check if the selection indicator (rounded-full bg-primary) appears inside the button
+      const selectionIndicator = accountButton.locator('div.rounded-full.bg-primary')
       await selectionIndicator.waitFor({ state: 'visible', timeout: 1000 })
       break // Selection successful, exit loop
     }
