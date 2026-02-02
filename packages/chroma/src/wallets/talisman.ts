@@ -192,28 +192,9 @@ export async function authorizeTalisman(
 
   // Authorize Talisman account
   const accountButton = extensionPopup.getByRole('button', { name: accountName })
-  // await accountButton.waitFor({ state: 'visible' })
-
-  // Click account button and verify selection indicator appears, retry if needed
-  const maxClickAttempts = 3
-  for (let attempt = 0; attempt < maxClickAttempts; attempt++) {
-    try {
-      await accountButton.click()
-
-      // Check if the selection indicator (rounded-full bg-primary) appears inside the button
-      const selectionIndicator = accountButton.locator('div.rounded-full.bg-primary')
-      await selectionIndicator.waitFor({ state: 'visible', timeout: 1000 })
-      break // Selection successful, exit loop
-    }
-    catch {
-      if (attempt === maxClickAttempts - 1) {
-        throw new Error(`Failed to select account "${accountName}" after ${maxClickAttempts} attempts`)
-      }
-      // Wait a bit before retrying
-      await extensionPopup.waitForTimeout(300)
-    }
-  }
-
+  await accountButton.waitFor({ state: 'visible' })
+  await accountButton.scrollIntoViewIfNeeded()
+  await accountButton.click({ force: true })
   await extensionPopup.getByTestId('connection-connect-button').click()
 
   try {
