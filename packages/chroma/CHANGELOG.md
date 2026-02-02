@@ -1,5 +1,17 @@
 # @avalix/chroma
 
+## 0.0.12
+
+### Patch Changes
+
+- [#53](https://github.com/avalix-labs/chroma/pull/53) [`5ec154d`](https://github.com/avalix-labs/chroma/commit/5ec154d36c75009ebbeed8c1f848ea3d379e5647) Thanks [@preschian](https://github.com/preschian)! - docs: simplify chroma README
+
+- [#52](https://github.com/avalix-labs/chroma/pull/52) [`712e2cc`](https://github.com/avalix-labs/chroma/commit/712e2cc33f136e1a46b498a9caec0336f7daba32) Thanks [@preschian](https://github.com/preschian)! - fix: add timeout before clicking account button in Talisman auth
+
+- [#51](https://github.com/avalix-labs/chroma/pull/51) [`3aa47a6`](https://github.com/avalix-labs/chroma/commit/3aa47a636bddbf4bb418295a347ea2dea5ead90d) Thanks [@preschian](https://github.com/preschian)! - test: disable Talisman risk scan toggle for testing
+
+- [#49](https://github.com/avalix-labs/chroma/pull/49) [`5022462`](https://github.com/avalix-labs/chroma/commit/50224621280ae2dec0694dca99a262d0044b93c1) Thanks [@preschian](https://github.com/preschian)! - feat: add Polkadot account import support for Talisman wallet
+
 ## 0.0.11
 
 ### Patch Changes
