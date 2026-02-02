@@ -84,10 +84,10 @@ test('multi-wallet test', async ({ page, wallets }) => {
 
 ## Features
 
-- Easy wallet extension setup
-- Multi-wallet support
-- TypeScript support
-- [VS Code extension](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright) support
+- **Easy Extension Setup** - Download wallet extensions with a single command
+- **Multi-Wallet Support** - Test with multiple wallet extensions simultaneously
+- **TypeScript Support** - Full type safety and autocomplete
+- **VS Code Integration** - Works with [Playwright Test for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright)
 
 ## Supported Chains
 
