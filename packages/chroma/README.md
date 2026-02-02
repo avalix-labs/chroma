@@ -90,6 +90,8 @@ test('multi-wallet test', async ({ page, wallets }) => {
 - **Transaction Approval**: Approve transactions with password authentication
 - **dApp Authorization**: Connect wallet to decentralized applications
 - **Multi-Wallet Support**: Test with multiple wallet extensions simultaneously
+- **TypeScript Support**: Full type safety and autocomplete
+- **VS Code Integration**: Works with [Playwright Test for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright) extension
 
 ## Supported Chains
 
