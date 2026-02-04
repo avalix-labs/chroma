@@ -61,6 +61,7 @@
     "@playwright/test": "^1.57.0",
     "@types/node": "^24.10.2",
     "@types/unzipper": "^0.10.11",
+    "@vitest/coverage-v8": "4.0.18",
     "eslint": "^9.39.1",
     "tsdown": "^0.20.1",
     "tsx": "^4.21.0",
