@@ -3,9 +3,14 @@ import { defineConfig, devices } from '@playwright/test'
 
 /**
  * See https://playwright.dev/docs/test-configuration.
+ *
+ * NOTE: This config is for playground-e2e only.
+ * The playground-e2e folder contains experimental/playground code that is not
+ * part of the main test suite. It is not run in CI/CD and may be messy.
+ * Reviewers can safely ignore this folder and config.
  */
 export default defineConfig({
-  testDir: './tests',
+  testDir: './playground-e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
