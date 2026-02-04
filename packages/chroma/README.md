@@ -2,6 +2,10 @@
 
 End-to-end testing library for Polkadot wallet interactions using Playwright.
 
+## Documentation
+
+We highly recommend you take a look at the [Chroma documentation](https://chroma-docs.up.railway.app/docs) to level up. It's a great resource for learning more about the library. It covers everything from getting started to advanced topics like CI/CD integration and Docker setup.
+
 ## Installation
 
 ```bash
