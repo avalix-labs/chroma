@@ -15,14 +15,20 @@ import {
 } from '../wallets/talisman.js'
 
 // Helper to create extended page with wallet context
+/* c8 ignore start */
 function createExtendedPage(page: Page, context: BrowserContext, extensionId: string) {
   const extPage = page as Page & { __extensionContext: BrowserContext, __extensionId: string }
   extPage.__extensionContext = context
   extPage.__extensionId = extensionId
   return extPage
 }
+/* c8 ignore stop */
 
-// Factory function for Polkadot-JS wallet
+/*
+ * Factory function for Polkadot-JS wallet
+ * Coverage excluded: methods interact with Chrome extension APIs via browser context.
+ */
+/* c8 ignore start */
 export function createPolkadotJsWallet(extensionId: string, context: BrowserContext) {
   return {
     extensionId,
@@ -49,8 +55,13 @@ export function createPolkadotJsWallet(extensionId: string, context: BrowserCont
     },
   }
 }
+/* c8 ignore stop */
 
-// Factory function for Talisman wallet
+/*
+ * Factory function for Talisman wallet
+ * Coverage excluded: methods interact with Chrome extension APIs via browser context.
+ */
+/* c8 ignore start */
 export function createTalismanWallet(extensionId: string, context: BrowserContext) {
   let importedAccountName: string | undefined
 
@@ -91,6 +102,7 @@ export function createTalismanWallet(extensionId: string, context: BrowserContex
     },
   }
 }
+/* c8 ignore stop */
 
 // Wallet factories map - auto-inferred types
 export const walletFactories = {

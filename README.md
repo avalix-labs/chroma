@@ -10,7 +10,11 @@ npx chroma download-extensions
 ```
 
 ```typescript
-import { test } from '@avalix/chroma'
+import { createWalletTest } from '@avalix/chroma'
+
+const test = createWalletTest({
+  wallets: [{ type: 'polkadot-js' }]
+})
 
 test('connect wallet', async ({ page, wallets }) => {
   const polkadotJs = wallets['polkadot-js']
@@ -25,7 +29,11 @@ test('connect wallet', async ({ page, wallets }) => {
 })
 ```
 
-## Supported Chains
+For detailed tutorials and guides, visit the [Documentation](https://chroma-docs.up.railway.app/docs)
+
+## Supported Wallets & Chains
+
+### Supported Chains
 
 | Chain | Status |
 |-------|--------|
@@ -33,7 +41,7 @@ test('connect wallet', async ({ page, wallets }) => {
 | Ethereum | Supported |
 | Solana | Planned |
 
-## Supported Wallets
+### Supported Wallets
 
 | Wallet | Status |
 |--------|--------|
@@ -41,9 +49,32 @@ test('connect wallet', async ({ page, wallets }) => {
 | Talisman | Supported |
 | SubWallet | Planned |
 
-## Running Tests with Docker
+## Test Matrix
 
-You can run the Playwright tests in a Docker container for consistent CI/CD environments.
+For detailed test coverage and mapping of features to tests, see [TEST_MATRIX.md](./packages/chroma/TEST_MATRIX.md).
+
+## Running Tests
+
+### Unit Tests
+
+```bash
+cd packages/chroma
+bun run test:unit:coverage
+```
+
+### E2E Tests (Local)
+
+```bash
+# Polkadot-JS dApp
+cd packages/e2e-polkadot-js
+bun run test
+
+# EVM dApp
+cd packages/e2e-evm
+bun run test
+```
+
+### E2E Tests (Docker)
 
 ```bash
 # Build the Docker image
@@ -59,9 +90,19 @@ docker run --rm --shm-size=2gb -e E2E_TARGET=evm chroma-test
 docker run -it --rm --shm-size=2gb chroma-test bash
 ```
 
-## Documentation
+## Project Structure
 
-See [@avalix/chroma](./packages/chroma) for detailed documentation.
+```
+packages/
+├── chroma/                       # Main library
+│   ├── src/                      # Source code
+│   │   ├── context-playwright/   # Playwright fixtures
+│   │   ├── wallets/              # Wallet implementations
+│   │   └── utils/                # Utilities
+│   └── tests/                    # E2E tests playground for the library
+├── e2e-polkadot-js/              # Polkadot dApp example
+└── e2e-evm/                      # EVM dApp example
+```
 
 ## License
 

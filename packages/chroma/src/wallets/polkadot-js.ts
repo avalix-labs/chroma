@@ -12,7 +12,11 @@ export const POLKADOT_JS_CONFIG = {
   extensionName: `polkadot-extension-${VERSION}`,
 } as const
 
-// Helper function to find extension popup
+/*
+ * Helper function to find extension popup
+ * Coverage excluded: requires real browser context with Chrome extension APIs.
+ */
+/* c8 ignore start */
 async function findExtensionPopup(context: BrowserContext, extensionId: string): Promise<Page> {
   // Wait for extension popup to appear with retry logic
   const maxAttempts = 10
@@ -35,6 +39,7 @@ async function findExtensionPopup(context: BrowserContext, extensionId: string):
 
   throw new Error(`Extension popup not found for ID: ${extensionId}`)
 }
+/* c8 ignore stop */
 
 // Get Polkadot-JS extension path
 export async function getPolkadotJSExtensionPath(): Promise<string> {
@@ -52,6 +57,13 @@ export async function getPolkadotJSExtensionPath(): Promise<string> {
 
   return extensionDir
 }
+
+/*
+ * Wallet interaction functions below are excluded from coverage because:
+ * - They require a real Chromium browser with extension support
+ * - They interact with Chrome extension popup pages
+ */
+/* c8 ignore start */
 
 // Polkadot-JS specific account import implementation
 export async function importPolkadotJSAccount(
@@ -142,3 +154,5 @@ export async function rejectPolkadotJSTx(
   const extensionPopup = await findExtensionPopup(context, extensionId)
   await extensionPopup.getByRole('link', { name: 'Cancel' }).click()
 }
+
+/* c8 ignore stop */

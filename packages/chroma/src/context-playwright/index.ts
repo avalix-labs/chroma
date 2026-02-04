@@ -13,7 +13,7 @@ import { getTalismanExtensionPath } from '../wallets/talisman.js'
 import { walletFactories } from './wallet-factory.js'
 
 // Helper function to get extension path for a wallet config
-async function getExtensionPathForWallet(config: WalletConfig): Promise<string> {
+export async function getExtensionPathForWallet(config: WalletConfig): Promise<string> {
   const { type } = config
 
   switch (type) {
@@ -43,6 +43,15 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
   // Compute the expected wallets type
   type ExpectedWallets = T extends readonly WalletConfig[] ? ConfiguredWallets<T> : Wallets
 
+  /*
+   * Playwright Fixtures - Coverage Exclusion
+   *
+   * The fixture implementations below are excluded from unit test coverage because:
+   * 1. They require a real Chromium browser with extension support
+   * 2. They interact with Chrome's extension APIs (service workers, extension IDs)
+   * 3. They are thoroughly tested via E2E tests in the tests/ directory
+   */
+  /* c8 ignore start */
   return base.extend<WalletFixtures<ExpectedWallets>, WalletWorkerFixtures>({
     // Worker-scoped: Browser context with extension(s) (persists across all tests in worker)
     // eslint-disable-next-line no-empty-pattern
@@ -127,6 +136,7 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
       await use(walletMap)
     },
   })
+  /* c8 ignore stop */
 }
 
 // Default test with Polkadot JS wallet (with persistent wallet support via worker-scoped fixtures)

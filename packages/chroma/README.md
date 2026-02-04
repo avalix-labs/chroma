@@ -2,6 +2,10 @@
 
 End-to-end testing library for Polkadot wallet interactions using Playwright.
 
+## Documentation
+
+We highly recommend you take a look at the [Chroma documentation](https://chroma-docs.up.railway.app/docs) to level up. It's a great resource for learning more about the library. It covers everything from getting started to advanced topics like CI/CD integration and Docker setup.
+
 ## Installation
 
 ```bash
@@ -82,14 +86,9 @@ test('multi-wallet test', async ({ page, wallets }) => {
 })
 ```
 
-## Features
+## Supported Wallets & Chains
 
-- **Easy Extension Setup** - Download wallet extensions with a single command
-- **Multi-Wallet Support** - Test with multiple wallet extensions simultaneously
-- **TypeScript Support** - Full type safety and autocomplete
-- **VS Code Integration** - Works with [Playwright Test for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright)
-
-## Supported Chains
+### Supported Chains
 
 | Chain | Status |
 |-------|--------|
@@ -97,7 +96,7 @@ test('multi-wallet test', async ({ page, wallets }) => {
 | Ethereum | ✅ Supported |
 | Solana | ⏳ Planned |
 
-## Supported Wallets
+### Supported Wallets
 
 | Wallet | Status | Version |
 |--------|--------|---------|
@@ -105,6 +104,13 @@ test('multi-wallet test', async ({ page, wallets }) => {
 | Talisman | ✅ Supported | v3.1.13 |
 | SubWallet | ⏳ Planned | - |
 | MetaMask | ⏳ Planned | - |
+
+## Features
+
+- **Easy Extension Setup** - Download wallet extensions with a single command
+- **Multi-Wallet Support** - Test with multiple wallet extensions simultaneously
+- **TypeScript Support** - Full type safety and autocomplete
+- **VS Code Integration** - Works with [Playwright Test for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright)
 
 ## Requirements
 
