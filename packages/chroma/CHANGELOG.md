@@ -1,5 +1,11 @@
 # @avalix/chroma
 
+## 0.0.13
+
+### Patch Changes
+
+- [#54](https://github.com/avalix-labs/chroma/pull/54) [`73deb92`](https://github.com/avalix-labs/chroma/commit/73deb92b7a6bf4ad3aad88970376f191752cc100) Thanks [@preschian](https://github.com/preschian)! - test: more coverage
+
 ## 0.0.12
 
 ### Patch Changes
