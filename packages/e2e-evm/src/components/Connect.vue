@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { Connector } from '@wagmi/vue'
 import type { Chain } from '@wagmi/vue/chains'
-import { useAccount, useChainId, useChains, useConnect, useConnectorClient, useDisconnect } from '@wagmi/vue'
+import { useAccount, useChainId, useChains, useConnect, useDisconnect, useSwitchChain } from '@wagmi/vue'
 import { computed, ref } from 'vue'
-import { ensurePaseoTestnet } from '../utils/chain'
 import { shortenAddress } from '../utils/formatters'
 
 // Popular wallets for when no connectors are available
@@ -21,12 +20,14 @@ const popularWallets = [
 ]
 
 const connectModal = ref<HTMLDialogElement | null>(null)
+const chainSelectorOpen = ref(false)
+const switchingChain = ref(false)
 const chainId = useChainId()
 const chains = useChains()
 const { connect, connectors, error, status } = useConnect()
 const { disconnect } = useDisconnect()
 const { address, isConnected, connector } = useAccount()
-const { data: connectorClient } = useConnectorClient()
+const { switchChainAsync } = useSwitchChain()
 
 // Get the connected chain instead of using config
 const connectedChain = computed(() => {
@@ -49,21 +50,39 @@ function closeConnectModal() {
   connectModal.value?.close()
 }
 
-async function handleConnect(connector: Connector) {
-  try {
-    // Connect first to get the client
-    connect({ connector, chainId: connectedChain.value.id })
-    closeConnectModal()
+function toggleChainSelector() {
+  chainSelectorOpen.value = !chainSelectorOpen.value
+}
 
-    // Add chain after connection if client is available
-    if (connectorClient.value) {
-      try {
-        await ensurePaseoTestnet(connectorClient.value)
-      }
-      catch (err) {
-        console.error('Failed to add chain:', err)
-      }
-    }
+function closeChainSelector() {
+  chainSelectorOpen.value = false
+}
+
+async function handleSwitchChain(chain: Chain) {
+  if (chain.id === chainId.value) {
+    closeChainSelector()
+    return
+  }
+
+  switchingChain.value = true
+  try {
+    // wagmi's switchChainAsync handles adding + switching the chain
+    // since all chains are already configured in the wagmi config
+    await switchChainAsync({ chainId: chain.id })
+  }
+  catch (err) {
+    console.error('Failed to switch chain:', err)
+  }
+  finally {
+    switchingChain.value = false
+    closeChainSelector()
+  }
+}
+
+async function handleConnect(conn: Connector) {
+  try {
+    connect({ connector: conn, chainId: connectedChain.value.id })
+    closeConnectModal()
   }
   catch (err) {
     console.error('Failed to connect:', err)
@@ -80,6 +99,81 @@ function handleDisconnect() {
 <template>
   <!-- Connect/Disconnect Buttons -->
   <div class="flex items-center gap-2">
+    <!-- Chain Selector (only shown when connected) -->
+    <div v-if="isConnected" class="relative">
+      <button
+        class="btn btn-outline btn-sm font-mono gap-1"
+        :disabled="switchingChain"
+        @click="toggleChainSelector"
+      >
+        <span class="icon-[mdi--swap-horizontal] w-4 h-4" />
+        <span class="hidden sm:block">{{ connectedChain.name }}</span>
+        <span
+          class="icon-[mdi--chevron-down] w-4 h-4 transition-transform"
+          :class="{ 'rotate-180': chainSelectorOpen }"
+        />
+      </button>
+
+      <!-- Chain Dropdown -->
+      <Transition
+        enter-active-class="transition ease-out duration-150"
+        enter-from-class="opacity-0 scale-95 -translate-y-1"
+        enter-to-class="opacity-100 scale-100 translate-y-0"
+        leave-active-class="transition ease-in duration-100"
+        leave-from-class="opacity-100 scale-100 translate-y-0"
+        leave-to-class="opacity-0 scale-95 -translate-y-1"
+      >
+        <div
+          v-if="chainSelectorOpen"
+          class="absolute right-0 top-full mt-2 z-50 min-w-56 rounded-lg border border-base-300 bg-base-100 shadow-lg"
+        >
+          <div class="px-3 py-2 border-b border-base-300">
+            <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">
+              Select Network
+            </p>
+          </div>
+          <ul class="py-1">
+            <li
+              v-for="chain in chains"
+              :key="chain.id"
+              class="px-1"
+            >
+              <button
+                class="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm transition-colors"
+                :class="chain.id === chainId
+                  ? 'bg-primary/10 text-primary font-medium'
+                  : 'hover:bg-base-200 text-base-content'"
+                :disabled="switchingChain"
+                @click="handleSwitchChain(chain)"
+              >
+                <span
+                  class="w-2 h-2 rounded-full shrink-0"
+                  :class="chain.id === chainId ? 'bg-primary' : 'bg-gray-300'"
+                />
+                <span class="truncate">{{ chain.name }}</span>
+                <span
+                  v-if="chain.id === chainId"
+                  class="icon-[mdi--check] w-4 h-4 ml-auto shrink-0"
+                />
+                <span
+                  v-if="switchingChain && chain.id !== chainId"
+                  class="icon-[mdi--loading] w-4 h-4 ml-auto animate-spin shrink-0"
+                />
+              </button>
+            </li>
+          </ul>
+        </div>
+      </Transition>
+
+      <!-- Backdrop to close dropdown -->
+      <div
+        v-if="chainSelectorOpen"
+        class="fixed inset-0 z-40"
+        @click="closeChainSelector"
+      />
+    </div>
+
+    <!-- Connect / Address Button -->
     <button
       class="btn btn-outline btn-sm font-mono"
       @click="openConnectModal"

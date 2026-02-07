@@ -3,8 +3,15 @@ import type { Chain } from '@wagmi/vue/chains'
 import { useAccount, useChainId, useChains, useReadContract, useWaitForTransactionReceipt, useWriteContract } from '@wagmi/vue'
 import { computed, ref, watch } from 'vue'
 import { STORAGE_ADDRESS, StorageABI } from '../config/contracts'
+import { moonbaseAlpha, passetHub } from '../config/wagmi'
 import { shortenAddress } from '../utils/formatters'
 import Balance from './Balance.vue'
+
+// Faucet URLs per chain
+const faucetMap: Record<number, { url: string, label: string }> = {
+  [passetHub.id]: { url: 'https://faucet.polkadot.io/?parachain=1111', label: 'Get Testnet PAS' },
+  [moonbaseAlpha.id]: { url: 'https://faucet.moonbeam.network', label: 'Get Testnet DEV' },
+}
 
 // Account and contract hooks
 const { address, isConnected } = useAccount()
@@ -14,6 +21,25 @@ const chains = useChains()
 // Get the connected chain instead of using config
 const connectedChain = computed(() => {
   return chains.value.find((chain: Chain) => chain.id === chainId.value) || chains.value[0]
+})
+
+// Faucet info for current chain
+const faucetInfo = computed(() => {
+  return faucetMap[chainId.value] ?? faucetMap[passetHub.id]
+})
+
+// Block explorer URL for current chain
+const explorerUrl = computed(() => {
+  return connectedChain.value.blockExplorers?.default?.url ?? 'https://blockscout-testnet.polkadot.io/'
+})
+
+// Chain icon class
+const chainIconClass = computed(() => {
+  const iconMap: Record<number, string> = {
+    [passetHub.id]: 'icon-[token-branded--polkadot]',
+    [moonbaseAlpha.id]: 'icon-[token-branded--moonbeam]',
+  }
+  return iconMap[chainId.value] ?? 'icon-[mdi--currency-eth]'
 })
 const { writeContract, data: writeData, isPending: isWritePending, error: writeError } = useWriteContract()
 
@@ -69,7 +95,7 @@ async function handleStoreNumber() {
     return
 
   const num = Number(newNumber.value)
-  if (isNaN(num) || num < 0)
+  if (Number.isNaN(num) || num < 0)
     return
 
   try {
@@ -151,8 +177,12 @@ watch(isConfirmed, (confirmed) => {
             <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-4">
               <span class="icon-[mdi--wallet-outline] w-6 h-6 text-gray-500" />
             </div>
-            <p class="text-gray-600 font-medium mb-1">Wallet Not Connected</p>
-            <p class="text-sm text-gray-400">Connect your wallet to store a number</p>
+            <p class="text-gray-600 font-medium mb-1">
+              Wallet Not Connected
+            </p>
+            <p class="text-sm text-gray-400">
+              Connect your wallet to store a number
+            </p>
           </div>
 
           <!-- Connected State -->
@@ -166,7 +196,7 @@ watch(isConfirmed, (confirmed) => {
                 placeholder="Enter a number"
                 :disabled="isStoring"
                 @keyup.enter="handleStoreNumber"
-              />
+              >
               <button
                 class="px-8 py-4 bg-gradient-to-r from-gray-800 to-black text-white font-medium rounded-2xl hover:from-gray-900 hover:to-black disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-black/25 hover:shadow-black/40 hover:-translate-y-0.5 active:translate-y-0"
                 :disabled="!newNumber || isStoring"
@@ -203,7 +233,9 @@ watch(isConfirmed, (confirmed) => {
               <span class="icon-[mdi--wallet] w-5 h-5 text-gray-500" />
             </div>
             <div>
-              <p class="text-xs text-gray-400 mb-0.5">Wallet</p>
+              <p class="text-xs text-gray-400 mb-0.5">
+                Wallet
+              </p>
               <div class="flex items-center gap-2">
                 <span class="font-mono text-sm text-gray-700">{{ displayAddress }}</span>
                 <button
@@ -223,33 +255,39 @@ watch(isConfirmed, (confirmed) => {
               <span class="icon-[mdi--lan-connect] w-5 h-5 text-gray-600" />
             </div>
             <div>
-              <p class="text-xs text-gray-400 mb-0.5">Network</p>
-              <p class="text-sm text-gray-700">{{ connectedChain.name }}</p>
+              <p class="text-xs text-gray-400 mb-0.5">
+                Network
+              </p>
+              <p class="text-sm text-gray-700">
+                {{ connectedChain.name }}
+              </p>
             </div>
           </div>
 
           <!-- Balance -->
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-              <span class="icon-[token-branded--polkadot] w-5 h-5 text-gray-700" />
+              <span class="w-5 h-5 text-gray-700" :class="chainIconClass" />
             </div>
             <div>
-              <p class="text-xs text-gray-400 mb-0.5">Balance</p>
+              <p class="text-xs text-gray-400 mb-0.5">
+                Balance
+              </p>
               <div class="text-sm text-gray-700">
                 <Balance v-if="address" :address="address" />
-                <span v-else>0 PAS</span>
+                <span v-else>0 {{ connectedChain.nativeCurrency.symbol }}</span>
               </div>
             </div>
           </div>
 
           <!-- Faucet Link -->
           <a
-            href="https://faucet.polkadot.io/?parachain=1111"
+            :href="faucetInfo.url"
             target="_blank"
             class="inline-flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors"
           >
             <span class="icon-[mdi--water] w-4 h-4" />
-            <span>Get Testnet PAS</span>
+            <span>{{ faucetInfo.label }}</span>
             <span class="icon-[mdi--open-in-new] w-3 h-3" />
           </a>
         </div>
@@ -260,7 +298,7 @@ watch(isConfirmed, (confirmed) => {
         <p class="text-xs text-gray-400">
           Contract:
           <a
-            :href="`https://blockscout-testnet.polkadot.io/address/${STORAGE_ADDRESS}`"
+            :href="`${explorerUrl}/address/${STORAGE_ADDRESS}`"
             target="_blank"
             class="font-mono hover:text-gray-900 transition-colors"
           >
