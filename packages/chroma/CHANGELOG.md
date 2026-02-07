@@ -1,5 +1,11 @@
 # @avalix/chroma
 
+## 0.0.14
+
+### Patch Changes
+
+- [#56](https://github.com/avalix-labs/chroma/pull/56) [`3d5b8fe`](https://github.com/avalix-labs/chroma/commit/3d5b8fef8034166ce9c3298183daff6080e8f4a9) Thanks [@preschian](https://github.com/preschian)! - chore: adjust playground e2e
+
 ## 0.0.13
 
 ### Patch Changes
