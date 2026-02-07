@@ -48,5 +48,12 @@ test(`test with talisman wallet`, async ({ page, wallets }) => {
   console.log('[INFO] wallet.approveTx')
   await wallet.approveTx()
 
+  // switch to moonbase alpha
+  console.log('[INFO] switch to moonbase alpha')
+  await page.getByRole('button', { name: 'Polkadot Hub TestNet' }).click()
+  await page.getByRole('button', { name: 'Moonbase Alpha' }).click()
+  await wallet.approveTx()
+  await page.getByRole('paragraph').filter({ hasText: 'Moonbase Alpha' }).isVisible()
+
   console.log('[INFO] Test completed')
 })

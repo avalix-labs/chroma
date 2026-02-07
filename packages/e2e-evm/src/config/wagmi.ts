@@ -23,10 +23,33 @@ export const passetHub = {
   testnet: true,
 } as const satisfies Chain
 
+export const moonbaseAlpha = {
+  id: 1287,
+  name: 'Moonbase Alpha',
+  nativeCurrency: {
+    name: 'DEV',
+    symbol: 'DEV',
+    decimals: 18,
+  },
+  blockExplorers: {
+    default: {
+      name: 'Moonscan',
+      url: 'https://moonbase.moonscan.io',
+    },
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://moonbase.public.curie.radiumblock.co/http'],
+    },
+  },
+  testnet: true,
+} as const satisfies Chain
+
 export const config = createConfig({
-  chains: [passetHub],
+  chains: [passetHub, moonbaseAlpha],
   storage: createStorage({ storage: localStorage, key: 'vite-vue' }),
   transports: {
     [passetHub.id]: http(),
+    [moonbaseAlpha.id]: http(),
   },
 })
