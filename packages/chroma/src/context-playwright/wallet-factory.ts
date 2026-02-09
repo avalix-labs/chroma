@@ -2,6 +2,7 @@ import type { BrowserContext, Page } from '@playwright/test'
 import type { WalletAccount } from './types.js'
 import {
   importEthPrivateKey as importMetaMaskEthPrivateKey,
+  unlockMetaMask,
 } from '../wallets/metamask.js'
 import {
   approvePolkadotJSTx,
@@ -124,6 +125,11 @@ export function createMetaMaskWallet(extensionId: string, context: BrowserContex
         name: options.name,
         password: options.password,
       })
+    },
+    unlock: async () => {
+      const page = context.pages()[0] || await context.newPage()
+      const extPage = createExtendedPage(page, context, extensionId)
+      await unlockMetaMask(extPage)
     },
   }
 }

@@ -100,6 +100,27 @@ async function completeOnboarding(
   await extensionPage.close()
 }
 
+// Unlock MetaMask by navigating to unlock page and filling password
+export async function unlockMetaMask(
+  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+): Promise<void> {
+  const context = page.__extensionContext
+  const extensionId = page.__extensionId
+
+  const unlockUrl = `chrome-extension://${extensionId}/home.html#/onboarding/unlock`
+  const unlockPage = await context.newPage()
+  await unlockPage.goto(unlockUrl)
+  await unlockPage.waitForLoadState('domcontentloaded')
+
+  // Fill password and unlock
+  await unlockPage.getByTestId('unlock-password').fill(METAMASK_PASSWORD)
+  await unlockPage.getByTestId('unlock-submit').click()
+
+  await unlockPage.getByTestId('onboarding-complete-done').click()
+  await unlockPage.pause()
+  // await unlockPage.close()
+}
+
 // MetaMask specific Ethereum private key import implementation
 export async function importEthPrivateKey(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },

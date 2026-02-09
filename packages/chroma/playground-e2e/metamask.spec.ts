@@ -24,6 +24,7 @@ test('should import account and connect MetaMask wallet', async ({ page, wallets
   await page.waitForTimeout(3000)
 
   await page.getByRole('button', { name: 'Continue with a wallet' }).click()
+  await wallet.unlock()
   await page.getByRole('button', { name: 'MetaMask' }).click()
   await page.getByRole('button', { name: 'MetaMask' }).first().click()
   await page.pause()
