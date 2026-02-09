@@ -7,6 +7,8 @@ const test = createWalletTest({
   wallets: [{ type: 'metamask' }],
 })
 
+test.setTimeout(30_000 * 2)
+
 // // Cari semua data-testid
 // document.querySelectorAll('[data-testid]').forEach(el => console.log(el.dataset.testid, el.tagName, el.textContent?.trim().slice(0, 50)))
 test('should import account and connect MetaMask wallet', async ({ page, wallets }) => {
@@ -23,8 +25,9 @@ test('should import account and connect MetaMask wallet', async ({ page, wallets
   await page.getByRole('button', { name: 'REJECT ALL' }).click()
   await page.waitForTimeout(3000)
 
-  await page.getByRole('button', { name: 'Continue with a wallet' }).click()
   await wallet.unlock()
+  await page.getByRole('button', { name: 'Continue with a wallet' }).click()
+  await page.pause()
   await page.getByRole('button', { name: 'MetaMask' }).click()
   await page.getByRole('button', { name: 'MetaMask' }).first().click()
   await page.pause()

@@ -8,7 +8,7 @@ import process from 'node:process'
 // https://github.com/MetaMask/metamask-extension/releases
 const VERSION = '13.17.0'
 export const METAMASK_CONFIG = {
-  downloadUrl: `https://github.com/MetaMask/metamask-extension/releases/download/v${VERSION}/metamask-chrome-${VERSION}.zip`,
+  downloadUrl: `https://github.com/MetaMask/metamask-extension/releases/download/v${VERSION}/metamask-flask-chrome-${VERSION}-flask.0.zip`,
   extensionName: `metamask-extension-${VERSION}`,
 } as const
 
@@ -93,6 +93,8 @@ async function completeOnboarding(
   await extensionPage.getByTestId('create-password-submit').click()
 
   // Agree to metrics
+  // await extensionPage.pause()
+  await extensionPage.getByTestId('metametrics-checkbox').click()
   await extensionPage.getByTestId('metametrics-i-agree').click()
 
   // Complete onboarding
@@ -116,9 +118,9 @@ export async function unlockMetaMask(
   await unlockPage.getByTestId('unlock-password').fill(METAMASK_PASSWORD)
   await unlockPage.getByTestId('unlock-submit').click()
 
-  await unlockPage.getByTestId('onboarding-complete-done').click()
-  await unlockPage.pause()
-  // await unlockPage.close()
+  // await unlockPage.getByTestId('onboarding-complete-done').click()
+  // await unlockPage.pause()
+  await unlockPage.close()
 }
 
 // MetaMask specific Ethereum private key import implementation
