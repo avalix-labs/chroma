@@ -21,14 +21,17 @@ test('should import account and connect MetaMask wallet', async ({ page, wallets
   })
 
   await page.goto('https://demo.privy.io')
+  await page.waitForLoadState('domcontentloaded')
+  await page.bringToFront()
 
   await page.getByRole('button', { name: 'REJECT ALL' }).click()
   await page.waitForTimeout(3000)
 
-  await wallet.unlock()
   await page.getByRole('button', { name: 'Continue with a wallet' }).click()
-  await page.pause()
-  await page.getByRole('button', { name: 'MetaMask' }).click()
-  await page.getByRole('button', { name: 'MetaMask' }).first().click()
+  await page.getByPlaceholder('Search wallets').click()
+  await page.getByPlaceholder('Search wallets').fill('metamask flask')
+  await page.getByRole('button', { name: 'MetaMask Flask' }).click()
+  await page.getByRole('button', { name: 'MetaMask Flask' }).first().click()
+  await wallet.authorize()
   await page.pause()
 })
