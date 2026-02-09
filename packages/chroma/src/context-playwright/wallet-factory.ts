@@ -1,6 +1,9 @@
 import type { BrowserContext, Page } from '@playwright/test'
 import type { WalletAccount } from './types.js'
 import {
+  importEthPrivateKey as importMetaMaskEthPrivateKey,
+} from '../wallets/metamask.js'
+import {
   approvePolkadotJSTx,
   authorizePolkadotJS,
   importPolkadotJSAccount,
@@ -104,13 +107,37 @@ export function createTalismanWallet(extensionId: string, context: BrowserContex
 }
 /* c8 ignore stop */
 
+/*
+ * Factory function for MetaMask wallet
+ * Coverage excluded: methods interact with Chrome extension APIs via browser context.
+ */
+/* c8 ignore start */
+export function createMetaMaskWallet(extensionId: string, context: BrowserContext) {
+  return {
+    extensionId,
+    type: 'metamask' as const,
+    importEthPrivateKey: async (options: { privateKey: string, name?: string, password?: string }) => {
+      const page = context.pages()[0] || await context.newPage()
+      const extPage = createExtendedPage(page, context, extensionId)
+      await importMetaMaskEthPrivateKey(extPage, {
+        seed: options.privateKey,
+        name: options.name,
+        password: options.password,
+      })
+    },
+  }
+}
+/* c8 ignore stop */
+
 // Wallet factories map - auto-inferred types
 export const walletFactories = {
   'polkadot-js': createPolkadotJsWallet,
   'talisman': createTalismanWallet,
+  'metamask': createMetaMaskWallet,
 }
 
 // Auto-inferred types from factory functions
 export type PolkadotJsWalletInstance = ReturnType<typeof createPolkadotJsWallet>
 export type TalismanWalletInstance = ReturnType<typeof createTalismanWallet>
-export type WalletInstance = PolkadotJsWalletInstance | TalismanWalletInstance
+export type MetaMaskWalletInstance = ReturnType<typeof createMetaMaskWallet>
+export type WalletInstance = PolkadotJsWalletInstance | TalismanWalletInstance | MetaMaskWalletInstance

@@ -8,6 +8,7 @@ import type {
   WalletWorkerFixtures,
 } from './types.js'
 import { test as base, chromium } from '@playwright/test'
+import { getMetaMaskExtensionPath } from '../wallets/metamask.js'
 import { getPolkadotJSExtensionPath } from '../wallets/polkadot-js.js'
 import { getTalismanExtensionPath } from '../wallets/talisman.js'
 import { walletFactories } from './wallet-factory.js'
@@ -21,6 +22,8 @@ export async function getExtensionPathForWallet(config: WalletConfig): Promise<s
       return await getPolkadotJSExtensionPath()
     case 'talisman':
       return await getTalismanExtensionPath()
+    case 'metamask':
+      return await getMetaMaskExtensionPath()
     default:
       throw new Error(`Unsupported wallet type: ${type}`)
   }

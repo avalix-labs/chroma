@@ -12,6 +12,7 @@ import { downloadAndExtractExtension } from './download-extension.js'
  * Important test cases:
  * - Nested zip extraction (Talisman has a zip inside a zip)
  * - Standard zip extraction (Polkadot-JS)
+ * - Standard zip extraction (MetaMask)
  * - Skip download if already exists
  * - Error handling for invalid URLs
  */
@@ -59,6 +60,23 @@ describe('downloadAndExtractExtension (integration tests)', () => {
     const result = await downloadAndExtractExtension(options)
 
     expect(result).toBe(path.join(tempDir, `polkadot-extension-${VERSION}`))
+    expect(fs.existsSync(result)).toBe(true)
+
+    const files = await fs.promises.readdir(result)
+    expect(files).toContain('manifest.json')
+  }, 60000)
+
+  it('should handle standard zip extraction (MetaMask)', async () => {
+    const VERSION = '13.17.0'
+    const options: DownloadExtensionOptions = {
+      downloadUrl: `https://github.com/MetaMask/metamask-extension/releases/download/v${VERSION}/metamask-chrome-${VERSION}.zip`,
+      extensionName: `metamask-extension-${VERSION}`,
+      targetDir: tempDir,
+    }
+
+    const result = await downloadAndExtractExtension(options)
+
+    expect(result).toBe(path.join(tempDir, `metamask-extension-${VERSION}`))
     expect(fs.existsSync(result)).toBe(true)
 
     const files = await fs.promises.readdir(result)
