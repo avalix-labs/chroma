@@ -33,5 +33,7 @@ test('should import account and connect MetaMask wallet', async ({ page, wallets
   await page.getByRole('button', { name: 'MetaMask Flask' }).click()
   await page.getByRole('button', { name: 'MetaMask Flask' }).first().click()
   await wallet.authorize()
-  await page.pause()
+  await wallet.confirm()
+
+  await page.getByText('0x646...E85').first().isVisible()
 })

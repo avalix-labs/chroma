@@ -173,6 +173,21 @@ export async function authorizeMetaMask(
   await extensionPopup.close()
 }
 
+// MetaMask specific confirm implementation
+// Handles the confirm popup (e.g. sign message, send transaction)
+export async function confirmMetaMask(
+  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+): Promise<void> {
+  const context = page.__extensionContext
+  const extensionId = page.__extensionId
+
+  const extensionPopup = await findExtensionPopup(context, extensionId)
+
+  // Click "Confirm"
+  await extensionPopup.getByTestId('confirm-footer-button').click()
+  await extensionPopup.close()
+}
+
 // Unlock MetaMask by navigating to unlock page and filling password
 export async function unlockMetaMask(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },

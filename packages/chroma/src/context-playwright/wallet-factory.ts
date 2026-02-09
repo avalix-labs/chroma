@@ -2,6 +2,7 @@ import type { BrowserContext, Page } from '@playwright/test'
 import type { WalletAccount } from './types.js'
 import {
   authorizeMetaMask,
+  confirmMetaMask,
   importEthPrivateKey as importMetaMaskEthPrivateKey,
   unlockMetaMask,
 } from '../wallets/metamask.js'
@@ -136,6 +137,11 @@ export function createMetaMaskWallet(extensionId: string, context: BrowserContex
       const page = context.pages()[0] || await context.newPage()
       const extPage = createExtendedPage(page, context, extensionId)
       await authorizeMetaMask(extPage)
+    },
+    confirm: async () => {
+      const page = context.pages()[0] || await context.newPage()
+      const extPage = createExtendedPage(page, context, extensionId)
+      await confirmMetaMask(extPage)
     },
   }
 }
