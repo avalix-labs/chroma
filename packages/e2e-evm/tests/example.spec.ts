@@ -49,11 +49,17 @@ test(`test with talisman wallet`, async ({ page, wallets }) => {
   await wallet.approveTx()
 
   // switch to moonbase alpha
-  console.log('[INFO] switch to moonbase alpha')
+  console.log('[INFO] switch to moonbase alpha and reject tx')
   await page.getByRole('button', { name: 'Polkadot Hub TestNet' }).click()
   await page.getByRole('button', { name: 'Moonbase Alpha' }).click()
+  await wallet.rejectTx()
+  await page.getByRole('paragraph').filter({ hasText: 'Polkadot Hub TestNet' }).waitFor({ state: 'visible' })
+
+  console.log('[INFO] switch to moonbase alpha and approve tx')
+  await page.getByRole('button', { name: 'Polkadot Hub TestNet' }).first().click()
+  await page.getByRole('button', { name: 'Moonbase Alpha' }).click()
   await wallet.approveTx()
-  await page.getByRole('paragraph').filter({ hasText: 'Moonbase Alpha' }).isVisible()
+  await page.getByRole('paragraph').filter({ hasText: 'Moonbase Alpha' }).waitFor({ state: 'visible' })
 
   console.log('[INFO] Test completed')
 })
