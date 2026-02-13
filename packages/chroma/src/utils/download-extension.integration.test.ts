@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { METAMASK_CONFIG } from '../wallets/metamask.js'
 import { POLKADOT_JS_CONFIG } from '../wallets/polkadot-js.js'
 import { TALISMAN_CONFIG } from '../wallets/talisman.js'
 import { downloadAndExtractExtension } from './download-extension.js'
@@ -60,16 +61,12 @@ describe('downloadAndExtractExtension (integration tests)', () => {
   }, 60000)
 
   it('should handle standard zip extraction (MetaMask)', async () => {
-    const VERSION = '13.17.0'
-    const options: DownloadExtensionOptions = {
-      downloadUrl: `https://github.com/MetaMask/metamask-extension/releases/download/v${VERSION}/metamask-chrome-${VERSION}.zip`,
-      extensionName: `metamask-extension-${VERSION}`,
+    const result = await downloadAndExtractExtension({
+      ...METAMASK_CONFIG,
       targetDir: tempDir,
-    }
+    })
 
-    const result = await downloadAndExtractExtension(options)
-
-    expect(result).toBe(path.join(tempDir, `metamask-extension-${VERSION}`))
+    expect(result).toBe(path.join(tempDir, METAMASK_CONFIG.extensionName))
     expect(fs.existsSync(result)).toBe(true)
 
     const files = await fs.promises.readdir(result)

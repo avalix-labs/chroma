@@ -115,6 +115,14 @@ describe('downloadAndExtractExtension (unit tests)', () => {
       )
     })
 
+    it('should stringify non-Error rejection in thrown message', async () => {
+      mockFetch.mockRejectedValue('plain string failure')
+
+      await expect(downloadAndExtractExtension(mockOptions)).rejects.toThrow(
+        'Failed to download/extract test-extension: plain string failure',
+      )
+    })
+
     it('should cleanup files on error', async () => {
       const mockedFs = vi.mocked(fs)
 
