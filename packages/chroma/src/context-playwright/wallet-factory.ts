@@ -1,6 +1,12 @@
 import type { BrowserContext, Page } from '@playwright/test'
 import type { WalletAccount } from './types.js'
 import {
+  authorizeMetaMask,
+  confirmMetaMask,
+  importSeedPhrase as importMetaMaskSeedPhrase,
+  unlockMetaMask,
+} from '../wallets/metamask.js'
+import {
   approvePolkadotJSTx,
   authorizePolkadotJS,
   importPolkadotJSAccount,
@@ -104,13 +110,51 @@ export function createTalismanWallet(extensionId: string, context: BrowserContex
 }
 /* c8 ignore stop */
 
+/*
+ * Factory function for MetaMask wallet
+ * Coverage excluded: methods interact with Chrome extension APIs via browser context.
+ */
+/* c8 ignore start */
+export function createMetaMaskWallet(extensionId: string, context: BrowserContext) {
+  return {
+    extensionId,
+    type: 'metamask' as const,
+    importSeedPhrase: async (options: { seedPhrase: string, name?: string }) => {
+      const page = context.pages()[0] || await context.newPage()
+      const extPage = createExtendedPage(page, context, extensionId)
+      await importMetaMaskSeedPhrase(extPage, {
+        seedPhrase: options.seedPhrase,
+        name: options.name,
+      })
+    },
+    unlock: async () => {
+      const page = context.pages()[0] || await context.newPage()
+      const extPage = createExtendedPage(page, context, extensionId)
+      await unlockMetaMask(extPage)
+    },
+    authorize: async () => {
+      const page = context.pages()[0] || await context.newPage()
+      const extPage = createExtendedPage(page, context, extensionId)
+      await authorizeMetaMask(extPage)
+    },
+    confirm: async () => {
+      const page = context.pages()[0] || await context.newPage()
+      const extPage = createExtendedPage(page, context, extensionId)
+      await confirmMetaMask(extPage)
+    },
+  }
+}
+/* c8 ignore stop */
+
 // Wallet factories map - auto-inferred types
 export const walletFactories = {
   'polkadot-js': createPolkadotJsWallet,
   'talisman': createTalismanWallet,
+  'metamask': createMetaMaskWallet,
 }
 
 // Auto-inferred types from factory functions
 export type PolkadotJsWalletInstance = ReturnType<typeof createPolkadotJsWallet>
 export type TalismanWalletInstance = ReturnType<typeof createTalismanWallet>
-export type WalletInstance = PolkadotJsWalletInstance | TalismanWalletInstance
+export type MetaMaskWalletInstance = ReturnType<typeof createMetaMaskWallet>
+export type WalletInstance = PolkadotJsWalletInstance | TalismanWalletInstance | MetaMaskWalletInstance

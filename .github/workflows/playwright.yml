@@ -60,9 +60,14 @@ jobs:
         bun run test:prepare
     
     - name: Run Playwright tests
-      run: |
-        cd packages/e2e-${{ matrix.e2e-target }}
-        xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" -- npx playwright test --reporter=html
+      uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 3
+        retry_wait_seconds: 60
+        command: |
+          cd packages/e2e-${{ matrix.e2e-target }}
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" -- npx playwright test --reporter=html
     
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}

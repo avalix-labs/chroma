@@ -4,6 +4,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { downloadAndExtractExtension } from '../src/utils/download-extension.js'
+import { METAMASK_CONFIG } from '../src/wallets/metamask.js'
 import { POLKADOT_JS_CONFIG } from '../src/wallets/polkadot-js.js'
 import { TALISMAN_CONFIG } from '../src/wallets/talisman.js'
 
@@ -43,6 +44,12 @@ async function main() {
     await downloadAndExtractExtension({
       downloadUrl: TALISMAN_CONFIG.downloadUrl,
       extensionName: TALISMAN_CONFIG.extensionName,
+    })
+
+    // Download MetaMask extension
+    await downloadAndExtractExtension({
+      downloadUrl: METAMASK_CONFIG.downloadUrl,
+      extensionName: METAMASK_CONFIG.extensionName,
     })
 
     console.log('\n✅ All extensions downloaded successfully!')

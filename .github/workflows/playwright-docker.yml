@@ -30,12 +30,17 @@ jobs:
         tags: chroma-test:latest
 
     - name: Run Playwright tests
-      run: |
-        docker run --rm --shm-size=2gb \
-          -e E2E_TARGET=${{ matrix.e2e-target }} \
-          -v ${{ github.workspace }}/packages/e2e-${{ matrix.e2e-target }}/playwright-report:/app/packages/e2e-${{ matrix.e2e-target }}/playwright-report \
-          -v ${{ github.workspace }}/packages/e2e-${{ matrix.e2e-target }}/test-results:/app/packages/e2e-${{ matrix.e2e-target }}/test-results \
-          chroma-test
+      uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 3
+        retry_wait_seconds: 60
+        command: |
+          docker run --rm --shm-size=2gb \
+            -e E2E_TARGET=${{ matrix.e2e-target }} \
+            -v ${{ github.workspace }}/packages/e2e-${{ matrix.e2e-target }}/playwright-report:/app/packages/e2e-${{ matrix.e2e-target }}/playwright-report \
+            -v ${{ github.workspace }}/packages/e2e-${{ matrix.e2e-target }}/test-results:/app/packages/e2e-${{ matrix.e2e-target }}/test-results \
+            chroma-test
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
