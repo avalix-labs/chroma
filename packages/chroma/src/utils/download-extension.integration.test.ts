@@ -3,6 +3,8 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { POLKADOT_JS_CONFIG } from '../wallets/polkadot-js.js'
+import { TALISMAN_CONFIG } from '../wallets/talisman.js'
 import { downloadAndExtractExtension } from './download-extension.js'
 
 /**
@@ -10,7 +12,7 @@ import { downloadAndExtractExtension } from './download-extension.js'
  * Tests actual download and extraction with real extension files
  *
  * Important test cases:
- * - Nested zip extraction (Talisman has a zip inside a zip)
+ * - Single wrapper directory extraction (Talisman zips into a subdirectory)
  * - Standard zip extraction (Polkadot-JS)
  * - Standard zip extraction (MetaMask)
  * - Skip download if already exists
@@ -30,36 +32,27 @@ describe('downloadAndExtractExtension (integration tests)', () => {
     }
   })
 
-  it('should handle nested zip extraction (Talisman)', async () => {
-    // Talisman extension has a nested zip structure
-    const VERSION = '3.1.13'
-    const options: DownloadExtensionOptions = {
-      downloadUrl: `https://github.com/avalix-labs/polkadot-wallets/raw/refs/heads/main/talisman/talisman-${VERSION}.zip`,
-      extensionName: `talisman-extension-${VERSION}`,
+  it('should handle single wrapper directory extraction (Talisman)', async () => {
+    const result = await downloadAndExtractExtension({
+      ...TALISMAN_CONFIG,
       targetDir: tempDir,
-    }
+    })
 
-    const result = await downloadAndExtractExtension(options)
-
-    expect(result).toBe(path.join(tempDir, `talisman-extension-${VERSION}`))
+    expect(result).toBe(path.join(tempDir, TALISMAN_CONFIG.extensionName))
     expect(fs.existsSync(result)).toBe(true)
 
-    // Talisman should have manifest.json after nested extraction
+    // Talisman zips into a single subdirectory — should be unwrapped
     const files = await fs.promises.readdir(result)
     expect(files).toContain('manifest.json')
   }, 60000)
 
   it('should handle standard zip extraction (Polkadot-JS)', async () => {
-    const VERSION = '0.62.6'
-    const options: DownloadExtensionOptions = {
-      downloadUrl: `https://github.com/polkadot-js/extension/releases/download/v${VERSION}/master-chrome-build.zip`,
-      extensionName: `polkadot-extension-${VERSION}`,
+    const result = await downloadAndExtractExtension({
+      ...POLKADOT_JS_CONFIG,
       targetDir: tempDir,
-    }
+    })
 
-    const result = await downloadAndExtractExtension(options)
-
-    expect(result).toBe(path.join(tempDir, `polkadot-extension-${VERSION}`))
+    expect(result).toBe(path.join(tempDir, POLKADOT_JS_CONFIG.extensionName))
     expect(fs.existsSync(result)).toBe(true)
 
     const files = await fs.promises.readdir(result)

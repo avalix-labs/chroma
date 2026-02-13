@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest'
 import type { DownloadExtensionOptions } from './download-extension.js'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -12,11 +13,10 @@ import { downloadAndExtractExtension } from './download-extension.js'
 // Mock adm-zip
 const mockExtractAllTo = vi.fn()
 vi.mock('adm-zip', () => {
-  return {
-    default: vi.fn().mockImplementation(() => ({
-      extractAllTo: mockExtractAllTo,
-    })),
-  }
+  const MockAdmZip = vi.fn(function (this: any) {
+    this.extractAllTo = mockExtractAllTo
+  })
+  return { default: MockAdmZip }
 })
 
 // Mock fetch
@@ -29,6 +29,8 @@ vi.mock('node:stream/promises', () => ({
 }))
 
 // Mock fs module
+// - `fs.existsSync`, `fs.readdirSync`, `fs.promises.*` are accessed via the default import
+// - `createWriteStream` is accessed as a named import
 vi.mock('node:fs', async () => {
   const actual = await vi.importActual<typeof import('node:fs')>('node:fs')
   return {
@@ -43,15 +45,9 @@ vi.mock('node:fs', async () => {
         rename: vi.fn().mockResolvedValue(undefined),
         unlink: vi.fn().mockResolvedValue(undefined),
         readdir: vi.fn().mockResolvedValue([]),
+        stat: vi.fn().mockResolvedValue({ isDirectory: () => true }),
       },
-      createWriteStream: vi.fn().mockReturnValue({
-        on: vi.fn(),
-        write: vi.fn(),
-        end: vi.fn(),
-      }),
     },
-    existsSync: vi.fn(),
-    readdirSync: vi.fn(),
     createWriteStream: vi.fn().mockReturnValue({
       on: vi.fn(),
       write: vi.fn(),
@@ -138,8 +134,88 @@ describe('downloadAndExtractExtension (unit tests)', () => {
 
       await expect(downloadAndExtractExtension(mockOptions)).rejects.toThrow()
 
-      expect(mockedFs.promises.unlink).toHaveBeenCalled()
       expect(mockedFs.promises.rm).toHaveBeenCalled()
+    })
+  })
+
+  describe('successful download and extraction', () => {
+    beforeEach(() => {
+      const mockedFs = vi.mocked(fs)
+      mockedFs.existsSync.mockReturnValue(false)
+      mockedFs.readdirSync.mockReturnValue([])
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        body: new ReadableStream(),
+      })
+    })
+
+    it('should extract and return correct path', async () => {
+      const mockedFs = vi.mocked(fs)
+      const mockReaddir = mockedFs.promises.readdir as unknown as Mock
+
+      mockReaddir.mockResolvedValue(['manifest.json', 'popup.html'])
+
+      const result = await downloadAndExtractExtension({
+        ...mockOptions,
+        targetDir: '/tmp/test',
+      })
+
+      expect(result).toBe(path.join('/tmp/test', 'test-extension'))
+
+      // AdmZip called once for extraction
+      const AdmZip = (await import('adm-zip')).default
+      expect(AdmZip).toHaveBeenCalledTimes(1)
+    })
+
+    it('should unwrap single wrapper directory', async () => {
+      const mockedFs = vi.mocked(fs)
+      const mockReaddir = mockedFs.promises.readdir as unknown as Mock
+      const mockStat = mockedFs.promises.stat as unknown as Mock
+
+      // readdir returns a single directory -> unwrap
+      mockReaddir.mockResolvedValue(['extension-folder'])
+      mockStat.mockResolvedValue({ isDirectory: () => true })
+
+      const result = await downloadAndExtractExtension({
+        ...mockOptions,
+        targetDir: '/tmp/test',
+      })
+
+      expect(result).toBe(path.join('/tmp/test', 'test-extension'))
+
+      // Should rename the subdirectory (unwrap) and clean up source
+      expect(mockedFs.promises.rename).toHaveBeenCalledWith(
+        expect.stringContaining('extension-folder'),
+        expect.stringContaining('test-extension'),
+      )
+      expect(mockedFs.promises.rm).toHaveBeenCalledWith(
+        expect.stringContaining('test-extension-temp'),
+        expect.objectContaining({ recursive: true, force: true }),
+      )
+    })
+
+    it('should not unwrap when single entry is a file', async () => {
+      const mockedFs = vi.mocked(fs)
+      const mockReaddir = mockedFs.promises.readdir as unknown as Mock
+      const mockStat = mockedFs.promises.stat as unknown as Mock
+
+      mockReaddir.mockResolvedValue(['only-file.dat'])
+      mockStat.mockResolvedValue({ isDirectory: () => false })
+
+      const result = await downloadAndExtractExtension({
+        ...mockOptions,
+        targetDir: '/tmp/test',
+      })
+
+      expect(result).toBe(path.join('/tmp/test', 'test-extension'))
+
+      // Should rename the temp dir directly (no unwrap)
+      expect(mockedFs.promises.rename).toHaveBeenCalledWith(
+        expect.stringContaining('test-extension-temp'),
+        expect.stringContaining('test-extension'),
+      )
     })
   })
 

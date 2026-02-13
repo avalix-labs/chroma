@@ -15,6 +15,30 @@ function unzipFile(zipPath: string, destDir: string): void {
   zip.extractAllTo(destDir, true)
 }
 
+/**
+ * Move extracted contents to the final destination.
+ * If the source directory contains a single subdirectory, unwrap it
+ * (move the subdirectory contents up) so the extension files live
+ * directly inside `destDir`.
+ */
+async function moveExtractedToFinal(sourceDir: string, destDir: string): Promise<void> {
+  const entries = await fs.promises.readdir(sourceDir)
+
+  if (entries.length === 1) {
+    const singleEntry = path.join(sourceDir, entries[0])
+    const stat = await fs.promises.stat(singleEntry)
+    if (stat.isDirectory()) {
+      // Unwrap: move the single subdirectory to the final destination
+      await fs.promises.rename(singleEntry, destDir)
+      await fs.promises.rm(sourceDir, { recursive: true, force: true })
+      return
+    }
+  }
+
+  // No unwrapping needed, just rename the whole directory
+  await fs.promises.rename(sourceDir, destDir)
+}
+
 export async function downloadAndExtractExtension(options: DownloadExtensionOptions): Promise<string> {
   const { downloadUrl, extensionName, targetDir } = options
 
@@ -52,25 +76,8 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
     await fs.promises.mkdir(tempExtractDir, { recursive: true })
     unzipFile(zipPath, tempExtractDir)
 
-    // Check if it's a nested zip (contains another .zip file)
-    const files = await fs.promises.readdir(tempExtractDir)
-    const nestedZip = files.find(f => f.endsWith('.zip'))
-
-    if (nestedZip) {
-      console.log(`📦 Found nested zip: ${nestedZip}, extracting...`)
-      const nestedZipPath = path.join(tempExtractDir, nestedZip)
-
-      // Extract the nested zip to final location
-      await fs.promises.mkdir(extensionDir, { recursive: true })
-      unzipFile(nestedZipPath, extensionDir)
-
-      // Clean up temp directory
-      await fs.promises.rm(tempExtractDir, { recursive: true, force: true })
-    }
-    else {
-      // No nested zip, just rename temp to final
-      await fs.promises.rename(tempExtractDir, extensionDir)
-    }
+    // Move extracted contents to final destination (unwrapping single dir if needed)
+    await moveExtractedToFinal(tempExtractDir, extensionDir)
 
     // Clean up ZIP file
     await fs.promises.unlink(zipPath)
@@ -80,14 +87,10 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
   }
   catch (error) {
     // Clean up on error
-    if (fs.existsSync(zipPath)) {
-      await fs.promises.unlink(zipPath).catch(() => {})
-    }
-    if (fs.existsSync(extensionDir)) {
-      await fs.promises.rm(extensionDir, { recursive: true, force: true }).catch(() => {})
-    }
-    if (fs.existsSync(tempExtractDir)) {
-      await fs.promises.rm(tempExtractDir, { recursive: true, force: true }).catch(() => {})
+    for (const dir of [zipPath, extensionDir, tempExtractDir]) {
+      if (fs.existsSync(dir)) {
+        await fs.promises.rm(dir, { recursive: true, force: true }).catch(() => {})
+      }
     }
 
     throw new Error(`Failed to download/extract ${extensionName}: ${error instanceof Error ? error.message : String(error)}`)

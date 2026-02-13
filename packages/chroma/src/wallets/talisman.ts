@@ -6,7 +6,7 @@ import process from 'node:process'
 
 // Talisman specific configuration
 // https://github.com/avalix-labs/polkadot-wallets/tree/main/talisman
-const VERSION = '3.1.13'
+const VERSION = '3.2.0'
 export const TALISMAN_CONFIG = {
   downloadUrl: `https://github.com/avalix-labs/polkadot-wallets/raw/refs/heads/main/talisman/talisman-${VERSION}.zip`,
   extensionName: `talisman-extension-${VERSION}`,
@@ -244,6 +244,7 @@ export async function rejectTalismanTx(
 
   const rejectButton = extensionPopup.getByTestId('connection-reject-button')
     .or(extensionPopup.getByRole('button', { name: 'Cancel' }))
+    .or(extensionPopup.getByRole('button', { name: 'Reject' }))
 
   await rejectButton.click()
 }
