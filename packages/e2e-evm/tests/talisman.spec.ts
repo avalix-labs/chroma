@@ -1,11 +1,9 @@
 /* eslint-disable no-console */
-import { createWalletTest } from '@avalix/chroma'
+import { test } from './helpers/multi-chain'
 
 const ACCOUNT_NAME = 'Test Account'
 const ETH_PRIVATE_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const PASSWORD = 'h3llop0lkadot!'
-
-const test = createWalletTest({ wallets: [{ type: 'talisman' }] as const })
 
 test.setTimeout(30_000 * 2)
 
@@ -20,7 +18,7 @@ test.beforeAll(async ({ wallets }) => {
   })
 })
 
-test(`test with talisman wallet`, async ({ page, wallets }) => {
+test(`test with talisman wallet`, async ({ page, wallets, switchChain }) => {
   const wallet = wallets.talisman
 
   await page.goto('/')
@@ -50,16 +48,10 @@ test(`test with talisman wallet`, async ({ page, wallets }) => {
 
   // switch to moonbase alpha
   console.log('[INFO] switch to moonbase alpha and reject tx')
-  await page.getByRole('button', { name: 'Polkadot Hub TestNet' }).click()
-  await page.getByRole('button', { name: 'Moonbase Alpha' }).click()
-  await wallet.rejectTx()
-  await page.getByRole('paragraph').filter({ hasText: 'Polkadot Hub TestNet' }).waitFor({ state: 'visible' })
+  await switchChain({ fromChain: 'Polkadot Hub TestNet', toChain: 'Moonbase Alpha', action: 'reject' })
 
   console.log('[INFO] switch to moonbase alpha and approve tx')
-  await page.getByRole('button', { name: 'Polkadot Hub TestNet' }).first().click()
-  await page.getByRole('button', { name: 'Moonbase Alpha' }).click()
-  await wallet.approveTx()
-  await page.getByRole('paragraph').filter({ hasText: 'Moonbase Alpha' }).waitFor({ state: 'visible' })
+  await switchChain({ fromChain: 'Polkadot Hub TestNet', toChain: 'Moonbase Alpha', action: 'approve' })
 
   console.log('[INFO] Test completed')
 })
