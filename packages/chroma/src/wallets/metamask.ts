@@ -1,5 +1,4 @@
 import type { BrowserContext, Page } from '@playwright/test'
-import type { WalletAccount } from '../context-playwright/types.js'
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -106,6 +105,7 @@ const METAMASK_PASSWORD = 'h3llop0lkadot!'
 // Helper function to complete MetaMask onboarding flow
 async function completeOnboarding(
   extensionPage: Page,
+  seedPhrase: string,
 ): Promise<void> {
   // Bring the onboarding page to front
   await extensionPage.bringToFront()
@@ -117,10 +117,9 @@ async function completeOnboarding(
   // Click "Import with Secret Recovery Phrase"
   await extensionPage.getByTestId('onboarding-import-with-srp-button').click()
 
-  // Enter a dummy seed phrase to complete onboarding
-  // Must use type() instead of fill() because MetaMask listens for Space keypress to separate words
-  const dummySeed = 'test test test test test test test test test test test junk'
-  await extensionPage.getByTestId('srp-input-import__srp-note').pressSequentially(dummySeed, { delay: 50 })
+  // Enter seed phrase
+  // Must use pressSequentially because MetaMask listens for Space keypress to separate words
+  await extensionPage.getByTestId('srp-input-import__srp-note').pressSequentially(seedPhrase, { delay: 50 })
 
   // Confirm seed phrase
   await extensionPage.getByTestId('import-srp-confirm').click()
@@ -209,10 +208,10 @@ export async function unlockMetaMask(
   await unlockPage.close()
 }
 
-// MetaMask specific Ethereum private key import implementation
-export async function importEthPrivateKey(
+// MetaMask specific seed phrase import implementation
+export async function importSeedPhrase(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
-  { seed, name: _name = 'Test Account' }: WalletAccount,
+  { seedPhrase, name: _name = 'Test Account' }: { seedPhrase: string, name?: string },
 ): Promise<void> {
   const context = page.__extensionContext
   const extensionId = page.__extensionId
@@ -220,7 +219,7 @@ export async function importEthPrivateKey(
   const extensionPage = await findOnboardingPage(context, extensionId)
 
   try {
-    await completeOnboarding(extensionPage)
+    await completeOnboarding(extensionPage, seedPhrase)
   }
   catch (error) {
     console.error('❌ Error during MetaMask Ethereum account import:', error)

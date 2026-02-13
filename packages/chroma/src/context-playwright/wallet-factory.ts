@@ -3,7 +3,7 @@ import type { WalletAccount } from './types.js'
 import {
   authorizeMetaMask,
   confirmMetaMask,
-  importEthPrivateKey as importMetaMaskEthPrivateKey,
+  importSeedPhrase as importMetaMaskSeedPhrase,
   unlockMetaMask,
 } from '../wallets/metamask.js'
 import {
@@ -119,13 +119,12 @@ export function createMetaMaskWallet(extensionId: string, context: BrowserContex
   return {
     extensionId,
     type: 'metamask' as const,
-    importEthPrivateKey: async (options: { privateKey: string, name?: string, password?: string }) => {
+    importSeedPhrase: async (options: { seedPhrase: string, name?: string }) => {
       const page = context.pages()[0] || await context.newPage()
       const extPage = createExtendedPage(page, context, extensionId)
-      await importMetaMaskEthPrivateKey(extPage, {
-        seed: options.privateKey,
+      await importMetaMaskSeedPhrase(extPage, {
+        seedPhrase: options.seedPhrase,
         name: options.name,
-        password: options.password,
       })
     },
     unlock: async () => {

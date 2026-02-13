@@ -1,7 +1,7 @@
 import { createWalletTest } from '../src/index.js'
 
 const ACCOUNT_NAME = 'Test Account'
-const ETH_PRIVATE_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+const SEED_PHRASE = 'test test test test test test test test test test test junk'
 
 const test = createWalletTest({
   wallets: [{ type: 'metamask' }],
@@ -9,14 +9,12 @@ const test = createWalletTest({
 
 test.setTimeout(30_000 * 2)
 
-// // Cari semua data-testid
-// document.querySelectorAll('[data-testid]').forEach(el => console.log(el.dataset.testid, el.tagName, el.textContent?.trim().slice(0, 50)))
 test('should import account and connect MetaMask wallet', async ({ page, wallets }) => {
   const wallet = wallets.metamask
 
   // Import Ethereum account into MetaMask wallet
-  await wallet.importEthPrivateKey({
-    privateKey: ETH_PRIVATE_KEY,
+  await wallet.importSeedPhrase({
+    seedPhrase: SEED_PHRASE,
     name: ACCOUNT_NAME,
   })
 
@@ -35,5 +33,5 @@ test('should import account and connect MetaMask wallet', async ({ page, wallets
   await wallet.authorize()
   await wallet.confirm()
 
-  await page.getByText('0x646...E85').first().isVisible()
+  await page.getByText('0x646...E85').first().waitFor({ state: 'visible' })
 })
