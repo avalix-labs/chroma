@@ -1,5 +1,13 @@
 # @avalix/chroma
 
+## 0.0.15
+
+### Patch Changes
+
+- [#60](https://github.com/avalix-labs/chroma/pull/60) [`d477730`](https://github.com/avalix-labs/chroma/commit/d477730d0208ab6ced832b818f6379deec8d04ce) Thanks [@preschian](https://github.com/preschian)! - chore: upgrade Talisman wallet extension to v3.2.0
+
+- [#61](https://github.com/avalix-labs/chroma/pull/61) [`7d7ccaa`](https://github.com/avalix-labs/chroma/commit/7d7ccaa7fe0a68373777c183f73bd9e48ce51bd6) Thanks [@preschian](https://github.com/preschian)! - feat: add metamask wallet
+
 ## 0.0.14
 
 ### Patch Changes
