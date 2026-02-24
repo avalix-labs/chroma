@@ -37,17 +37,18 @@ For detailed tutorials and guides, visit the [Documentation](https://chroma-docs
 
 | Chain | Status |
 |-------|--------|
-| Polkadot | Supported |
-| Ethereum | Supported |
-| Solana | Planned |
+| Polkadot | ✅ Supported |
+| Ethereum | ✅ Supported |
+| Solana | ⏳ Planned |
 
 ### Supported Wallets
 
-| Wallet | Status |
-|--------|--------|
-| Polkadot JS | Supported |
-| Talisman | Supported |
-| SubWallet | Planned |
+| Wallet | Status | Version |
+|--------|--------|---------|
+| Polkadot JS Extension | ✅ Supported | v0.62.6 |
+| Talisman | ✅ Supported | v3.1.13 |
+| SubWallet | ⏳ Planned | - |
+| MetaMask | ✅ Supported | v13.17.0 (Flask) |
 
 ## Test Matrix
 

@@ -22,7 +22,7 @@ Before running your tests, you need to download the wallet extensions:
 npx chroma download-extensions
 ```
 
-This will download the wallet extensions (Polkadot JS and Talisman) to `./.chroma` directory in your project root.
+This will download the wallet extensions (e.g. MetaMask, Polkadot JS, Talisman) to `./.chroma` directory in your project root.
 
 **Tip**: Add this to your `package.json` scripts for convenience:
 
@@ -42,24 +42,22 @@ This will download the wallet extensions (Polkadot JS and Talisman) to `./.chrom
 import { createWalletTest, expect } from '@avalix/chroma'
 
 const test = createWalletTest({
-  wallets: [{ type: 'polkadot-js' }]
+  wallets: [{ type: 'metamask' }]
 })
 
 test('connect wallet and sign transaction', async ({ page, wallets }) => {
-  const polkadotJs = wallets['polkadot-js']
+  const metamask = wallets.metamask
 
-  await polkadotJs.importMnemonic({
-    seed: 'bottom drive obey lake curtain smoke basket hold race lonely fit walk',
-    name: 'Test Account',
-    password: 'securePassword123'
+  await metamask.importSeedPhrase({
+    seedPhrase: 'test test test test test test test test test test test junk'
   })
 
   await page.goto('http://localhost:3000')
   await page.click('button:has-text("Connect Wallet")')
-  await polkadotJs.authorize()
+  await metamask.authorize()
 
   await page.click('button:has-text("Send Transaction")')
-  await polkadotJs.approveTx({ password: 'securePassword123' })
+  await metamask.confirm()
 
   await expect(page.locator('.transaction-success')).toBeVisible()
 })
@@ -71,39 +69,20 @@ test('connect wallet and sign transaction', async ({ page, wallets }) => {
 import { createWalletTest } from '@avalix/chroma'
 
 const test = createWalletTest({
-  wallets: [{ type: 'polkadot-js' }, { type: 'talisman' }]
+  wallets: [{ type: 'metamask' }, { type: 'talisman' }]
 })
 
 test('multi-wallet test', async ({ page, wallets }) => {
-  const polkadotJs = wallets['polkadot-js']
+  const metamask = wallets.metamask
   const talisman = wallets.talisman
 
-  await polkadotJs.importMnemonic({ seed: '...', name: 'Alice' })
+  await metamask.importSeedPhrase({ seedPhrase: 'test test test test test test test test test test test junk' })
   await talisman.importEthPrivateKey({ privateKey: '0x...', name: 'Bob' })
 
   await page.goto('http://localhost:3000')
-  await polkadotJs.authorize()
+  await metamask.authorize()
 })
 ```
-
-## Supported Wallets & Chains
-
-### Supported Chains
-
-| Chain | Status |
-|-------|--------|
-| Polkadot | ✅ Supported |
-| Ethereum | ✅ Supported |
-| Solana | ⏳ Planned |
-
-### Supported Wallets
-
-| Wallet | Status | Version |
-|--------|--------|---------|
-| Polkadot JS Extension | ✅ Supported | v0.62.6 |
-| Talisman | ✅ Supported | v3.1.13 |
-| SubWallet | ⏳ Planned | - |
-| MetaMask | ⏳ Planned | - |
 
 ## Features
 
