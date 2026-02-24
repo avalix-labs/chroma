@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { METAMASK_CONFIG } from '../wallets/metamask.js'
 import { POLKADOT_JS_CONFIG } from '../wallets/polkadot-js.js'
 import { TALISMAN_CONFIG } from '../wallets/talisman.js'
 import { downloadAndExtractExtension } from './download-extension.js'
@@ -14,6 +15,7 @@ import { downloadAndExtractExtension } from './download-extension.js'
  * Important test cases:
  * - Single wrapper directory extraction (Talisman zips into a subdirectory)
  * - Standard zip extraction (Polkadot-JS)
+ * - Standard zip extraction (MetaMask)
  * - Skip download if already exists
  * - Error handling for invalid URLs
  */
@@ -52,6 +54,19 @@ describe('downloadAndExtractExtension (integration tests)', () => {
     })
 
     expect(result).toBe(path.join(tempDir, POLKADOT_JS_CONFIG.extensionName))
+    expect(fs.existsSync(result)).toBe(true)
+
+    const files = await fs.promises.readdir(result)
+    expect(files).toContain('manifest.json')
+  }, 60000)
+
+  it('should handle standard zip extraction (MetaMask)', async () => {
+    const result = await downloadAndExtractExtension({
+      ...METAMASK_CONFIG,
+      targetDir: tempDir,
+    })
+
+    expect(result).toBe(path.join(tempDir, METAMASK_CONFIG.extensionName))
     expect(fs.existsSync(result)).toBe(true)
 
     const files = await fs.promises.readdir(result)
