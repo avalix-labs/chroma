@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  schedule:
-    # Run every Sunday at 00:00 UTC
-    - cron: '0 0 * * 0'
   workflow_dispatch:
 
 jobs:
@@ -33,17 +30,12 @@ jobs:
         tags: chroma-test:latest
 
     - name: Run Playwright tests
-      uses: nick-fields/retry@v3
-      with:
-        timeout_minutes: 15
-        max_attempts: 3
-        retry_wait_seconds: 60
-        command: |
-          docker run --rm --shm-size=2gb \
-            -e E2E_TARGET=${{ matrix.e2e-target }} \
-            -v ${{ github.workspace }}/packages/e2e-${{ matrix.e2e-target }}/playwright-report:/app/packages/e2e-${{ matrix.e2e-target }}/playwright-report \
-            -v ${{ github.workspace }}/packages/e2e-${{ matrix.e2e-target }}/test-results:/app/packages/e2e-${{ matrix.e2e-target }}/test-results \
-            chroma-test
+      run: |
+        docker run --rm --shm-size=2gb \
+          -e E2E_TARGET=${{ matrix.e2e-target }} \
+          -v ${{ github.workspace }}/packages/e2e-${{ matrix.e2e-target }}/playwright-report:/app/packages/e2e-${{ matrix.e2e-target }}/playwright-report \
+          -v ${{ github.workspace }}/packages/e2e-${{ matrix.e2e-target }}/test-results:/app/packages/e2e-${{ matrix.e2e-target }}/test-results \
+          chroma-test
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
