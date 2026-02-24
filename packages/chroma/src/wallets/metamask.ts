@@ -229,7 +229,7 @@ export async function unlockMetaMask(
 // MetaMask specific seed phrase import implementation
 export async function importSeedPhrase(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
-  { seedPhrase, name: _name = 'Test Account' }: { seedPhrase: string, name?: string },
+  { seedPhrase }: { seedPhrase: string },
 ): Promise<void> {
   const context = page.__extensionContext
   const extensionId = page.__extensionId

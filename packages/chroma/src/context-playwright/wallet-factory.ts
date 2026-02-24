@@ -120,13 +120,10 @@ export function createMetaMaskWallet(extensionId: string, context: BrowserContex
   return {
     extensionId,
     type: 'metamask' as const,
-    importSeedPhrase: async (options: { seedPhrase: string, name?: string }) => {
+    importSeedPhrase: async (options: { seedPhrase: string }) => {
       const page = context.pages()[0] || await context.newPage()
       const extPage = createExtendedPage(page, context, extensionId)
-      await importMetaMaskSeedPhrase(extPage, {
-        seedPhrase: options.seedPhrase,
-        name: options.name,
-      })
+      await importMetaMaskSeedPhrase(extPage, { seedPhrase: options.seedPhrase })
     },
     unlock: async () => {
       const page = context.pages()[0] || await context.newPage()

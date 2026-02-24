@@ -1,6 +1,5 @@
 import { createWalletTest } from '../src/index.js'
 
-const ACCOUNT_NAME = 'Test Account'
 const SEED_PHRASE = 'test test test test test test test test test test test junk'
 
 const test = createWalletTest({
@@ -13,10 +12,7 @@ test('should import account and connect MetaMask wallet', async ({ page, wallets
   const wallet = wallets.metamask
 
   // Import Ethereum account into MetaMask wallet
-  await wallet.importSeedPhrase({
-    seedPhrase: SEED_PHRASE,
-    name: ACCOUNT_NAME,
-  })
+  await wallet.importSeedPhrase({ seedPhrase: SEED_PHRASE })
 
   await page.goto('https://demo.privy.io')
   await page.waitForLoadState('domcontentloaded')

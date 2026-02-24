@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { test } from './helpers/multi-chain-metamask'
 
-const ACCOUNT_NAME = 'Test Account'
 const SEED_PHRASE = 'test test test test test test test test test test test junk'
 
 test.setTimeout(30_000 * 2)
@@ -10,10 +9,7 @@ test.beforeAll(async ({ wallets }) => {
   console.log('[INFO] Testing with metamask extension')
 
   console.log('[INFO] wallets.metamask.importSeedPhrase')
-  await wallets.metamask.importSeedPhrase({
-    seedPhrase: SEED_PHRASE,
-    name: ACCOUNT_NAME,
-  })
+  await wallets.metamask.importSeedPhrase({ seedPhrase: SEED_PHRASE })
 })
 
 test('test with metamask wallet', async ({ page, wallets, switchChain }) => {
