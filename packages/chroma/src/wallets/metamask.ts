@@ -131,7 +131,6 @@ async function completeOnboarding(
   await extensionPage.getByTestId('create-password-submit').click()
 
   // Agree to metrics
-  // await extensionPage.pause()
   await extensionPage.getByTestId('metametrics-checkbox').click()
   await extensionPage.getByTestId('metametrics-i-agree').click()
 
@@ -152,7 +151,6 @@ async function completeOnboarding(
   await extensionPage.getByTestId('category-back-button').click()
   await extensionPage.getByTestId('privacy-settings-back-button').click()
 
-  // await extensionPage.pause()
   await extensionPage.getByTestId('onboarding-complete-done').click()
   await extensionPage.close()
 }
@@ -222,7 +220,6 @@ export async function unlockMetaMask(
   await unlockPage.getByTestId('unlock-submit').click()
 
   // await unlockPage.getByTestId('onboarding-complete-done').click()
-  // await unlockPage.pause()
   await unlockPage.close()
 }
 
