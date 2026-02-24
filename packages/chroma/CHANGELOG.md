@@ -1,5 +1,11 @@
 # @avalix/chroma
 
+## 0.0.16
+
+### Patch Changes
+
+- [#65](https://github.com/avalix-labs/chroma/pull/65) [`e628625`](https://github.com/avalix-labs/chroma/commit/e628625694bbb381bffdd75f4d987b7763ba5acf) Thanks [@preschian](https://github.com/preschian)! - docs: update README with MetaMask support and wallet tables
+
 ## 0.0.15
 
 ### Patch Changes
