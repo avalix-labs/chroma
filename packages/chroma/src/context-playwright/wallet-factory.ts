@@ -4,6 +4,7 @@ import {
   authorizeMetaMask,
   confirmMetaMask,
   importSeedPhrase as importMetaMaskSeedPhrase,
+  rejectMetaMask,
   unlockMetaMask,
 } from '../wallets/metamask.js'
 import {
@@ -136,6 +137,11 @@ export function createMetaMaskWallet(extensionId: string, context: BrowserContex
       const page = context.pages()[0] || await context.newPage()
       const extPage = createExtendedPage(page, context, extensionId)
       await authorizeMetaMask(extPage)
+    },
+    reject: async () => {
+      const page = context.pages()[0] || await context.newPage()
+      const extPage = createExtendedPage(page, context, extensionId)
+      await rejectMetaMask(extPage)
     },
     confirm: async () => {
       const page = context.pages()[0] || await context.newPage()

@@ -187,6 +187,24 @@ export async function confirmMetaMask(
   await extensionPopup.close()
 }
 
+// MetaMask specific reject implementation
+// Handles the reject/cancel popup (e.g. reject transaction, switch chain)
+export async function rejectMetaMask(
+  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+): Promise<void> {
+  const context = page.__extensionContext
+  const extensionId = page.__extensionId
+
+  const extensionPopup = await findExtensionPopup(context, extensionId)
+
+  // Click "Reject" or "Cancel" - MetaMask uses confirm-footer-cancel for tx/sign reject
+  const rejectButton = extensionPopup.getByTestId('confirm-footer-cancel')
+    .or(extensionPopup.getByTestId('page-container-footer-cancel'))
+    .or(extensionPopup.getByRole('button', { name: /Reject|Cancel/i }))
+  await rejectButton.first().click()
+  await extensionPopup.close()
+}
+
 // Unlock MetaMask by navigating to unlock page and filling password
 export async function unlockMetaMask(
   page: Page & { __extensionContext: BrowserContext, __extensionId: string },
