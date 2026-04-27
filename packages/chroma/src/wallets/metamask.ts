@@ -219,7 +219,6 @@ export async function unlockMetaMask(
   await unlockPage.getByTestId('unlock-password').fill(METAMASK_PASSWORD)
   await unlockPage.getByTestId('unlock-submit').click()
 
-  // await unlockPage.getByTestId('onboarding-complete-done').click()
   await unlockPage.close()
 }
 
