@@ -29,7 +29,7 @@ vi.mock('node:stream/promises', () => ({
 }))
 
 // Mock fs module
-// - `fs.existsSync`, `fs.readdirSync`, `fs.promises.*` are accessed via the default import
+// - `fs.promises.*` is accessed via the default import
 // - `createWriteStream` is accessed as a named import
 vi.mock('node:fs', async () => {
   const actual = await vi.importActual<typeof import('node:fs')>('node:fs')
@@ -37,8 +37,6 @@ vi.mock('node:fs', async () => {
     ...actual,
     default: {
       ...actual,
-      existsSync: vi.fn(),
-      readdirSync: vi.fn(),
       promises: {
         mkdir: vi.fn().mockResolvedValue(undefined),
         rm: vi.fn().mockResolvedValue(undefined),
@@ -73,9 +71,8 @@ describe('downloadAndExtractExtension (unit tests)', () => {
 
   describe('when extension already exists', () => {
     it('should skip download and return existing path', async () => {
-      const mockedFs = vi.mocked(fs)
-      mockedFs.existsSync.mockReturnValue(true)
-      mockedFs.readdirSync.mockReturnValue(['manifest.json'] as any)
+      const mockedReaddir = vi.mocked(fs.promises.readdir) as unknown as Mock
+      mockedReaddir.mockResolvedValueOnce(['manifest.json'])
 
       const result = await downloadAndExtractExtension(mockOptions)
 
@@ -90,9 +87,8 @@ describe('downloadAndExtractExtension (unit tests)', () => {
 
   describe('when extension does not exist', () => {
     beforeEach(() => {
-      const mockedFs = vi.mocked(fs)
-      mockedFs.existsSync.mockReturnValue(false)
-      mockedFs.readdirSync.mockReturnValue([])
+      const mockedReaddir = vi.mocked(fs.promises.readdir) as unknown as Mock
+      mockedReaddir.mockRejectedValue(Object.assign(new Error('ENOENT'), { code: 'ENOENT' }))
     })
 
     it('should throw error when download fails with bad status', async () => {
@@ -132,14 +128,6 @@ describe('downloadAndExtractExtension (unit tests)', () => {
         statusText: 'Internal Server Error',
       })
 
-      mockedFs.existsSync.mockImplementation((p: fs.PathLike) => {
-        const pathStr = p.toString()
-        if (pathStr.endsWith('test-extension') && !pathStr.includes('.zip')) {
-          return false
-        }
-        return true
-      })
-
       await expect(downloadAndExtractExtension(mockOptions)).rejects.toThrow()
 
       expect(mockedFs.promises.rm).toHaveBeenCalled()
@@ -148,10 +136,6 @@ describe('downloadAndExtractExtension (unit tests)', () => {
 
   describe('successful download and extraction', () => {
     beforeEach(() => {
-      const mockedFs = vi.mocked(fs)
-      mockedFs.existsSync.mockReturnValue(false)
-      mockedFs.readdirSync.mockReturnValue([])
-
       mockFetch.mockResolvedValue({
         ok: true,
         status: 200,
@@ -160,10 +144,9 @@ describe('downloadAndExtractExtension (unit tests)', () => {
     })
 
     it('should extract and return correct path', async () => {
-      const mockedFs = vi.mocked(fs)
-      const mockReaddir = mockedFs.promises.readdir as unknown as Mock
-
-      mockReaddir.mockResolvedValue(['manifest.json', 'popup.html'])
+      const mockReaddir = vi.mocked(fs.promises.readdir) as unknown as Mock
+      mockReaddir.mockResolvedValueOnce([]) // existence check
+      mockReaddir.mockResolvedValueOnce(['manifest.json', 'popup.html']) // post-extraction
 
       const result = await downloadAndExtractExtension({
         ...mockOptions,
@@ -182,8 +165,8 @@ describe('downloadAndExtractExtension (unit tests)', () => {
       const mockReaddir = mockedFs.promises.readdir as unknown as Mock
       const mockStat = mockedFs.promises.stat as unknown as Mock
 
-      // readdir returns a single directory -> unwrap
-      mockReaddir.mockResolvedValue(['extension-folder'])
+      mockReaddir.mockResolvedValueOnce([]) // existence check
+      mockReaddir.mockResolvedValueOnce(['extension-folder']) // post-extraction
       mockStat.mockResolvedValue({ isDirectory: () => true })
 
       const result = await downloadAndExtractExtension({
@@ -209,7 +192,8 @@ describe('downloadAndExtractExtension (unit tests)', () => {
       const mockReaddir = mockedFs.promises.readdir as unknown as Mock
       const mockStat = mockedFs.promises.stat as unknown as Mock
 
-      mockReaddir.mockResolvedValue(['only-file.dat'])
+      mockReaddir.mockResolvedValueOnce([]) // existence check
+      mockReaddir.mockResolvedValueOnce(['only-file.dat']) // post-extraction
       mockStat.mockResolvedValue({ isDirectory: () => false })
 
       const result = await downloadAndExtractExtension({
@@ -229,9 +213,8 @@ describe('downloadAndExtractExtension (unit tests)', () => {
 
   describe('targetDir option', () => {
     it('should use custom targetDir when provided', async () => {
-      const mockedFs = vi.mocked(fs)
-      mockedFs.existsSync.mockReturnValue(true)
-      mockedFs.readdirSync.mockReturnValue(['manifest.json'] as any)
+      const mockReaddir = vi.mocked(fs.promises.readdir) as unknown as Mock
+      mockReaddir.mockResolvedValueOnce(['manifest.json'])
 
       const customOptions: DownloadExtensionOptions = {
         ...mockOptions,
@@ -244,9 +227,8 @@ describe('downloadAndExtractExtension (unit tests)', () => {
     })
 
     it('should use default .chroma directory when targetDir not provided', async () => {
-      const mockedFs = vi.mocked(fs)
-      mockedFs.existsSync.mockReturnValue(true)
-      mockedFs.readdirSync.mockReturnValue(['manifest.json'] as any)
+      const mockReaddir = vi.mocked(fs.promises.readdir) as unknown as Mock
+      mockReaddir.mockResolvedValueOnce(['manifest.json'])
 
       const result = await downloadAndExtractExtension(mockOptions)
 

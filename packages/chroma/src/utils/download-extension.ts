@@ -4,6 +4,10 @@ import process from 'node:process'
 import { pipeline } from 'node:stream/promises'
 import AdmZip from 'adm-zip'
 
+async function safeReaddir(dir: string): Promise<string[]> {
+  return fs.promises.readdir(dir).catch(() => [] as string[])
+}
+
 export interface DownloadExtensionOptions {
   downloadUrl: string
   extensionName: string
@@ -52,7 +56,7 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
   await fs.promises.mkdir(extensionsDir, { recursive: true })
 
   // Check if extension is already downloaded and extracted
-  if (fs.existsSync(extensionDir) && fs.readdirSync(extensionDir).length > 0) {
+  if ((await safeReaddir(extensionDir)).length > 0) {
     console.log(`✅ ${extensionName} already exists at:`, extensionDir)
     return extensionDir
   }
@@ -86,12 +90,12 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
     return extensionDir
   }
   catch (error) {
-    // Clean up on error
-    for (const dir of [zipPath, extensionDir, tempExtractDir]) {
-      if (fs.existsSync(dir)) {
-        await fs.promises.rm(dir, { recursive: true, force: true }).catch(() => {})
-      }
-    }
+    // Clean up on error (force: true silently ignores missing paths)
+    await Promise.all(
+      [zipPath, extensionDir, tempExtractDir].map(dir =>
+        fs.promises.rm(dir, { recursive: true, force: true }).catch(() => {}),
+      ),
+    )
 
     throw new Error(`Failed to download/extract ${extensionName}: ${error instanceof Error ? error.message : String(error)}`)
   }

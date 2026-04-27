@@ -28,7 +28,7 @@ describe('downloadAndExtractExtension (integration tests)', () => {
   })
 
   afterEach(async () => {
-    if (tempDir && fs.existsSync(tempDir)) {
+    if (tempDir) {
       await fs.promises.rm(tempDir, { recursive: true, force: true })
     }
   })
