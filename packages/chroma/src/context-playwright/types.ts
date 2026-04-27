@@ -3,11 +3,7 @@ import type {
   MetaMaskWalletInstance,
   PolkadotJsWalletInstance,
   TalismanWalletInstance,
-  WalletInstance,
 } from './wallet-factory.js'
-
-// Re-export wallet instance types
-export type { MetaMaskWalletInstance, PolkadotJsWalletInstance, TalismanWalletInstance, WalletInstance }
 
 // Wallet types - single source of truth
 export type WalletType = 'polkadot-js' | 'talisman' | 'metamask'
