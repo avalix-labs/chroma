@@ -13,7 +13,5 @@ export default defineConfig({
     'node:path',
     'node:stream/promises',
   ],
-  dts: {
-    // oxc: true, // Disabled to avoid isolatedDeclarations requirement
-  },
+  dts: {},
 })
