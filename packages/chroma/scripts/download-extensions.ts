@@ -31,23 +31,21 @@ async function main() {
     // Clear existing .chroma directory
     await clearChromaDir()
 
-    // Download Polkadot-JS extension
-    await downloadAndExtractExtension({
-      downloadUrl: POLKADOT_JS_CONFIG.downloadUrl,
-      extensionName: POLKADOT_JS_CONFIG.extensionName,
-    })
-
-    // Download Talisman extension
-    await downloadAndExtractExtension({
-      downloadUrl: TALISMAN_CONFIG.downloadUrl,
-      extensionName: TALISMAN_CONFIG.extensionName,
-    })
-
-    // Download MetaMask extension
-    await downloadAndExtractExtension({
-      downloadUrl: METAMASK_CONFIG.downloadUrl,
-      extensionName: METAMASK_CONFIG.extensionName,
-    })
+    // Download all extensions in parallel — they're independent network ops
+    await Promise.all([
+      downloadAndExtractExtension({
+        downloadUrl: POLKADOT_JS_CONFIG.downloadUrl,
+        extensionName: POLKADOT_JS_CONFIG.extensionName,
+      }),
+      downloadAndExtractExtension({
+        downloadUrl: TALISMAN_CONFIG.downloadUrl,
+        extensionName: TALISMAN_CONFIG.extensionName,
+      }),
+      downloadAndExtractExtension({
+        downloadUrl: METAMASK_CONFIG.downloadUrl,
+        extensionName: METAMASK_CONFIG.extensionName,
+      }),
+    ])
 
     console.log('\n✅ All extensions downloaded successfully!')
     console.log('You can now run your Playwright tests.')
