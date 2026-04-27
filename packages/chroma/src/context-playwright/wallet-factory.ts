@@ -21,13 +21,16 @@ import {
   rejectTalismanTx,
 } from '../wallets/talisman.js'
 
-// Helper to create extended page with wallet context
+// Helper: pick or create a page on the context and tag it with extension info.
 /* c8 ignore start */
-function createExtendedPage(page: Page, context: BrowserContext, extensionId: string) {
-  const extPage = page as Page & { __extensionContext: BrowserContext, __extensionId: string }
-  extPage.__extensionContext = context
-  extPage.__extensionId = extensionId
-  return extPage
+async function getOrCreateExtendedPage(context: BrowserContext, extensionId: string) {
+  const page = (context.pages()[0] || await context.newPage()) as Page & {
+    __extensionContext: BrowserContext
+    __extensionId: string
+  }
+  page.__extensionContext = context
+  page.__extensionId = extensionId
+  return page
 }
 /* c8 ignore stop */
 
@@ -41,24 +44,16 @@ export function createPolkadotJsWallet(extensionId: string, context: BrowserCont
     extensionId,
     type: 'polkadot-js' as const,
     importMnemonic: async (options: WalletAccount) => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
-      await importPolkadotJSAccount(extPage, options)
+      await importPolkadotJSAccount(await getOrCreateExtendedPage(context, extensionId), options)
     },
     authorize: async () => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
-      await authorizePolkadotJS(extPage)
+      await authorizePolkadotJS(await getOrCreateExtendedPage(context, extensionId))
     },
     approveTx: async (options: { password?: string } = {}) => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
-      await approvePolkadotJSTx(extPage, options)
+      await approvePolkadotJSTx(await getOrCreateExtendedPage(context, extensionId), options)
     },
     rejectTx: async () => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
-      await rejectPolkadotJSTx(extPage)
+      await rejectPolkadotJSTx(await getOrCreateExtendedPage(context, extensionId))
     },
   }
 }
@@ -76,36 +71,26 @@ export function createTalismanWallet(extensionId: string, context: BrowserContex
     extensionId,
     type: 'talisman' as const,
     importPolkadotMnemonic: async (options: WalletAccount) => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
       importedAccountName = options.name || 'Test Account'
-      await importPolkadotMnemonic(extPage, options)
+      await importPolkadotMnemonic(await getOrCreateExtendedPage(context, extensionId), options)
     },
     importEthPrivateKey: async (options: { privateKey: string, name?: string, password?: string }) => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
       importedAccountName = options.name || 'Test Account'
-      await importEthPrivateKey(extPage, {
+      await importEthPrivateKey(await getOrCreateExtendedPage(context, extensionId), {
         seed: options.privateKey,
         name: options.name,
         password: options.password,
       })
     },
     authorize: async (options: { accountName?: string } = {}) => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
       const accountName = options.accountName || importedAccountName
-      await authorizeTalisman(extPage, { accountName })
+      await authorizeTalisman(await getOrCreateExtendedPage(context, extensionId), { accountName })
     },
     approveTx: async () => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
-      await approveTalismanTx(extPage)
+      await approveTalismanTx(await getOrCreateExtendedPage(context, extensionId))
     },
     rejectTx: async () => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
-      await rejectTalismanTx(extPage)
+      await rejectTalismanTx(await getOrCreateExtendedPage(context, extensionId))
     },
   }
 }
@@ -121,29 +106,19 @@ export function createMetaMaskWallet(extensionId: string, context: BrowserContex
     extensionId,
     type: 'metamask' as const,
     importSeedPhrase: async (options: { seedPhrase: string }) => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
-      await importMetaMaskSeedPhrase(extPage, { seedPhrase: options.seedPhrase })
+      await importMetaMaskSeedPhrase(await getOrCreateExtendedPage(context, extensionId), { seedPhrase: options.seedPhrase })
     },
     unlock: async () => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
-      await unlockMetaMask(extPage)
+      await unlockMetaMask(await getOrCreateExtendedPage(context, extensionId))
     },
     authorize: async () => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
-      await authorizeMetaMask(extPage)
+      await authorizeMetaMask(await getOrCreateExtendedPage(context, extensionId))
     },
     reject: async () => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
-      await rejectMetaMask(extPage)
+      await rejectMetaMask(await getOrCreateExtendedPage(context, extensionId))
     },
     confirm: async () => {
-      const page = context.pages()[0] || await context.newPage()
-      const extPage = createExtendedPage(page, context, extensionId)
-      await confirmMetaMask(extPage)
+      await confirmMetaMask(await getOrCreateExtendedPage(context, extensionId))
     },
   }
 }
