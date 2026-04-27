@@ -22,7 +22,6 @@ export interface WalletAccount {
 // Configuration for a single wallet
 export interface WalletConfig {
   type: WalletType
-  downloadUrl?: string
 }
 
 // Map wallet type to its instance

@@ -118,16 +118,6 @@ describe('context-playwright/index', () => {
       expect(result).toBeDefined()
     })
 
-    it('should handle wallets with downloadUrl option', () => {
-      const result = createWalletTest({
-        wallets: [{
-          type: 'polkadot-js',
-          downloadUrl: 'https://custom-url.com/extension.zip',
-        }],
-      })
-
-      expect(result).toBeDefined()
-    })
   })
 
   describe('getExtensionPathForWallet', () => {
