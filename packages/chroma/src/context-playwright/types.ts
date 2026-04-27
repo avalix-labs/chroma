@@ -39,12 +39,6 @@ export type ConfiguredWallets<T extends readonly WalletConfig[]> = {
   [K in T[number]['type']]: WalletTypeMap[K]
 }
 
-// Extended page with wallet context
-export type ExtendedPage = Page & {
-  __extensionContext: BrowserContext
-  __walletExtensionIds: Map<string, string>
-}
-
 // Complete test configuration - supports single and multi-wallet
 export interface ChromaTestOptions<T extends readonly WalletConfig[] = WalletConfig[]> {
   // Wallet configuration (single or multiple)
@@ -56,7 +50,7 @@ export interface ChromaTestOptions<T extends readonly WalletConfig[] = WalletCon
 
 // Test fixtures (test-scoped: recreated per test)
 export interface WalletFixtures<W = Wallets> {
-  page: ExtendedPage
+  page: Page
   wallets: W
 }
 

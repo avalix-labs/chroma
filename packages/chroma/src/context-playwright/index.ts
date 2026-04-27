@@ -1,7 +1,6 @@
 import type {
   ChromaTestOptions,
   ConfiguredWallets,
-  ExtendedPage,
   WalletConfig,
   WalletFixtures,
   Wallets,
@@ -111,16 +110,10 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
       await use(extensionIds)
     }, { scope: 'worker' }],
 
-    // Main page with extension context (uses worker-scoped context)
-    page: async ({ walletContext, walletExtensionIds }, use) => {
+    // Main page (uses worker-scoped context)
+    page: async ({ walletContext }, use) => {
       const page = walletContext.pages()[0] || await walletContext.newPage()
-
-      // Store context and extension IDs on page
-      const extendedPage = page as ExtendedPage
-      extendedPage.__extensionContext = walletContext
-      extendedPage.__walletExtensionIds = walletExtensionIds
-
-      await use(extendedPage)
+      await use(page)
       // Note: Don't close the page or context here since they're worker-scoped
     },
 
