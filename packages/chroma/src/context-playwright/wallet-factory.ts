@@ -160,4 +160,3 @@ export const walletFactories = {
 export type PolkadotJsWalletInstance = ReturnType<typeof createPolkadotJsWallet>
 export type TalismanWalletInstance = ReturnType<typeof createTalismanWallet>
 export type MetaMaskWalletInstance = ReturnType<typeof createMetaMaskWallet>
-export type WalletInstance = PolkadotJsWalletInstance | TalismanWalletInstance | MetaMaskWalletInstance
