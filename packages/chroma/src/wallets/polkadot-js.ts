@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { findExtensionPopup } from '../utils/find-extension-popup.js'
+import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 
 // Polkadot-JS specific configuration
 // https://github.com/polkadot-js/extension/releases
@@ -42,7 +43,7 @@ export async function getPolkadotJSExtensionPath(): Promise<string> {
 export async function importPolkadotJSAccount(
   context: BrowserContext,
   extensionId: string,
-  { seed, name = 'Test Account', password = 'h3llop0lkadot!' }: WalletAccount,
+  { seed, name = 'Test Account', password = DEFAULT_TEST_PASSWORD }: WalletAccount,
 ): Promise<void> {
   const extensionPopupUrl = `chrome-extension://${extensionId}/index.html`
   const extensionPage = await context.newPage()
@@ -104,7 +105,7 @@ export async function approvePolkadotJSTx(
   extensionId: string,
   options: { password?: string } = {},
 ): Promise<void> {
-  const { password = 'h3llop0lkadot!' } = options
+  const { password = DEFAULT_TEST_PASSWORD } = options
   const extensionPopup = await findExtensionPopup(context, extensionId)
   await extensionPopup.getByRole('textbox').fill(password)
   await extensionPopup.getByRole('button', { name: 'Sign the transaction' }).click()

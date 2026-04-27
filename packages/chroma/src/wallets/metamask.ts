@@ -2,6 +2,7 @@ import type { BrowserContext, Page } from '@playwright/test'
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 
 // MetaMask specific configuration
 // https://github.com/MetaMask/metamask-extension/releases
@@ -101,8 +102,6 @@ async function findExtensionPopup(
   throw new Error(`MetaMask side panel not found for ID: ${extensionId}`)
 }
 
-const METAMASK_PASSWORD = 'h3llop0lkadot!'
-
 // Helper function to complete MetaMask onboarding flow
 async function completeOnboarding(
   extensionPage: Page,
@@ -126,8 +125,8 @@ async function completeOnboarding(
   await extensionPage.getByTestId('import-srp-confirm').click()
 
   // Set password
-  await extensionPage.getByTestId('create-password-new-input').fill(METAMASK_PASSWORD)
-  await extensionPage.getByTestId('create-password-confirm-input').fill(METAMASK_PASSWORD)
+  await extensionPage.getByTestId('create-password-new-input').fill(DEFAULT_TEST_PASSWORD)
+  await extensionPage.getByTestId('create-password-confirm-input').fill(DEFAULT_TEST_PASSWORD)
   await extensionPage.getByTestId('create-password-terms').click()
   await extensionPage.getByTestId('create-password-submit').click()
 
@@ -209,7 +208,7 @@ export async function unlockMetaMask(
   await unlockPage.waitForLoadState('domcontentloaded')
 
   // Fill password and unlock
-  await unlockPage.getByTestId('unlock-password').fill(METAMASK_PASSWORD)
+  await unlockPage.getByTestId('unlock-password').fill(DEFAULT_TEST_PASSWORD)
   await unlockPage.getByTestId('unlock-submit').click()
 
   await unlockPage.close()
