@@ -31,9 +31,6 @@ export interface WalletTypeMap {
   'metamask': MetaMaskWalletInstance
 }
 
-// Wallets collection - all wallet types
-export type Wallets = WalletTypeMap
-
 // Helper type to build a wallets object based on configured wallet types
 export type ConfiguredWallets<T extends readonly WalletConfig[]> = {
   [K in T[number]['type']]: WalletTypeMap[K]
@@ -49,7 +46,7 @@ export interface ChromaTestOptions<T extends readonly WalletConfig[] = WalletCon
 }
 
 // Test fixtures (test-scoped: recreated per test)
-export interface WalletFixtures<W = Wallets> {
+export interface WalletFixtures<W = WalletTypeMap> {
   page: Page
   wallets: W
 }

@@ -3,7 +3,7 @@ import type {
   ConfiguredWallets,
   WalletConfig,
   WalletFixtures,
-  Wallets,
+  WalletTypeMap,
   WalletWorkerFixtures,
 } from './types.js'
 import { test as base, chromium } from '@playwright/test'
@@ -43,7 +43,7 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
   const isMultiWallet = walletConfigs.length > 1
 
   // Compute the expected wallets type
-  type ExpectedWallets = T extends readonly WalletConfig[] ? ConfiguredWallets<T> : Wallets
+  type ExpectedWallets = T extends readonly WalletConfig[] ? ConfiguredWallets<T> : WalletTypeMap
 
   /*
    * Playwright Fixtures - Coverage Exclusion
