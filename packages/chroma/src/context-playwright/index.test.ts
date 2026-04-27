@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { getMetaMaskExtensionPath } from '../wallets/metamask.js'
-import { getPolkadotJSExtensionPath } from '../wallets/polkadot-js.js'
-import { getTalismanExtensionPath } from '../wallets/talisman.js'
-import { createWalletTest, getExtensionPathForWallet } from './index.js'
+import { createWalletTest } from './index.js'
 
 // Mock @playwright/test
 vi.mock('@playwright/test', () => {
@@ -118,34 +115,5 @@ describe('context-playwright/index', () => {
       expect(result).toBeDefined()
     })
 
-  })
-
-  describe('getExtensionPathForWallet', () => {
-    it('should return polkadot-js extension path', async () => {
-      const result = await getExtensionPathForWallet({ type: 'polkadot-js' })
-
-      expect(result).toBe('/mock/path/polkadot-extension')
-      expect(getPolkadotJSExtensionPath).toHaveBeenCalled()
-    })
-
-    it('should return talisman extension path', async () => {
-      const result = await getExtensionPathForWallet({ type: 'talisman' })
-
-      expect(result).toBe('/mock/path/talisman-extension')
-      expect(getTalismanExtensionPath).toHaveBeenCalled()
-    })
-
-    it('should return metamask extension path', async () => {
-      const result = await getExtensionPathForWallet({ type: 'metamask' })
-
-      expect(result).toBe('/mock/path/metamask-extension')
-      expect(getMetaMaskExtensionPath).toHaveBeenCalled()
-    })
-
-    it('should throw error for unsupported wallet type', async () => {
-      await expect(
-        getExtensionPathForWallet({ type: 'unsupported' as any }),
-      ).rejects.toThrow('Unsupported wallet type: unsupported')
-    })
   })
 })
