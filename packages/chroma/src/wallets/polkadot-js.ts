@@ -3,6 +3,7 @@ import type { WalletAccount } from '../context-playwright/types.js'
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { findExtensionPopup } from '../utils/find-extension-popup.js'
 
 // Polkadot-JS specific configuration
 // https://github.com/polkadot-js/extension/releases
@@ -11,35 +12,6 @@ export const POLKADOT_JS_CONFIG = {
   downloadUrl: `https://github.com/polkadot-js/extension/releases/download/v${VERSION}/master-chrome-build.zip`,
   extensionName: `polkadot-extension-${VERSION}`,
 } as const
-
-/*
- * Helper function to find extension popup
- * Coverage excluded: requires real browser context with Chrome extension APIs.
- */
-/* c8 ignore start */
-async function findExtensionPopup(context: BrowserContext, extensionId: string): Promise<Page> {
-  // Wait for extension popup to appear with retry logic
-  const maxAttempts = 10
-  const retryDelay = 500
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const pages = context.pages()
-    for (const p of pages) {
-      if (p.url().includes(`chrome-extension://${extensionId}/`)) {
-        await p.waitForLoadState('domcontentloaded')
-        return p
-      }
-    }
-
-    // If not found, wait a bit before retrying
-    if (attempt < maxAttempts - 1) {
-      await new Promise(resolve => setTimeout(resolve, retryDelay))
-    }
-  }
-
-  throw new Error(`Extension popup not found for ID: ${extensionId}`)
-}
-/* c8 ignore stop */
 
 // Get Polkadot-JS extension path
 export async function getPolkadotJSExtensionPath(): Promise<string> {
