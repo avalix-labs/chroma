@@ -3,6 +3,7 @@ import type {
   ConfiguredWallets,
   WalletConfig,
   WalletFixtures,
+  WalletType,
   WalletTypeMap,
   WalletWorkerFixtures,
 } from './types.js'
@@ -82,7 +83,7 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
 
     // Worker-scoped: Map of wallet type to extension ID
     walletExtensionIds: [async ({ walletContext }, use) => {
-      const extensionIds = new Map<string, string>()
+      const extensionIds = new Map<WalletType, string>()
 
       // Wait for all service workers to load
       const serviceWorkers = walletContext.serviceWorkers()
@@ -123,7 +124,7 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
 
       // Create wallet instance for each configured wallet
       for (const [walletType, extensionId] of walletExtensionIds) {
-        const factory = walletFactories[walletType as keyof typeof walletFactories]
+        const factory = walletFactories[walletType]
         if (factory) {
           walletMap[walletType as keyof ExpectedWallets] = factory(extensionId, walletContext) as ExpectedWallets[keyof ExpectedWallets]
         }
