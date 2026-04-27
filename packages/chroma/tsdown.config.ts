@@ -12,7 +12,6 @@ export default defineConfig({
     'node:fs',
     'node:path',
     'node:stream/promises',
-    'unzipper',
   ],
   dts: {
     // oxc: true, // Disabled to avoid isolatedDeclarations requirement
