@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { findExtensionPopup as findExtensionPopupBase } from '../utils/find-extension-popup.js'
+import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 
 // Talisman specific configuration
 // https://github.com/avalix-labs/polkadot-wallets/tree/main/talisman
@@ -108,7 +109,7 @@ async function completeOnboarding(
 export async function importPolkadotMnemonic(
   context: BrowserContext,
   extensionId: string,
-  { seed, name = 'Test Account', password = 'h3llop0lkadot!' }: WalletAccount,
+  { seed, name = 'Test Account', password = DEFAULT_TEST_PASSWORD }: WalletAccount,
 ): Promise<void> {
   const extensionPage = await findOnboardingPage(context, extensionId)
 
@@ -138,7 +139,7 @@ export async function importPolkadotMnemonic(
 export async function importEthPrivateKey(
   context: BrowserContext,
   extensionId: string,
-  { seed, name = 'Test Account', password = 'h3llop0lkadot!' }: WalletAccount,
+  { seed, name = 'Test Account', password = DEFAULT_TEST_PASSWORD }: WalletAccount,
 ): Promise<void> {
   const extensionPage = await findOnboardingPage(context, extensionId)
 
