@@ -106,12 +106,10 @@ async function completeOnboarding(
 
 // Talisman specific Polkadot mnemonic import implementation
 export async function importPolkadotMnemonic(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
   { seed, name = 'Test Account', password = 'h3llop0lkadot!' }: WalletAccount,
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const extensionPage = await findOnboardingPage(context, extensionId)
 
   try {
@@ -138,12 +136,10 @@ export async function importPolkadotMnemonic(
 
 // Talisman specific Ethereum private key import implementation
 export async function importEthPrivateKey(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
   { seed, name = 'Test Account', password = 'h3llop0lkadot!' }: WalletAccount,
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const extensionPage = await findOnboardingPage(context, extensionId)
 
   try {
@@ -171,11 +167,10 @@ export async function importEthPrivateKey(
 
 // Talisman specific authorization implementation
 export async function authorizeTalisman(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
   options: { accountName?: string } = {},
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
   const { accountName = 'Test Account' } = options
 
   const extensionPopup = await findExtensionPopup(context, extensionId)
@@ -198,11 +193,9 @@ export async function authorizeTalisman(
 
 // Talisman specific transaction approval implementation
 export async function approveTalismanTx(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const extensionPopup = await findExtensionPopup(context, extensionId)
 
   if (await extensionPopup.getByRole('button', { name: 'Yes' }).isVisible()) {
@@ -214,11 +207,9 @@ export async function approveTalismanTx(
 
 // Talisman specific transaction rejection implementation
 export async function rejectTalismanTx(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const extensionPopup = await findExtensionPopup(context, extensionId)
 
   const rejectButton = extensionPopup.getByTestId('connection-reject-button')

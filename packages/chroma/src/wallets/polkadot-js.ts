@@ -1,4 +1,4 @@
-import type { BrowserContext, Page } from '@playwright/test'
+import type { BrowserContext } from '@playwright/test'
 import type { WalletAccount } from '../context-playwright/types.js'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -40,12 +40,10 @@ export async function getPolkadotJSExtensionPath(): Promise<string> {
 
 // Polkadot-JS specific account import implementation
 export async function importPolkadotJSAccount(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
   { seed, name = 'Test Account', password = 'h3llop0lkadot!' }: WalletAccount,
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const extensionPopupUrl = `chrome-extension://${extensionId}/index.html`
   const extensionPage = await context.newPage()
 
@@ -80,11 +78,9 @@ export async function importPolkadotJSAccount(
 
 // Polkadot-JS specific authorization implementation
 export async function authorizePolkadotJS(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const extensionPopup = await findExtensionPopup(context, extensionId)
 
   if (await extensionPopup.getByRole('button', { name: 'I Understand' }).isVisible()) {
@@ -104,13 +100,11 @@ export async function authorizePolkadotJS(
 
 // Polkadot-JS specific transaction approval implementation
 export async function approvePolkadotJSTx(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
   options: { password?: string } = {},
 ): Promise<void> {
   const { password = 'h3llop0lkadot!' } = options
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const extensionPopup = await findExtensionPopup(context, extensionId)
   await extensionPopup.getByRole('textbox').fill(password)
   await extensionPopup.getByRole('button', { name: 'Sign the transaction' }).click()
@@ -118,11 +112,9 @@ export async function approvePolkadotJSTx(
 
 // Polkadot-JS specific transaction rejection implementation
 export async function rejectPolkadotJSTx(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const extensionPopup = await findExtensionPopup(context, extensionId)
   await extensionPopup.getByRole('link', { name: 'Cancel' }).click()
 }
