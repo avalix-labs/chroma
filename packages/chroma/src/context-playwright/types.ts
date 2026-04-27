@@ -50,5 +50,5 @@ export interface WalletFixtures<W = WalletTypeMap> {
 // Worker fixtures (worker-scoped: persisted across tests)
 export interface WalletWorkerFixtures {
   walletContext: BrowserContext
-  walletExtensionIds: Map<string, string>
+  walletExtensionIds: Map<WalletType, string>
 }
