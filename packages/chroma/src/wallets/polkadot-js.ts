@@ -84,12 +84,11 @@ export async function importPolkadotJSAccount(
     const understoodButton = extensionPage.getByRole('button', { name: 'Understood, let me continue' })
     if (await understoodButton.count() > 0) {
       await understoodButton.click()
-      await extensionPage.waitForTimeout(100)
     }
 
-    if (await extensionPage.getByRole('button', { name: 'I Understand' }).isVisible()) {
-      await extensionPage.getByRole('button', { name: 'I Understand' }).click()
-    }
+    // The "I Understand" disclaimer may follow; wait briefly for it to settle.
+    const iUnderstand = extensionPage.getByRole('button', { name: 'I Understand' })
+    await iUnderstand.click({ timeout: 1000 }).catch(() => {})
 
     // Navigate to import seed page
     await extensionPage.goto(`${extensionPopupUrl}#/account/import-seed`)
