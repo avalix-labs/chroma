@@ -16,8 +16,9 @@ export async function getMetaMaskExtensionPath(): Promise<string> {
   const extensionsDir = path.resolve(process.cwd(), '.chroma')
   const extensionDir = path.join(extensionsDir, METAMASK_CONFIG.extensionName)
 
-  // Check if extension exists
-  if (!fs.existsSync(extensionDir) || fs.readdirSync(extensionDir).length === 0) {
+  // Check if extension exists (readdir rejects if missing → treat as empty)
+  const entries = await fs.promises.readdir(extensionDir).catch(() => [] as string[])
+  if (entries.length === 0) {
     throw new Error(
       `MetaMask extension not found at: ${extensionDir}\n\n`
       + `Please download the extension first by running:\n`

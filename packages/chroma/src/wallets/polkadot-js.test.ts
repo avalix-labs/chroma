@@ -13,11 +13,11 @@ vi.mock('node:fs', async () => {
     ...actual,
     default: {
       ...actual,
-      existsSync: vi.fn(),
-      readdirSync: vi.fn(),
+      promises: {
+        ...actual.promises,
+        readdir: vi.fn(),
+      },
     },
-    existsSync: vi.fn(),
-    readdirSync: vi.fn(),
   }
 })
 
@@ -43,21 +43,20 @@ describe('polkadot-js wallet', () => {
   })
 
   describe('getPolkadotJSExtensionPath', () => {
+    const mockReaddir = () => vi.mocked(fs.promises.readdir) as unknown as ReturnType<typeof vi.fn>
+
     it('should return extension path when extension exists', async () => {
-      const mockedFs = vi.mocked(fs)
-      mockedFs.existsSync.mockReturnValue(true)
-      mockedFs.readdirSync.mockReturnValue(['manifest.json'] as any)
+      mockReaddir().mockResolvedValueOnce(['manifest.json'])
 
       const result = await getPolkadotJSExtensionPath()
 
       expect(result).toContain('.chroma')
       expect(result).toContain(POLKADOT_JS_CONFIG.extensionName)
-      expect(mockedFs.existsSync).toHaveBeenCalled()
+      expect(fs.promises.readdir).toHaveBeenCalled()
     })
 
     it('should throw error when extension directory does not exist', async () => {
-      const mockedFs = vi.mocked(fs)
-      mockedFs.existsSync.mockReturnValue(false)
+      mockReaddir().mockRejectedValueOnce(Object.assign(new Error('ENOENT'), { code: 'ENOENT' }))
 
       await expect(getPolkadotJSExtensionPath()).rejects.toThrow(
         'Polkadot-JS extension not found',
@@ -65,9 +64,7 @@ describe('polkadot-js wallet', () => {
     })
 
     it('should throw error when extension directory is empty', async () => {
-      const mockedFs = vi.mocked(fs)
-      mockedFs.existsSync.mockReturnValue(true)
-      mockedFs.readdirSync.mockReturnValue([])
+      mockReaddir().mockResolvedValueOnce([])
 
       await expect(getPolkadotJSExtensionPath()).rejects.toThrow(
         'Polkadot-JS extension not found',
@@ -75,8 +72,7 @@ describe('polkadot-js wallet', () => {
     })
 
     it('should include download instructions in error message', async () => {
-      const mockedFs = vi.mocked(fs)
-      mockedFs.existsSync.mockReturnValue(false)
+      mockReaddir().mockRejectedValueOnce(Object.assign(new Error('ENOENT'), { code: 'ENOENT' }))
 
       await expect(getPolkadotJSExtensionPath()).rejects.toThrow(
         'npx @avalix/chroma download-extensions',
@@ -84,9 +80,7 @@ describe('polkadot-js wallet', () => {
     })
 
     it('should use correct path structure', async () => {
-      const mockedFs = vi.mocked(fs)
-      mockedFs.existsSync.mockReturnValue(true)
-      mockedFs.readdirSync.mockReturnValue(['manifest.json'] as any)
+      mockReaddir().mockResolvedValueOnce(['manifest.json'])
 
       const result = await getPolkadotJSExtensionPath()
 
