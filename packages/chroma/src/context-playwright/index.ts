@@ -41,8 +41,6 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
     ? options.wallets
     : [{ type: 'polkadot-js' }]
 
-  const isMultiWallet = walletConfigs.length > 1
-
   // Compute the expected wallets type
   type ExpectedWallets = T extends readonly WalletConfig[] ? ConfiguredWallets<T> : WalletTypeMap
 
@@ -85,27 +83,25 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
     walletExtensionIds: [async ({ walletContext }, use) => {
       const extensionIds = new Map<WalletType, string>()
 
-      // Wait for all service workers to load
-      const serviceWorkers = walletContext.serviceWorkers()
-      if (serviceWorkers.length === 0) {
-        // Wait for at least one service worker
-        await walletContext.waitForEvent('serviceworker')
+      // Wait until one service worker per configured wallet has registered.
+      // Bounded by 10s so a stuck worker fails fast instead of hanging the suite.
+      const expected = walletConfigs.length
+      const deadline = Date.now() + 10_000
+      while (walletContext.serviceWorkers().length < expected) {
+        if (Date.now() > deadline) {
+          break
+        }
+        await Promise.race([
+          walletContext.waitForEvent('serviceworker', { timeout: 2_000 }).catch(() => {}),
+          new Promise(resolve => setTimeout(resolve, 200)),
+        ])
       }
 
-      // Give some time for all extensions to load
-      if (isMultiWallet) {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      }
-
-      // Get all service workers (one per extension)
+      // Map service workers to wallet types (order matches walletConfigs order)
       const allServiceWorkers = walletContext.serviceWorkers()
-
-      // Map service workers to wallet types
-      // Note: The order should match the walletConfigs order
       for (let i = 0; i < walletConfigs.length && i < allServiceWorkers.length; i++) {
         const extensionId = allServiceWorkers[i].url().split('/')[2]
-        const walletType = walletConfigs[i].type
-        extensionIds.set(walletType, extensionId)
+        extensionIds.set(walletConfigs[i].type, extensionId)
       }
 
       await use(extensionIds)
