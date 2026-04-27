@@ -159,11 +159,9 @@ async function completeOnboarding(
 // MetaMask specific authorization implementation
 // Handles the "connect" popup when a dapp requests wallet connection
 export async function authorizeMetaMask(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const extensionPopup = await findExtensionPopup(context, extensionId)
 
   // Click "Connect" to authorize the dapp
@@ -174,11 +172,9 @@ export async function authorizeMetaMask(
 // MetaMask specific confirm implementation
 // Handles the confirm popup (e.g. sign message, send transaction)
 export async function confirmMetaMask(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const extensionPopup = await findExtensionPopup(context, extensionId)
 
   // Click "Confirm"
@@ -189,11 +185,9 @@ export async function confirmMetaMask(
 // MetaMask specific reject implementation
 // Handles the reject/cancel popup (e.g. reject transaction, switch chain)
 export async function rejectMetaMask(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const extensionPopup = await findExtensionPopup(context, extensionId)
 
   // Click "Reject" or "Cancel" - MetaMask uses confirm-footer-cancel for tx/sign reject
@@ -206,11 +200,9 @@ export async function rejectMetaMask(
 
 // Unlock MetaMask by navigating to unlock page and filling password
 export async function unlockMetaMask(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const unlockUrl = `chrome-extension://${extensionId}/home.html#/onboarding/unlock`
   const unlockPage = await context.newPage()
   await unlockPage.goto(unlockUrl)
@@ -225,12 +217,10 @@ export async function unlockMetaMask(
 
 // MetaMask specific seed phrase import implementation
 export async function importSeedPhrase(
-  page: Page & { __extensionContext: BrowserContext, __extensionId: string },
+  context: BrowserContext,
+  extensionId: string,
   { seedPhrase }: { seedPhrase: string },
 ): Promise<void> {
-  const context = page.__extensionContext
-  const extensionId = page.__extensionId
-
   const extensionPage = await findOnboardingPage(context, extensionId)
 
   try {
