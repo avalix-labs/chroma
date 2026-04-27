@@ -13,7 +13,7 @@ import { getTalismanExtensionPath } from '../wallets/talisman.js'
 import { walletFactories } from './wallet-factory.js'
 
 // Helper function to get extension path for a wallet config
-export async function getExtensionPathForWallet(config: WalletConfig): Promise<string> {
+async function getExtensionPathForWallet(config: WalletConfig): Promise<string> {
   const { type } = config
 
   switch (type) {
