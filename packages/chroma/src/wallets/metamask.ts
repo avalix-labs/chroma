@@ -203,18 +203,31 @@ export async function unlockMetaMask(
   extensionId: string,
 ): Promise<void> {
   const sidePanelUrl = `chrome-extension://${extensionId}/sidepanel.html`
+  const extensionUrlPrefix = `chrome-extension://${extensionId}/`
 
-  // Brief poll for MetaMask to open its own unlock tab. If none appears,
-  // assume MetaMask is already unlocked.
+  // Poll for one of two signals:
+  //   - an unlock tab → MetaMask auto-opened it on a locked profile
+  //   - any non-unlock extension page → MetaMask is already unlocked
+  //     (e.g. the sidepanel left over from a prior test in this worker)
+  // 10s deadline accommodates slow CI cold starts; the already-unlocked
+  // branch short-circuits within one tick on worker-scoped reuse, so the
+  // longer ceiling only applies on the first unlock per worker.
   let unlockPage: Page | undefined
-  const deadline = Date.now() + 2_000
+  const deadline = Date.now() + 10_000
   while (Date.now() < deadline) {
-    unlockPage = context.pages().find(p =>
-      p.url().includes(`chrome-extension://${extensionId}/`)
-      && p.url().includes('unlock'),
+    const extensionPages = context.pages().filter(p =>
+      p.url().startsWith(extensionUrlPrefix),
     )
+
+    unlockPage = extensionPages.find(p => p.url().includes('unlock'))
     if (unlockPage)
       break
+
+    // A non-unlock extension page means MetaMask has booted unlocked; fall
+    // through to the sidepanel branch.
+    if (extensionPages.length > 0)
+      break
+
     await new Promise(resolve => setTimeout(resolve, 100))
   }
 
@@ -236,7 +249,10 @@ export async function unlockMetaMask(
     return
   }
 
-  // Already unlocked: ensure a side panel tab exists, otherwise open one.
+  // No unlock tab seen — either MetaMask is already unlocked, or it never
+  // booted within the deadline. Ensure a sidepanel tab exists; downstream
+  // calls will surface a clear failure if the profile turns out to still be
+  // locked.
   const existing = context.pages().find(p => p.url().startsWith(sidePanelUrl))
   if (existing)
     return

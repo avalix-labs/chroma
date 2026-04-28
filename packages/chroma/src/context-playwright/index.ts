@@ -8,6 +8,7 @@ import type {
   WalletWorkerFixtures,
 } from './types.js'
 import { cp, rm } from 'node:fs/promises'
+import { resolve as resolvePath } from 'node:path'
 import { test as base, chromium } from '@playwright/test'
 import { getMetaMaskExtensionPath } from '../wallets/metamask.js'
 import { getPolkadotJSExtensionPath } from '../wallets/polkadot-js.js'
@@ -75,6 +76,15 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
       // Optional clone: reset target then copy from source. Skipped when
       // userDataDir is empty (clone into a temp dir would defeat its purpose).
       if (options.cloneUserDataDirFrom && userDataDir) {
+        // Guard against rm wiping the source: resolve both to absolute paths
+        // and refuse if they point at the same location.
+        const sourceAbs = resolvePath(options.cloneUserDataDirFrom)
+        const targetAbs = resolvePath(userDataDir)
+        if (sourceAbs === targetAbs) {
+          throw new Error(
+            `cloneUserDataDirFrom and userDataDir must be different paths; both resolved to "${sourceAbs}"`,
+          )
+        }
         await rm(userDataDir, { recursive: true, force: true })
         await cp(options.cloneUserDataDirFrom, userDataDir, { recursive: true })
       }
