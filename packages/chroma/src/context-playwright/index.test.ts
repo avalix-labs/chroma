@@ -114,5 +114,38 @@ describe('context-playwright/index', () => {
 
       expect(result).toBeDefined()
     })
+
+    it('should accept userDataDir as a string', () => {
+      const result = createWalletTest({
+        userDataDir: '.cache/wallet-setup',
+      })
+
+      expect(result).toBeDefined()
+    })
+
+    it('should accept userDataDir as a per-worker function', () => {
+      const result = createWalletTest({
+        userDataDir: ({ workerIndex }) => `.cache/wallet-w${workerIndex}`,
+      })
+
+      expect(result).toBeDefined()
+    })
+
+    it('should accept userDataDir as an async function', () => {
+      const result = createWalletTest({
+        userDataDir: async ({ workerIndex }) => `.cache/wallet-w${workerIndex}`,
+      })
+
+      expect(result).toBeDefined()
+    })
+
+    it('should accept cloneUserDataDirFrom alongside userDataDir', () => {
+      const result = createWalletTest({
+        userDataDir: ({ workerIndex }) => `.cache/wallet-w${workerIndex}`,
+        cloneUserDataDirFrom: '.cache/wallet-setup',
+      })
+
+      expect(result).toBeDefined()
+    })
   })
 })
