@@ -54,10 +54,10 @@ test('connect wallet and sign transaction', async ({ page, wallets }) => {
 
   await page.goto('http://localhost:3000')
   await page.click('button:has-text("Connect Wallet")')
-  await metamask.authorize()
+  await metamask.approve()
 
   await page.click('button:has-text("Send Transaction")')
-  await metamask.confirm()
+  await metamask.approve()
 
   await expect(page.locator('.transaction-success')).toBeVisible()
 })
@@ -80,31 +80,48 @@ test('multi-wallet test', async ({ page, wallets }) => {
   await talisman.importEthPrivateKey({ privateKey: '0x...', name: 'Bob' })
 
   await page.goto('http://localhost:3000')
-  await metamask.authorize()
+  await metamask.approve()
 })
 ```
 
 ### Setup Project Pattern
 
-By default the browser context uses a temporary profile, so wallet state (imported accounts, unlocked passwords) is lost between runs. To import a seed phrase **once** and reuse the prepared state across all your specs, combine the `userDataDir` and `cloneUserDataDirFrom` options with [Playwright's setup project pattern](https://playwright.dev/docs/test-global-setup-teardown).
+By default the browser context uses a temporary profile, so wallet state (imported accounts, passwords) is lost between runs. To import a seed phrase **once** and reuse the prepared state across all your specs, combine the `userDataDir` and `cloneUserDataDirFrom` options with [Playwright's setup project pattern](https://playwright.dev/docs/test-global-setup-teardown).
 
-A setup project writes the prepared profile to a shared dir, and each test worker clones that dir to its own path before launching:
+A setup project writes the prepared profile to a shared dir; spec projects then point a `userDataDir` at it (or clone it per worker for parallelism).
+
+#### 1. Setup project — seed once
+
+The setup test guards onboarding with a sentinel file so re-running `playwright test` doesn't try to onboard an already-prepared profile (the second run would deadlock on a UI that no longer matches the import flow). Delete `.cache/wallet-setup` to force a fresh seed.
 
 ```typescript
 // metamask.setup.ts
+import fs from 'node:fs'
+import path from 'node:path'
 import { createWalletTest } from '@avalix/chroma'
 
-const setupTest = createWalletTest({
+const SETUP_DIR = '.cache/wallet-setup'
+const SENTINEL = path.join(SETUP_DIR, '.chroma-onboarded')
+
+const setup = createWalletTest({
   wallets: [{ type: 'metamask' }],
-  userDataDir: '.cache/wallet-setup',
+  userDataDir: SETUP_DIR,
 })
 
-setupTest('seed metamask', async ({ wallets }) => {
+setup('seed metamask', async ({ wallets }) => {
+  if (fs.existsSync(SENTINEL))
+    return
+
   await wallets.metamask.importSeedPhrase({
     seedPhrase: 'test test test test test test test test test test test junk',
   })
+  fs.writeFileSync(SENTINEL, '')
 })
 ```
+
+#### 2. Shared spec fixtures
+
+Spec files import a shared `test` factory pointed at the prepared profile. Because MetaMask boots into a locked state on a previously-onboarded profile, each spec must call `wallets.metamask.unlock()` once (it's idempotent — when MetaMask is already unlocked the call is a no-op). On unlock, the MetaMask side panel is left open for the rest of the test session.
 
 ```typescript
 // fixtures.ts — shared by your spec files
@@ -112,14 +129,36 @@ import { createWalletTest } from '@avalix/chroma'
 
 export const test = createWalletTest({
   wallets: [{ type: 'metamask' }],
-  userDataDir: ({ workerIndex }) => `.cache/wallet-w${workerIndex}`,
-  cloneUserDataDirFrom: '.cache/wallet-setup',
+  userDataDir: '.cache/wallet-setup',
+})
+
+export { expect } from '@playwright/test'
+```
+
+```typescript
+// some.spec.ts
+import { test } from './fixtures'
+
+test('connect and sign', async ({ page, wallets }) => {
+  const metamask = wallets.metamask
+
+  await page.goto('http://localhost:3000')
+  await metamask.unlock()
+
+  await page.click('button:has-text("Connect Wallet")')
+  await metamask.approve()
+
+  await page.click('button:has-text("Sign Message")')
+  await metamask.approve()
 })
 ```
+
+#### 3. Wire up the projects
 
 ```typescript
 // playwright.config.ts
 export default defineConfig({
+  workers: 1,
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
@@ -131,7 +170,19 @@ export default defineConfig({
 })
 ```
 
-The setup project runs once before any test, and each worker boots from a fresh copy of the prepared profile — so parallel workers stay isolated without re-importing the seed phrase per file.
+#### Parallel workers (advanced)
+
+Chrome locks `userDataDir`, so multiple workers can't share the same path concurrently. Use `cloneUserDataDirFrom` plus a per-worker `userDataDir` to give each worker its own copy of the prepared profile:
+
+```typescript
+export const test = createWalletTest({
+  wallets: [{ type: 'metamask' }],
+  userDataDir: ({ workerIndex }) => `.cache/wallet-w${workerIndex}`,
+  cloneUserDataDirFrom: '.cache/wallet-setup',
+})
+```
+
+Set `workers: undefined` (or higher) once you've validated parallel runs in your project — interaction between cloned profiles, MetaMask's locked-state recovery, and Playwright's side-panel detection is still being hardened.
 
 ## Features
 
