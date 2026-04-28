@@ -114,6 +114,5 @@ describe('context-playwright/index', () => {
 
       expect(result).toBeDefined()
     })
-
   })
 })

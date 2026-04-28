@@ -7,6 +7,7 @@ import type {
   WalletTypeMap,
   WalletWorkerFixtures,
 } from './types.js'
+import { cp, rm } from 'node:fs/promises'
 import { test as base, chromium } from '@playwright/test'
 import { getMetaMaskExtensionPath } from '../wallets/metamask.js'
 import { getPolkadotJSExtensionPath } from '../wallets/polkadot-js.js'
@@ -56,7 +57,7 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
   return base.extend<WalletFixtures<ExpectedWallets>, WalletWorkerFixtures>({
     // Worker-scoped: Browser context with extension(s) (persists across all tests in worker)
     // eslint-disable-next-line no-empty-pattern
-    walletContext: [async ({}, use) => {
+    walletContext: [async ({}, use, workerInfo) => {
       // Get all extension paths
       const extensionPaths = await Promise.all(
         walletConfigs.map(config => getExtensionPathForWallet(config)),
@@ -65,7 +66,20 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
       // Join paths with comma for Chrome args
       const extensionPathsString = extensionPaths.join(',')
 
-      const context = await chromium.launchPersistentContext('', {
+      // Resolve userDataDir (string, function, or default empty)
+      const userDataDirOption = options.userDataDir
+      const userDataDir = typeof userDataDirOption === 'function'
+        ? await userDataDirOption({ workerIndex: workerInfo.workerIndex })
+        : userDataDirOption ?? ''
+
+      // Optional clone: reset target then copy from source. Skipped when
+      // userDataDir is empty (clone into a temp dir would defeat its purpose).
+      if (options.cloneUserDataDirFrom && userDataDir) {
+        await rm(userDataDir, { recursive: true, force: true })
+        await cp(options.cloneUserDataDirFrom, userDataDir, { recursive: true })
+      }
+
+      const context = await chromium.launchPersistentContext(userDataDir, {
         headless,
         channel: 'chromium',
         args: [
