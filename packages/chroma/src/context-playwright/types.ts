@@ -39,6 +39,22 @@ export interface ChromaTestOptions<T extends readonly WalletConfig[] = WalletCon
   // Common options
   headless?: boolean
   slowMo?: number
+  /**
+   * Persistent profile dir for the browser context.
+   * - Empty/undefined (default): temp dir is used; state is lost each run.
+   * - String: shared profile path. Requires `workers: 1` if used by multiple workers.
+   * - Function: receives the worker index, returns the path. Use for parallel
+   *   isolation (e.g. `({ workerIndex }) => `.cache/wallet-w${workerIndex}``).
+   */
+  userDataDir?: string | ((info: { workerIndex: number }) => string | Promise<string>)
+  /**
+   * If set, the source dir is copied into `userDataDir` before launch (target is
+   * removed first). Use with the Playwright setup-project pattern: a setup
+   * project writes to the source dir, then test projects clone it per worker so
+   * each parallel worker boots from the same prepared state.
+   * No-op if `userDataDir` resolves to an empty string.
+   */
+  cloneUserDataDirFrom?: string
 }
 
 // Test fixtures (test-scoped: recreated per test)

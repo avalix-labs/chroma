@@ -84,6 +84,55 @@ test('multi-wallet test', async ({ page, wallets }) => {
 })
 ```
 
+### Setup Project Pattern
+
+By default the browser context uses a temporary profile, so wallet state (imported accounts, unlocked passwords) is lost between runs. To import a seed phrase **once** and reuse the prepared state across all your specs, combine the `userDataDir` and `cloneUserDataDirFrom` options with [Playwright's setup project pattern](https://playwright.dev/docs/test-global-setup-teardown).
+
+A setup project writes the prepared profile to a shared dir, and each test worker clones that dir to its own path before launching:
+
+```typescript
+// metamask.setup.ts
+import { createWalletTest } from '@avalix/chroma'
+
+const setupTest = createWalletTest({
+  wallets: [{ type: 'metamask' }],
+  userDataDir: '.cache/wallet-setup',
+})
+
+setupTest('seed metamask', async ({ wallets }) => {
+  await wallets.metamask.importSeedPhrase({
+    seedPhrase: 'test test test test test test test test test test test junk',
+  })
+})
+```
+
+```typescript
+// fixtures.ts — shared by your spec files
+import { createWalletTest } from '@avalix/chroma'
+
+export const test = createWalletTest({
+  wallets: [{ type: 'metamask' }],
+  userDataDir: ({ workerIndex }) => `.cache/wallet-w${workerIndex}`,
+  cloneUserDataDirFrom: '.cache/wallet-setup',
+})
+```
+
+```typescript
+// playwright.config.ts
+export default defineConfig({
+  projects: [
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+    {
+      name: 'metamask',
+      testMatch: /.*\.spec\.ts/,
+      dependencies: ['setup'],
+    },
+  ],
+})
+```
+
+The setup project runs once before any test, and each worker boots from a fresh copy of the prepared profile — so parallel workers stay isolated without re-importing the seed phrase per file.
+
 ## Features
 
 - **Easy Extension Setup** - Download wallet extensions with a single command
