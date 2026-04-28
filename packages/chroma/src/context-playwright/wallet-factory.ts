@@ -1,8 +1,7 @@
 import type { BrowserContext } from '@playwright/test'
 import type { WalletAccount } from './types.js'
 import {
-  authorizeMetaMask,
-  confirmMetaMask,
+  approveMetaMask,
   importSeedPhrase as importMetaMaskSeedPhrase,
   rejectMetaMask,
   unlockMetaMask,
@@ -82,9 +81,8 @@ export function createMetaMaskWallet(extensionId: string, context: BrowserContex
     type: 'metamask' as const,
     importSeedPhrase: (options: { seedPhrase: string }) => importMetaMaskSeedPhrase(context, extensionId, options),
     unlock: () => unlockMetaMask(context, extensionId),
-    authorize: () => authorizeMetaMask(context, extensionId),
+    approve: () => approveMetaMask(context, extensionId),
     reject: () => rejectMetaMask(context, extensionId),
-    confirm: () => confirmMetaMask(context, extensionId),
   }
 }
 /* c8 ignore stop */

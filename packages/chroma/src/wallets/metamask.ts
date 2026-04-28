@@ -6,7 +6,7 @@ import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 
 // MetaMask specific configuration
 // https://github.com/MetaMask/metamask-extension/releases
-const VERSION = '13.17.0'
+const VERSION = '13.28.0'
 export const METAMASK_CONFIG = {
   downloadUrl: `https://github.com/MetaMask/metamask-extension/releases/download/v${VERSION}/metamask-flask-chrome-${VERSION}-flask.0.zip`,
   extensionName: `metamask-extension-${VERSION}`,
@@ -155,29 +155,20 @@ async function completeOnboarding(
   await extensionPage.close()
 }
 
-// MetaMask specific authorization implementation
-// Handles the "connect" popup when a dapp requests wallet connection
-export async function authorizeMetaMask(
+// Approve a MetaMask popup — covers both the dapp connect popup ("Connect"
+// button = `confirm-btn`) and the sign / transaction popup ("Confirm" button
+// = `confirm-footer-button`). The two flows share the same find-popup,
+// click, close shape, so a single function accepts whichever button the
+// popup presents.
+export async function approveMetaMask(
   context: BrowserContext,
   extensionId: string,
 ): Promise<void> {
   const extensionPopup = await findExtensionPopup(context, extensionId)
 
-  // Click "Connect" to authorize the dapp
-  await extensionPopup.getByTestId('confirm-btn').click()
-  await extensionPopup.close()
-}
-
-// MetaMask specific confirm implementation
-// Handles the confirm popup (e.g. sign message, send transaction)
-export async function confirmMetaMask(
-  context: BrowserContext,
-  extensionId: string,
-): Promise<void> {
-  const extensionPopup = await findExtensionPopup(context, extensionId)
-
-  // Click "Confirm"
-  await extensionPopup.getByTestId('confirm-footer-button').click()
+  const approveButton = extensionPopup.getByTestId('confirm-btn')
+    .or(extensionPopup.getByTestId('confirm-footer-button'))
+  await approveButton.first().click()
   await extensionPopup.close()
 }
 
@@ -197,21 +188,62 @@ export async function rejectMetaMask(
   await extensionPopup.close()
 }
 
-// Unlock MetaMask by navigating to unlock page and filling password
+// Unlock MetaMask and leave its side panel open for the rest of the session.
+//
+// Idempotent: callers can invoke this from a fixture on every test without
+// tracking state. The function:
+//   1. Reuses the unlock tab MetaMask auto-opens on a locked profile (e.g. a
+//      cloned userDataDir) — opening a second one leaves the auto-opened tab
+//      around and queues dapp requests behind it.
+//   2. After unlock succeeds, navigates that same tab to `sidepanel.html` so
+//      the wallet UI stays visible throughout the test session.
+//   3. If MetaMask is already unlocked, just ensures a side panel tab exists.
 export async function unlockMetaMask(
   context: BrowserContext,
   extensionId: string,
 ): Promise<void> {
-  const unlockUrl = `chrome-extension://${extensionId}/home.html#/onboarding/unlock`
-  const unlockPage = await context.newPage()
-  await unlockPage.goto(unlockUrl)
-  await unlockPage.waitForLoadState('domcontentloaded')
+  const sidePanelUrl = `chrome-extension://${extensionId}/sidepanel.html`
 
-  // Fill password and unlock
-  await unlockPage.getByTestId('unlock-password').fill(DEFAULT_TEST_PASSWORD)
-  await unlockPage.getByTestId('unlock-submit').click()
+  // Brief poll for MetaMask to open its own unlock tab. If none appears,
+  // assume MetaMask is already unlocked.
+  let unlockPage: Page | undefined
+  const deadline = Date.now() + 2_000
+  while (Date.now() < deadline) {
+    unlockPage = context.pages().find(p =>
+      p.url().includes(`chrome-extension://${extensionId}/`)
+      && p.url().includes('unlock'),
+    )
+    if (unlockPage)
+      break
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
 
-  await unlockPage.close()
+  if (unlockPage) {
+    await unlockPage.bringToFront()
+    await unlockPage.waitForLoadState('domcontentloaded')
+
+    // Fill password and unlock
+    await unlockPage.getByTestId('unlock-password').fill(DEFAULT_TEST_PASSWORD)
+    await unlockPage.getByTestId('unlock-submit').click()
+
+    // Some MetaMask versions show a post-unlock completion screen. Click it
+    // if present, otherwise continue — the absence is not an error.
+    await unlockPage.getByTestId('onboarding-complete-done').click({ timeout: 3_000 }).catch(() => {})
+
+    // Navigate to the side panel and leave the tab open for the session.
+    await unlockPage.goto(sidePanelUrl)
+    await unlockPage.waitForLoadState('domcontentloaded')
+    return
+  }
+
+  // Already unlocked: ensure a side panel tab exists, otherwise open one.
+  const existing = context.pages().find(p => p.url().startsWith(sidePanelUrl))
+  if (existing)
+    return
+
+  const sidePanel = await context.newPage()
+  await sidePanel.goto(sidePanelUrl)
+  await sidePanel.waitForLoadState('domcontentloaded')
 }
 
 // MetaMask specific seed phrase import implementation
