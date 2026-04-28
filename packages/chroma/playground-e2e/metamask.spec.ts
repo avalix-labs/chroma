@@ -26,8 +26,8 @@ test('should import account and connect MetaMask wallet', async ({ page, wallets
   await page.getByPlaceholder('Search wallets').fill('metamask flask')
   await page.getByRole('button', { name: 'MetaMask Flask' }).click()
   await page.getByRole('button', { name: 'MetaMask Flask' }).first().click()
-  await wallet.authorize()
-  await wallet.confirm()
+  await wallet.approve()
+  await wallet.approve()
 
   await page.getByText('0x646...E85').first().waitFor({ state: 'visible' })
 })

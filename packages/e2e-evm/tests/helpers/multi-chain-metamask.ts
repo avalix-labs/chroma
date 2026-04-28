@@ -3,7 +3,7 @@ import { createWalletTest } from '@avalix/chroma'
 
 interface SwitchChainOptions {
   /** The Chroma MetaMask wallet instance */
-  wallet: { confirm: () => Promise<void>, reject: () => Promise<void> }
+  wallet: { approve: () => Promise<void>, reject: () => Promise<void> }
   /** Playwright Page instance */
   page: Page
   /** Chain name currently displayed in the UI */
@@ -40,7 +40,7 @@ export async function switchChain({
 
   // Handle wallet confirmation
   if (action === 'approve') {
-    await wallet.confirm()
+    await wallet.approve()
   }
   else {
     await wallet.reject()
