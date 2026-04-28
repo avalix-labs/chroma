@@ -25,10 +25,9 @@ test('test with metamask wallet', async ({ page, wallets, switchChain }) => {
     // Click CONNECT button in modal
     await page.getByRole('button', { name: /CONNECT/i }).nth(1).click()
   }
-  console.log('[INFO] wallet.authorize')
-  await wallet.authorize()
-  console.log('[INFO] wallet.confirm')
-  await wallet.confirm()
+  console.log('[INFO] wallet.approve')
+  await wallet.approve()
+  await wallet.approve()
 
   const insertNumber = Math.floor(Math.random() * 10000)
   await page.getByPlaceholder('Enter a number').fill(insertNumber.toString())
@@ -40,8 +39,8 @@ test('test with metamask wallet', async ({ page, wallets, switchChain }) => {
   await page.waitForTimeout(1000)
 
   await page.getByRole('button', { name: 'Store' }).click()
-  console.log('[INFO] wallet.confirm')
-  await wallet.confirm()
+  console.log('[INFO] wallet.approve')
+  await wallet.approve()
 
   // switch to moonbase alpha
   console.log('[INFO] switch to moonbase alpha and reject tx')
