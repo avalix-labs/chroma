@@ -1,7 +1,7 @@
 # Dockerfile for Chroma E2E Testing
 # This image is optimized for running Playwright tests with wallet extensions
 
-FROM mcr.microsoft.com/playwright:v1.58.0-noble
+FROM mcr.microsoft.com/playwright:v1.59.1-noble
 
 # Set environment variables
 ENV CI=true
