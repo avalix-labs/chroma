@@ -1,6 +1,7 @@
 import type { BrowserContext, Page } from '@playwright/test'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  createMetaMaskWallet,
   createPolkadotJsWallet,
   createTalismanWallet,
   walletFactories,
@@ -20,6 +21,13 @@ vi.mock('../wallets/talisman.js', () => ({
   authorizeTalisman: vi.fn(),
   approveTalismanTx: vi.fn(),
   rejectTalismanTx: vi.fn(),
+}))
+
+vi.mock('../wallets/metamask.js', () => ({
+  importSeedPhrase: vi.fn(),
+  unlockMetaMask: vi.fn(),
+  approveMetaMask: vi.fn(),
+  rejectMetaMask: vi.fn(),
 }))
 
 // Create mock browser context
@@ -50,6 +58,11 @@ describe('wallet-factory', () => {
     it('should have talisman factory', () => {
       expect(walletFactories.talisman).toBeDefined()
       expect(typeof walletFactories.talisman).toBe('function')
+    })
+
+    it('should have metamask factory', () => {
+      expect(walletFactories.metamask).toBeDefined()
+      expect(typeof walletFactories.metamask).toBe('function')
     })
   })
 
@@ -101,6 +114,31 @@ describe('wallet-factory', () => {
       expect(typeof wallet.authorize).toBe('function')
       expect(typeof wallet.approveTx).toBe('function')
       expect(typeof wallet.rejectTx).toBe('function')
+    })
+  })
+
+  describe('createMetaMaskWallet', () => {
+    const extensionId = 'test-extension-id'
+    let mockContext: BrowserContext
+
+    beforeEach(() => {
+      mockContext = createMockContext()
+    })
+
+    it('should create wallet with correct type and extensionId', () => {
+      const wallet = createMetaMaskWallet(extensionId, mockContext)
+
+      expect(wallet.type).toBe('metamask')
+      expect(wallet.extensionId).toBe(extensionId)
+    })
+
+    it('should have all required methods', () => {
+      const wallet = createMetaMaskWallet(extensionId, mockContext)
+
+      expect(typeof wallet.importSeedPhrase).toBe('function')
+      expect(typeof wallet.unlock).toBe('function')
+      expect(typeof wallet.approve).toBe('function')
+      expect(typeof wallet.reject).toBe('function')
     })
   })
 })
