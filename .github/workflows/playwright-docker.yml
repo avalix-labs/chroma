@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        e2e-target: [polkadot-js, evm]
+        e2e-target: [polkadot-js, evm, solana]
 
     steps:
     - uses: actions/checkout@v4

@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        e2e-target: [polkadot-js, evm]
+        e2e-target: [polkadot-js, evm, solana]
     
     env:
       CI: true
