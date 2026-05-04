@@ -22,3 +22,6 @@ lerna-debug.log*
 
 # OS
 .DS_Store
+
+test-results
+playwright-report
