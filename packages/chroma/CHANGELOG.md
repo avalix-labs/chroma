@@ -1,5 +1,19 @@
 # @avalix/chroma
 
+## 1.0.0
+
+### Major Changes
+
+- [#71](https://github.com/avalix-labs/chroma/pull/71) [`286e9ae`](https://github.com/avalix-labs/chroma/commit/286e9aec8f40fce403ec232cb628df1da3ec2064) Thanks [@preschian](https://github.com/preschian)! - feat(chroma): support Solana flows via MetaMask
+
+### Patch Changes
+
+- [#73](https://github.com/avalix-labs/chroma/pull/73) [`9af6cdb`](https://github.com/avalix-labs/chroma/commit/9af6cdb1b31ff81c1c2a28a88eab1e8ed35ec8c8) Thanks [@preschian](https://github.com/preschian)! - Bump `@playwright/test` to `^1.59.1` in both `peerDependencies` and `devDependencies`.
+
+- [#72](https://github.com/avalix-labs/chroma/pull/72) [`565b43f`](https://github.com/avalix-labs/chroma/commit/565b43f4bf3efe4bd26fe895624cf9f9b1385d00) Thanks [@preschian](https://github.com/preschian)! - Pin `@playwright/test` devDependency to `1.58.0` so the workspace shares a single hoisted Playwright copy whose browser binaries match the `mcr.microsoft.com/playwright:v1.58.0-noble` Docker base image used in CI.
+
+- [#67](https://github.com/avalix-labs/chroma/pull/67) [`8f37cdd`](https://github.com/avalix-labs/chroma/commit/8f37cdd7c8149d1003e4419d0e4120f9c36c4177) Thanks [@preschian](https://github.com/preschian)! - Refactor wallet factory to pass context directly to wallet functions
+
 ## 0.0.16
 
 ### Patch Changes
