@@ -8,7 +8,7 @@ import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 // https://github.com/MetaMask/metamask-extension/releases
 const VERSION = '13.28.0'
 export const METAMASK_CONFIG = {
-  downloadUrl: `https://github.com/MetaMask/metamask-extension/releases/download/v${VERSION}/metamask-flask-chrome-${VERSION}-flask.0.zip`,
+  downloadUrl: `https://github.com/MetaMask/metamask-extension/releases/download/v${VERSION}/metamask-chrome-${VERSION}.zip`,
   extensionName: `metamask-extension-${VERSION}`,
 } as const
 
@@ -50,7 +50,6 @@ async function findOnboardingPage(
     for (const p of pages) {
       if (p.url().includes(`chrome-extension://${extensionId}/`)) {
         await p.waitForLoadState('domcontentloaded')
-        await p.getByText('I accept the risks').click()
         return p
       }
     }
@@ -136,12 +135,6 @@ async function completeOnboarding(
 
   // Complete onboarding
   await extensionPage.getByTestId('manage-default-settings').click()
-  await extensionPage.getByTestId('category-item-General').click()
-  await extensionPage.getByTestId('basic-functionality-toggle').locator('.toggle-button').click()
-  await extensionPage.getByText('I understand and want to continue').click()
-  await extensionPage.getByTestId('basic-configuration-modal-toggle-button').click()
-  await extensionPage.getByTestId('category-back-button').click()
-
   await extensionPage.getByTestId('category-item-Assets').click()
   await extensionPage.getByTestId('privacy-settings-settings').locator('.toggle-button').nth(0).click()
   await extensionPage.getByTestId('privacy-settings-settings').locator('.toggle-button').nth(1).click()
@@ -168,6 +161,7 @@ export async function approveMetaMask(
 
   const approveButton = extensionPopup.getByTestId('confirm-btn')
     .or(extensionPopup.getByTestId('confirm-footer-button'))
+    .or(extensionPopup.getByTestId('confirm-sign-message-confirm-snap-footer-button'))
   await approveButton.first().click()
   await extensionPopup.close()
 }

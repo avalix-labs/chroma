@@ -30,6 +30,7 @@ This document maps each deliverable feature to its corresponding tests.
 | Polkadot/Substrate | Polkadot-JS | `e2e-polkadot-js/polkadot.spec.ts` | ✅ |
 | Polkadot/Substrate | Talisman | `e2e-polkadot-js/polkadot.spec.ts` | ✅ |
 | Ethereum/EVM | Talisman | `e2e-evm/example.spec.ts` | ✅ |
+| Solana | MetaMask | _pending_ | 🚧 Preview |
 
 ## Test Coverage Summary
 

@@ -39,7 +39,9 @@ For detailed tutorials and guides, visit the [Documentation](https://chroma-docs
 |-------|--------|
 | Polkadot | ✅ Supported |
 | Ethereum | ✅ Supported |
-| Solana | ⏳ Planned |
+| Solana | 🚧 Preview¹ |
+
+¹ MetaMask supports Solana out of the box, so the existing wallet helpers cover Solana flows; the example dApp and end-to-end coverage are not yet in place.
 
 ### Supported Wallets
 
