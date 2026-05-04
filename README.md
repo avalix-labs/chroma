@@ -39,9 +39,7 @@ For detailed tutorials and guides, visit the [Documentation](https://chroma-docs
 |-------|--------|
 | Polkadot | ✅ Supported |
 | Ethereum | ✅ Supported |
-| Solana | 🚧 Preview¹ |
-
-¹ MetaMask supports Solana out of the box, so the existing wallet helpers cover Solana flows; the example dApp and end-to-end coverage are not yet in place.
+| Solana | ✅ Supported |
 
 ### Supported Wallets
 
@@ -75,6 +73,10 @@ bun run test
 # EVM dApp
 cd packages/e2e-evm
 bun run test
+
+# Solana dApp
+cd packages/e2e-solana
+bun run test
 ```
 
 ### E2E Tests (Docker)
@@ -88,6 +90,9 @@ docker run --rm --shm-size=2gb -e E2E_TARGET=polkadot-js chroma-test
 
 # Run e2e-evm tests
 docker run --rm --shm-size=2gb -e E2E_TARGET=evm chroma-test
+
+# Run e2e-solana tests
+docker run --rm --shm-size=2gb -e E2E_TARGET=solana chroma-test
 
 # Interactive debugging
 docker run -it --rm --shm-size=2gb chroma-test bash
@@ -104,7 +109,8 @@ packages/
 │   │   └── utils/                # Utilities
 │   └── tests/                    # E2E tests playground for the library
 ├── e2e-polkadot-js/              # Polkadot dApp example
-└── e2e-evm/                      # EVM dApp example
+├── e2e-evm/                      # EVM dApp example
+└── e2e-solana/                   # Solana dApp example
 ```
 
 ## License
