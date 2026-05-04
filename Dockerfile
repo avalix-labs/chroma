@@ -23,6 +23,7 @@ COPY package.json bun.lock ./
 COPY packages/chroma/package.json ./packages/chroma/
 COPY packages/e2e-polkadot-js/package.json ./packages/e2e-polkadot-js/
 COPY packages/e2e-evm/package.json ./packages/e2e-evm/
+COPY packages/e2e-solana/package.json ./packages/e2e-solana/
 
 # Install dependencies (ignore scripts as chroma isn't built yet)
 RUN bun install --ignore-scripts
