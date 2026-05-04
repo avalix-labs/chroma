@@ -37,7 +37,7 @@ test.describe('test with polkadot-js wallet', () => {
     await page.goto('/')
     await page.waitForLoadState('domcontentloaded')
     await page.getByRole('heading', { name: 'Polkadot' }).waitFor({ state: 'visible' })
-    await page.getByRole('heading', { name: 'Paseo Asset Hub' }).waitFor({ state: 'visible' })
+    await page.getByRole('heading', { name: 'Polkadot Asset Hub' }).waitFor({ state: 'visible' })
 
     await page.getByRole('button', { name: /Connect Wallet/i }).click()
 
