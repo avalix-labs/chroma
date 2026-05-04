@@ -10,5 +10,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["e2e-evm", "e2e-polkadot-js"]
+  "ignore": ["e2e-evm", "e2e-polkadot-js", "e2e-solana"]
 }
