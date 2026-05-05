@@ -51,6 +51,7 @@ async function findOnboardingPage(
     for (const p of pages) {
       if (p.url().includes(`chrome-extension://${extensionId}/`)) {
         await p.waitForLoadState('domcontentloaded')
+        await p.getByText('I accept the risks').click()
         return p
       }
     }

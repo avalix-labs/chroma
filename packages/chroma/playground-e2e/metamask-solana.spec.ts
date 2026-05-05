@@ -29,9 +29,9 @@ test('should connect Solana account on Privy demo', async ({ page, wallets }) =>
   // wallets"); match loosely so the test survives count changes.
   const search = page.getByPlaceholder(/Search.*wallets?/i)
   await search.click()
-  await search.fill('metamask')
-  await page.getByRole('button', { name: 'MetaMask' }).click()
-  await page.getByRole('button', { name: 'MetaMask' }).nth(1).click()
+  await search.fill('metamask flask')
+  await page.getByRole('button', { name: 'MetaMask Flask' }).click()
+  await page.getByRole('button', { name: 'MetaMask Flask' }).nth(1).click()
 
   console.log('[wallet] metamask.approve')
   await metamask.approve()
@@ -50,7 +50,7 @@ test('should sign and reject Solana transactions on EW demo', async ({ page, wal
   await page.goto('https://ew-demo.metamask.io/')
   await page.bringToFront()
 
-  await page.getByRole('button', { name: 'MetaMask Installed arrow' }).click()
+  await page.getByRole('button', { name: 'Metamask Flask Installed arrow' }).click()
   await page.getByRole('button', { name: 'chain-solana solana arrow' }).click()
 
   console.log('[wallet] metamask.approve')
