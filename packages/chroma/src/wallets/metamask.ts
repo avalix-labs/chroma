@@ -4,12 +4,13 @@ import path from 'node:path'
 import process from 'node:process'
 import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 
-// MetaMask specific configuration
+// MetaMask Flask specific configuration
 // https://github.com/MetaMask/metamask-extension/releases
 const VERSION = '13.28.0'
+const FLASK_BUILD = 'flask.0'
 export const METAMASK_CONFIG = {
-  downloadUrl: `https://github.com/MetaMask/metamask-extension/releases/download/v${VERSION}/metamask-chrome-${VERSION}.zip`,
-  extensionName: `metamask-extension-${VERSION}`,
+  downloadUrl: `https://github.com/MetaMask/metamask-extension/releases/download/v${VERSION}/metamask-flask-chrome-${VERSION}-${FLASK_BUILD}.zip`,
+  extensionName: `metamask-flask-extension-${VERSION}-${FLASK_BUILD}`,
 } as const
 
 // Get MetaMask extension path

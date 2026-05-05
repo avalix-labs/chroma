@@ -32,7 +32,7 @@ describe('metamask wallet', () => {
 
   describe('metamask_config', () => {
     it('should have correct extension name format', () => {
-      expect(METAMASK_CONFIG.extensionName).toMatch(/^metamask-extension-\d+\.\d+\.\d+$/)
+      expect(METAMASK_CONFIG.extensionName).toMatch(/^metamask-flask-extension-\d+\.\d+\.\d+-flask\.\d+$/)
     })
 
     it('should have valid download URL', () => {
