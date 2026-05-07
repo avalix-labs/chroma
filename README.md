@@ -1,6 +1,6 @@
 # Chroma
 
-End-to-end testing library for Polkadot wallet interactions using Playwright.
+End-to-end testing library for Polkadot, Ethereum, and Solana wallet interactions using Playwright.
 
 ## Quick Start
 
