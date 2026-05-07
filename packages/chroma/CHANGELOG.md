@@ -1,5 +1,11 @@
 # @avalix/chroma
 
+## 1.0.1
+
+### Patch Changes
+
+- [#76](https://github.com/avalix-labs/chroma/pull/76) [`2f73d1d`](https://github.com/avalix-labs/chroma/commit/2f73d1de98c9289b5ac4e8e4f7d2d5785d1b0b6c) Thanks [@preschian](https://github.com/preschian)! - Update package description to reflect multi-chain support (Polkadot, Ethereum, and Solana).
+
 ## 1.0.0
 
 ### Major Changes
