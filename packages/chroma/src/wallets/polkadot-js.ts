@@ -1,8 +1,6 @@
 import type { BrowserContext } from '@playwright/test'
 import type { WalletAccount } from '../context-playwright/types.js'
-import fs from 'node:fs'
-import path from 'node:path'
-import process from 'node:process'
+import { resolveExtensionPath } from '../utils/extension-path.js'
 import { findExtensionPopup } from '../utils/find-extension-popup.js'
 import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 
@@ -16,20 +14,7 @@ export const POLKADOT_JS_CONFIG = {
 
 // Get Polkadot-JS extension path
 export async function getPolkadotJSExtensionPath(): Promise<string> {
-  const extensionsDir = path.resolve(process.cwd(), '.chroma')
-  const extensionDir = path.join(extensionsDir, POLKADOT_JS_CONFIG.extensionName)
-
-  // Check if extension exists (readdir rejects if missing → treat as empty)
-  const entries = await fs.promises.readdir(extensionDir).catch(() => [] as string[])
-  if (entries.length === 0) {
-    throw new Error(
-      `Polkadot-JS extension not found at: ${extensionDir}\n\n`
-      + `Please download the extension first by running:\n`
-      + `  npx @avalix/chroma download-extensions\n`,
-    )
-  }
-
-  return extensionDir
+  return resolveExtensionPath(POLKADOT_JS_CONFIG.extensionName, 'Polkadot-JS')
 }
 
 /*
