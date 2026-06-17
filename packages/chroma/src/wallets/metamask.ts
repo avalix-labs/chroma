@@ -1,7 +1,6 @@
 import type { BrowserContext, Page } from '@playwright/test'
-import fs from 'node:fs'
-import path from 'node:path'
-import process from 'node:process'
+import { resolveExtensionPath } from '../utils/extension-path.js'
+import { findExtensionPopup as findOnboardingPage } from '../utils/find-extension-popup.js'
 import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 
 // MetaMask specific configuration
@@ -14,20 +13,7 @@ export const METAMASK_CONFIG = {
 
 // Get MetaMask extension path
 export async function getMetaMaskExtensionPath(): Promise<string> {
-  const extensionsDir = path.resolve(process.cwd(), '.chroma')
-  const extensionDir = path.join(extensionsDir, METAMASK_CONFIG.extensionName)
-
-  // Check if extension exists (readdir rejects if missing → treat as empty)
-  const entries = await fs.promises.readdir(extensionDir).catch(() => [] as string[])
-  if (entries.length === 0) {
-    throw new Error(
-      `MetaMask extension not found at: ${extensionDir}\n\n`
-      + `Please download the extension first by running:\n`
-      + `  npx @avalix/chroma download-extensions\n`,
-    )
-  }
-
-  return extensionDir
+  return resolveExtensionPath(METAMASK_CONFIG.extensionName, 'MetaMask')
 }
 
 /*
@@ -36,32 +22,6 @@ export async function getMetaMaskExtensionPath(): Promise<string> {
  * - They interact with Chrome extension popup pages
  */
 /* c8 ignore start */
-
-// Helper function to find existing MetaMask extension page
-async function findOnboardingPage(
-  context: BrowserContext,
-  extensionId: string,
-): Promise<Page> {
-  const maxAttempts = 10
-  const retryDelay = 500
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const pages = context.pages()
-    for (const p of pages) {
-      if (p.url().includes(`chrome-extension://${extensionId}/`)) {
-        await p.waitForLoadState('domcontentloaded')
-        return p
-      }
-    }
-
-    // If not found, wait a bit before retrying
-    if (attempt < maxAttempts - 1) {
-      await new Promise(resolve => setTimeout(resolve, retryDelay))
-    }
-  }
-
-  throw new Error(`MetaMask extension page not found for ID: ${extensionId}`)
-}
 
 // Helper function to find MetaMask side panel via CDP, open in new tab, and return the page
 async function findExtensionPopup(

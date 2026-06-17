@@ -1,8 +1,6 @@
 import type { BrowserContext, Page } from '@playwright/test'
 import type { WalletAccount } from '../context-playwright/types.js'
-import fs from 'node:fs'
-import path from 'node:path'
-import process from 'node:process'
+import { resolveExtensionPath } from '../utils/extension-path.js'
 import { findExtensionPopup as findExtensionPopupBase } from '../utils/find-extension-popup.js'
 import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 
@@ -23,20 +21,7 @@ function findExtensionPopup(context: BrowserContext, extensionId: string): Promi
 
 // Get Talisman extension path
 export async function getTalismanExtensionPath(): Promise<string> {
-  const extensionsDir = path.resolve(process.cwd(), '.chroma')
-  const extensionDir = path.join(extensionsDir, TALISMAN_CONFIG.extensionName)
-
-  // Check if extension exists (readdir rejects if missing → treat as empty)
-  const entries = await fs.promises.readdir(extensionDir).catch(() => [] as string[])
-  if (entries.length === 0) {
-    throw new Error(
-      `Talisman extension not found at: ${extensionDir}\n\n`
-      + `Please download the extension first by running:\n`
-      + `  npx @avalix/chroma download-extensions\n`,
-    )
-  }
-
-  return extensionDir
+  return resolveExtensionPath(TALISMAN_CONFIG.extensionName, 'Talisman')
 }
 
 /*
@@ -114,7 +99,7 @@ export async function importPolkadotMnemonic(
   const extensionPage = await findOnboardingPage(context, extensionId)
 
   try {
-    await completeOnboarding(extensionPage, password!)
+    await completeOnboarding(extensionPage, password)
 
     // Import Polkadot account via Recovery Phrase
     await extensionPage.getByRole('link', { name: 'Manage Accounts' }).click()
@@ -123,8 +108,8 @@ export async function importPolkadotMnemonic(
     await extensionPage.getByRole('button', { name: 'Import Import an existing' }).click()
     await extensionPage.getByRole('button', { name: 'Import via Recovery Phrase' }).click()
     await extensionPage.getByRole('button', { name: 'Polkadot Relay Chain, Asset' }).click()
-    await extensionPage.getByRole('textbox', { name: 'Choose a name' }).fill(name!)
-    await extensionPage.getByRole('textbox', { name: 'Enter your 12 or 24 word' }).fill(seed!)
+    await extensionPage.getByRole('textbox', { name: 'Choose a name' }).fill(name)
+    await extensionPage.getByRole('textbox', { name: 'Enter your 12 or 24 word' }).fill(seed)
     await extensionPage.getByTestId('account-add-mnemonic-import-button').click()
 
     await extensionPage.close()
@@ -144,7 +129,7 @@ export async function importEthPrivateKey(
   const extensionPage = await findOnboardingPage(context, extensionId)
 
   try {
-    await completeOnboarding(extensionPage, password!)
+    await completeOnboarding(extensionPage, password)
 
     // Import Ethereum account via Private Key
     await extensionPage.getByRole('link', { name: 'Manage Accounts' }).click()
@@ -154,8 +139,8 @@ export async function importEthPrivateKey(
     await extensionPage.getByRole('button', { name: 'Import via Private Key' }).click()
     await extensionPage.getByRole('button', { name: 'Select account platform' }).click()
     await extensionPage.getByRole('option', { name: 'Ethereum' }).locator('div').click()
-    await extensionPage.getByRole('textbox', { name: 'Choose a name' }).fill(name!)
-    await extensionPage.getByRole('textbox', { name: 'Enter your private key' }).fill(seed!)
+    await extensionPage.getByRole('textbox', { name: 'Choose a name' }).fill(name)
+    await extensionPage.getByRole('textbox', { name: 'Enter your private key' }).fill(seed)
     await extensionPage.getByRole('button', { name: 'Save' }).click()
 
     await extensionPage.close()
