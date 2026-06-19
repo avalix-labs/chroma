@@ -5,7 +5,7 @@ import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 
 // MetaMask specific configuration
 // https://github.com/MetaMask/metamask-extension/releases
-const VERSION = '13.28.0'
+const VERSION = '13.35.1'
 export const METAMASK_CONFIG = {
   downloadUrl: `https://github.com/MetaMask/metamask-extension/releases/download/v${VERSION}/metamask-chrome-${VERSION}.zip`,
   extensionName: `metamask-extension-${VERSION}`,
@@ -89,6 +89,11 @@ async function completeOnboarding(
   await extensionPage.getByTestId('create-password-terms').click()
   await extensionPage.getByTestId('create-password-submit').click()
 
+  // Skip the passkey setup screen (added in MetaMask 13.3x). It is shown
+  // between password creation and the metrics screen; click "Maybe later" if
+  // present, otherwise continue — older builds skip straight to metrics.
+  await extensionPage.getByTestId('passkey-maybe-later-button').click({ timeout: 5_000 }).catch(() => {})
+
   // Agree to metrics
   await extensionPage.getByTestId('metametrics-checkbox').click()
   await extensionPage.getByTestId('metametrics-i-agree').click()
@@ -134,8 +139,8 @@ export async function rejectMetaMask(
 ): Promise<void> {
   const extensionPopup = await findExtensionPopup(context, extensionId)
 
-  // Click "Reject" or "Cancel" - MetaMask uses confirm-footer-cancel for tx/sign reject
-  const rejectButton = extensionPopup.getByTestId('confirm-footer-cancel')
+  // Click "Reject" or "Cancel" - MetaMask uses confirm-footer-cancel-button for tx/sign reject
+  const rejectButton = extensionPopup.getByTestId('confirm-footer-cancel-button')
     .or(extensionPopup.getByTestId('page-container-footer-cancel'))
     .or(extensionPopup.getByRole('button', { name: /Reject|Cancel/i }))
   await rejectButton.first().click()
