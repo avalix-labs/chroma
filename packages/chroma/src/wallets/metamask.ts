@@ -1,11 +1,11 @@
-import type { BrowserContext, Page } from '@playwright/test'
+import type { BrowserContext, Locator, Page } from '@playwright/test'
 import { resolveExtensionPath } from '../utils/extension-path.js'
 import { findExtensionPopup as findOnboardingPage } from '../utils/find-extension-popup.js'
 import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 
 // MetaMask specific configuration
 // https://github.com/MetaMask/metamask-extension/releases
-const VERSION = '13.28.0'
+const VERSION = '13.35.1'
 export const METAMASK_CONFIG = {
   downloadUrl: `https://github.com/MetaMask/metamask-extension/releases/download/v${VERSION}/metamask-chrome-${VERSION}.zip`,
   extensionName: `metamask-extension-${VERSION}`,
@@ -89,6 +89,11 @@ async function completeOnboarding(
   await extensionPage.getByTestId('create-password-terms').click()
   await extensionPage.getByTestId('create-password-submit').click()
 
+  // Skip the passkey setup screen (added in MetaMask 13.3x). It is shown
+  // between password creation and the metrics screen; click "Maybe later" if
+  // present, otherwise continue — older builds skip straight to metrics.
+  await extensionPage.getByTestId('passkey-maybe-later-button').click({ timeout: 5_000 }).catch(() => {})
+
   // Agree to metrics
   await extensionPage.getByTestId('metametrics-checkbox').click()
   await extensionPage.getByTestId('metametrics-i-agree').click()
@@ -108,6 +113,41 @@ async function completeOnboarding(
   await extensionPage.close()
 }
 
+// Open the MetaMask side panel and click a confirmation/rejection button,
+// tolerating the panel occasionally getting stuck on its loading skeleton —
+// seen mainly on slower CI, where the freshly-opened side-panel tab never
+// finishes connecting to the background service worker and the confirmation
+// screen never renders.
+//
+// Each attempt is bounded by `timeout`; without it a frozen boot would block
+// until the whole test timeout elapses (Playwright's default actionTimeout is
+// 0 = unbounded). A stuck tab does not recover in place, so on failure we
+// discard it and open a fresh one — the pending request stays queued in the
+// background, so a new side-panel tab re-renders the same confirmation. Fresh
+// boots are independent, so a couple of retries make a stuck boot very
+// unlikely instead of failing the whole test.
+async function clickInSidePanel(
+  context: BrowserContext,
+  extensionId: string,
+  selectButton: (popup: Page) => Locator,
+  { attempts = 3, timeout = 15_000 }: { attempts?: number, timeout?: number } = {},
+): Promise<void> {
+  let lastError: unknown
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const popup = await findExtensionPopup(context, extensionId)
+    try {
+      await selectButton(popup).first().click({ timeout })
+      await popup.close()
+      return
+    }
+    catch (error) {
+      lastError = error
+      await popup.close().catch(() => {})
+    }
+  }
+  throw lastError
+}
+
 // Approve a MetaMask popup — covers both the dapp connect popup ("Connect"
 // button = `confirm-btn`) and the sign / transaction popup ("Confirm" button
 // = `confirm-footer-button`). The two flows share the same find-popup,
@@ -117,13 +157,10 @@ export async function approveMetaMask(
   context: BrowserContext,
   extensionId: string,
 ): Promise<void> {
-  const extensionPopup = await findExtensionPopup(context, extensionId)
-
-  const approveButton = extensionPopup.getByTestId('confirm-btn')
-    .or(extensionPopup.getByTestId('confirm-footer-button'))
-    .or(extensionPopup.getByTestId('confirm-sign-message-confirm-snap-footer-button'))
-  await approveButton.first().click()
-  await extensionPopup.close()
+  await clickInSidePanel(context, extensionId, popup =>
+    popup.getByTestId('confirm-btn')
+      .or(popup.getByTestId('confirm-footer-button'))
+      .or(popup.getByTestId('confirm-sign-message-confirm-snap-footer-button')))
 }
 
 // MetaMask specific reject implementation
@@ -132,14 +169,11 @@ export async function rejectMetaMask(
   context: BrowserContext,
   extensionId: string,
 ): Promise<void> {
-  const extensionPopup = await findExtensionPopup(context, extensionId)
-
-  // Click "Reject" or "Cancel" - MetaMask uses confirm-footer-cancel for tx/sign reject
-  const rejectButton = extensionPopup.getByTestId('confirm-footer-cancel')
-    .or(extensionPopup.getByTestId('page-container-footer-cancel'))
-    .or(extensionPopup.getByRole('button', { name: /Reject|Cancel/i }))
-  await rejectButton.first().click()
-  await extensionPopup.close()
+  // Click "Reject" or "Cancel" - MetaMask uses confirm-footer-cancel-button for tx/sign reject
+  await clickInSidePanel(context, extensionId, popup =>
+    popup.getByTestId('confirm-footer-cancel-button')
+      .or(popup.getByTestId('page-container-footer-cancel'))
+      .or(popup.getByRole('button', { name: /Reject|Cancel/i })))
 }
 
 // Unlock MetaMask and leave its side panel open for the rest of the session.

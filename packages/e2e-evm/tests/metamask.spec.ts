@@ -3,7 +3,9 @@ import { test } from './helpers/multi-chain-metamask'
 
 const SEED_PHRASE = 'test test test test test test test test test test test junk'
 
-test.setTimeout(30_000 * 2)
+// Six sequential MetaMask confirmations, each a cold side-panel boot; give
+// slow CI headroom so a couple of reload-retries don't blow the budget.
+test.setTimeout(30_000 * 4)
 
 test.beforeAll(async ({ wallets }) => {
   console.log('[INFO] Testing with metamask extension')
