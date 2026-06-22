@@ -1,5 +1,19 @@
 # @avalix/chroma
 
+## 1.0.2
+
+### Patch Changes
+
+- [#80](https://github.com/avalix-labs/chroma/pull/80) [`ee0d20a`](https://github.com/avalix-labs/chroma/commit/ee0d20a9ca2f2ab68d4d7dc3de91263cc3e6a2c9) Thanks [@preschian](https://github.com/preschian)! - Bump the supported `@playwright/test` peer dependency to `^1.61.0` (latest), and update the Playwright Docker base image to `v1.61.0-noble`.
+
+- [#78](https://github.com/avalix-labs/chroma/pull/78) [`c3e84c2`](https://github.com/avalix-labs/chroma/commit/c3e84c279864d274471519d033615c29b042ea75) Thanks [@preschian](https://github.com/preschian)! - Internal refactor: dedupe the extension-path resolution shared by the Polkadot-JS, Talisman, and MetaMask wallets into a single helper, reuse the `findExtensionPopup` util in MetaMask, and drop redundant non-null assertions. No behavior change.
+
+- [#84](https://github.com/avalix-labs/chroma/pull/84) [`fdd3b23`](https://github.com/avalix-labs/chroma/commit/fdd3b238b9962d866fda2e515c64a8c87bde4067) Thanks [@preschian](https://github.com/preschian)! - Update the documentation links in the README files to the current docs site at `https://chroma.avalix.dev/docs` (was the old `chroma-docs.up.railway.app` Railway URL).
+
+- [#82](https://github.com/avalix-labs/chroma/pull/82) [`364bffa`](https://github.com/avalix-labs/chroma/commit/364bffaada841194ff69414d7607f717ede99edb) Thanks [@preschian](https://github.com/preschian)! - Point the package `homepage` to the current docs site at `https://chroma.avalix.dev/docs` (was the old `chroma-docs.up.railway.app` Railway URL).
+
+- [#81](https://github.com/avalix-labs/chroma/pull/81) [`635ef4c`](https://github.com/avalix-labs/chroma/commit/635ef4c59608a4d30f9d13bc8d99b17e661a6930) Thanks [@preschian](https://github.com/preschian)! - Update bundled MetaMask extension to v13.35.1 and adapt the wallet flows to its UI changes: skip the new passkey setup onboarding step and use the renamed `confirm-footer-cancel-button` test id when rejecting transactions. Also harden `approve()`/`reject()` against the side panel occasionally getting stuck on its loading skeleton on slow CI — each click attempt is now time-bounded and a stuck panel is reopened in a fresh tab instead of blocking until the test times out.
+
 ## 1.0.1
 
 ### Patch Changes
