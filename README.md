@@ -29,7 +29,7 @@ test('connect wallet', async ({ page, wallets }) => {
 })
 ```
 
-For detailed tutorials and guides, visit the [Documentation](https://chroma-docs.up.railway.app/docs)
+For detailed tutorials and guides, visit the [Documentation](https://chroma.avalix.dev/docs)
 
 ## Supported Wallets & Chains
 
