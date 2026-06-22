@@ -5,7 +5,7 @@
   "description": "End-to-end testing library for Polkadot, Ethereum, and Solana wallet interactions",
   "author": "Avalix Labs",
   "license": "MIT",
-  "homepage": "https://chroma-docs.up.railway.app/docs",
+  "homepage": "https://chroma.avalix.dev/docs",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/avalix-labs/chroma.git",
