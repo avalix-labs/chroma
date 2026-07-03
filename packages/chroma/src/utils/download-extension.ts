@@ -27,9 +27,7 @@ function unzipFile(zipPath: string, destDir: string): void {
  * Move extracted contents to the final destination.
  * If the source directory contains a single subdirectory, unwrap it
  * (move the subdirectory contents up) so the extension files live
- * directly inside `destDir`. If it contains a single nested ZIP file
- * (e.g. Talisman release zips wrap the extension in another zip),
- * extract that in place and unwrap again.
+ * directly inside `destDir`.
  */
 async function moveExtractedToFinal(sourceDir: string, destDir: string): Promise<void> {
   const entries = await fs.promises.readdir(sourceDir)
@@ -41,13 +39,6 @@ async function moveExtractedToFinal(sourceDir: string, destDir: string): Promise
       // Unwrap: move the single subdirectory to the final destination
       await fs.promises.rename(singleEntry, destDir)
       await fs.promises.rm(sourceDir, { recursive: true, force: true })
-      return
-    }
-    if (stat.isFile() && singleEntry.toLowerCase().endsWith('.zip')) {
-      // Unwrap: extract the nested zip and retry
-      unzipFile(singleEntry, sourceDir)
-      await fs.promises.unlink(singleEntry)
-      await moveExtractedToFinal(sourceDir, destDir)
       return
     }
   }
