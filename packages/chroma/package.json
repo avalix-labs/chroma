@@ -68,7 +68,7 @@
     "@types/adm-zip": "^0.5.8",
     "@types/node": "^26.1.0",
     "@vitest/coverage-v8": "4.0.18",
-    "eslint": "^9.39.1",
+    "eslint": "^10.6.0",
     "tsdown": "^0.20.1",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
