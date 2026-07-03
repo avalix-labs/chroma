@@ -17,7 +17,7 @@ jobs:
         e2e-target: [polkadot-js, evm, solana]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Setup Docker Builder (with layer caching)
       uses: useblacksmith/setup-docker-builder@v1
