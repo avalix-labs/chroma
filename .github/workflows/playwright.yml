@@ -43,7 +43,7 @@ jobs:
       run: echo "version=$(cd packages/e2e-${{ matrix.e2e-target }} && npx playwright --version | grep -oP '\d+\.\d+\.\d+')" >> $GITHUB_OUTPUT
     
     - name: Cache Playwright browsers
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       id: playwright-cache
       with:
         path: ~/.cache/ms-playwright
