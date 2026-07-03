@@ -37,14 +37,14 @@ jobs:
           -v ${{ github.workspace }}/packages/e2e-${{ matrix.e2e-target }}/test-results:/app/packages/e2e-${{ matrix.e2e-target }}/test-results \
           chroma-test
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: ${{ !cancelled() }}
       with:
         name: playwright-report-docker-${{ matrix.e2e-target }}
         path: packages/e2e-${{ matrix.e2e-target }}/playwright-report/
         retention-days: 30
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: failure()
       with:
         name: playwright-test-results-docker-${{ matrix.e2e-target }}

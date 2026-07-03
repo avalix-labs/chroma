@@ -65,14 +65,14 @@ jobs:
         cd packages/e2e-${{ matrix.e2e-target }}
         xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" -- npx playwright test --reporter=html
     
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: ${{ !cancelled() }}
       with:
         name: playwright-report-${{ matrix.e2e-target }}
         path: packages/e2e-${{ matrix.e2e-target }}/playwright-report/
         retention-days: 30
     
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: failure()
       with:
         name: playwright-test-results-${{ matrix.e2e-target }}
