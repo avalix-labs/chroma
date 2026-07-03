@@ -18,7 +18,7 @@
     "vue": "^3.5.26"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.0.1",
+    "@antfu/eslint-config": "^9.1.0",
     "@avalix/chroma": "workspace:*",
     "@dedot/chaintypes": "^0.216.0",
     "@iconify-json/mdi": "^1.2.3",
@@ -30,7 +30,7 @@
     "@vitejs/plugin-vue": "^6.0.3",
     "@vue/tsconfig": "^0.8.1",
     "daisyui": "^5.5.14",
-    "eslint": "^9.39.2",
+    "eslint": "^10.6.0",
     "tailwindcss": "^4.1.18",
     "typescript": "~5.9.3",
     "vite": "^7.3.0",
