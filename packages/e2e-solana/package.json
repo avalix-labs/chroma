@@ -37,7 +37,7 @@
     "@avalix/chroma": "workspace:*",
     "@eslint/js": "^9.35.0",
     "@playwright/test": "^1.61.0",
-    "@types/node": "^20",
+    "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.0.3",
