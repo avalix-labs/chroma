@@ -1,6 +1,8 @@
+import type { ReadableStream } from 'node:stream/web'
 import fs, { createWriteStream } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import AdmZip from 'adm-zip'
 
@@ -72,7 +74,7 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
 
     // Save ZIP file
     const writeStream = createWriteStream(zipPath)
-    await pipeline(response.body!, writeStream)
+    await pipeline(Readable.fromWeb(response.body as ReadableStream), writeStream)
 
     console.log('📦 Extracting extension...')
 

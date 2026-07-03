@@ -25,7 +25,12 @@ jobs:
       run: |
         cd packages/chroma
         bun run lint
-    
+
+    - name: Typecheck
+      run: |
+        cd packages/chroma
+        bun run typecheck
+
     - name: Build package
       run: |
         cd packages/chroma
