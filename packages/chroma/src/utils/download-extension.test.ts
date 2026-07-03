@@ -211,6 +211,26 @@ describe('downloadAndExtractExtension (unit tests)', () => {
     })
   })
 
+  describe('download timeout', () => {
+    it('should pass an abort signal to fetch', async () => {
+      const mockReaddir = vi.mocked(fs.promises.readdir) as unknown as Mock
+      mockReaddir.mockResolvedValueOnce([]) // existence check
+      mockReaddir.mockResolvedValueOnce(['manifest.json']) // post-extraction
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        body: new ReadableStream(),
+      })
+
+      await downloadAndExtractExtension(mockOptions)
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        mockOptions.downloadUrl,
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
+      )
+    })
+  })
+
   describe('targetDir option', () => {
     it('should use custom targetDir when provided', async () => {
       const mockReaddir = vi.mocked(fs.promises.readdir) as unknown as Mock
