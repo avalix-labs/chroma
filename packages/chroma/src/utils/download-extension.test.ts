@@ -1,5 +1,7 @@
 import type { Mock } from 'vitest'
 import type { DownloadExtensionOptions } from './download-extension.js'
+import { Buffer } from 'node:buffer'
+import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -43,6 +45,7 @@ vi.mock('node:fs', async () => {
         rename: vi.fn().mockResolvedValue(undefined),
         unlink: vi.fn().mockResolvedValue(undefined),
         readdir: vi.fn().mockResolvedValue([]),
+        readFile: vi.fn().mockResolvedValue(Buffer.from('zip-content')),
         stat: vi.fn().mockResolvedValue({ isDirectory: () => true }),
       },
     },
@@ -208,6 +211,72 @@ describe('downloadAndExtractExtension (unit tests)', () => {
         expect.stringContaining('test-extension-temp'),
         expect.stringContaining('test-extension'),
       )
+    })
+  })
+
+  describe('download timeout', () => {
+    it('should pass an abort signal to fetch', async () => {
+      const mockReaddir = vi.mocked(fs.promises.readdir) as unknown as Mock
+      mockReaddir.mockResolvedValueOnce([]) // existence check
+      mockReaddir.mockResolvedValueOnce(['manifest.json']) // post-extraction
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        body: new ReadableStream(),
+      })
+
+      await downloadAndExtractExtension(mockOptions)
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        mockOptions.downloadUrl,
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
+      )
+    })
+  })
+
+  describe('sha256 verification', () => {
+    // SHA-256 of the mocked readFile content ('zip-content')
+    const contentSha256 = createHash('sha256').update('zip-content').digest('hex')
+
+    beforeEach(() => {
+      const mockReaddir = vi.mocked(fs.promises.readdir) as unknown as Mock
+      mockReaddir.mockResolvedValueOnce([]) // existence check
+      mockReaddir.mockResolvedValueOnce(['manifest.json']) // post-extraction
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        body: new ReadableStream(),
+      })
+    })
+
+    it('should succeed when the checksum matches', async () => {
+      const result = await downloadAndExtractExtension({
+        ...mockOptions,
+        sha256: contentSha256,
+      })
+
+      expect(result).toContain('test-extension')
+    })
+
+    it('should accept uppercase expected checksums', async () => {
+      const result = await downloadAndExtractExtension({
+        ...mockOptions,
+        sha256: contentSha256.toUpperCase(),
+      })
+
+      expect(result).toContain('test-extension')
+    })
+
+    it('should throw and clean up on checksum mismatch', async () => {
+      const mockedFs = vi.mocked(fs)
+
+      await expect(downloadAndExtractExtension({
+        ...mockOptions,
+        sha256: 'deadbeef',
+      })).rejects.toThrow('SHA-256 checksum mismatch')
+
+      expect(mockedFs.promises.rm).toHaveBeenCalled()
+      expect(mockExtractAllTo).not.toHaveBeenCalled()
     })
   })
 

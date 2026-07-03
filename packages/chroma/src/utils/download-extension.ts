@@ -1,4 +1,5 @@
 import type { ReadableStream } from 'node:stream/web'
+import { createHash } from 'node:crypto'
 import fs, { createWriteStream } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -14,6 +15,14 @@ export interface DownloadExtensionOptions {
   downloadUrl: string
   extensionName: string
   targetDir?: string
+  /**
+   * Expected SHA-256 (hex) of the downloaded zip. When provided, the archive
+   * is verified before extraction and a mismatch aborts with an error, so a
+   * corrupted or tampered download never gets loaded into the browser.
+   */
+  sha256?: string
+  /** Abort the download if it takes longer than this. Default: 5 minutes. */
+  timeoutMs?: number
 }
 
 function unzipFile(zipPath: string, destDir: string): void {
@@ -46,7 +55,7 @@ async function moveExtractedToFinal(sourceDir: string, destDir: string): Promise
 }
 
 export async function downloadAndExtractExtension(options: DownloadExtensionOptions): Promise<string> {
-  const { downloadUrl, extensionName, targetDir } = options
+  const { downloadUrl, extensionName, targetDir, sha256, timeoutMs = 300_000 } = options
 
   // Default to a directory in the user's project, not relative to this package
   const extensionsDir = targetDir || path.resolve(process.cwd(), '.chroma')
@@ -66,8 +75,9 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
   try {
     console.log(`\n📥 Downloading ${extensionName}...`)
 
-    // Download the ZIP file
-    const response = await fetch(downloadUrl)
+    // Download the ZIP file; bounded so a hung connection fails instead of
+    // blocking forever
+    const response = await fetch(downloadUrl, { signal: AbortSignal.timeout(timeoutMs) })
     if (!response.ok) {
       throw new Error(`Failed to download extension: ${response.status} ${response.statusText}`)
     }
@@ -75,6 +85,19 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
     // Save ZIP file
     const writeStream = createWriteStream(zipPath)
     await pipeline(Readable.fromWeb(response.body as ReadableStream), writeStream)
+
+    // Verify archive integrity before extracting anything
+    if (sha256) {
+      const actual = createHash('sha256')
+        .update(await fs.promises.readFile(zipPath))
+        .digest('hex')
+      if (actual !== sha256.toLowerCase()) {
+        throw new Error(
+          `SHA-256 checksum mismatch for ${extensionName}: expected ${sha256}, got ${actual}. `
+          + `The download may be corrupted or the file behind ${downloadUrl} may have changed.`,
+        )
+      }
+    }
 
     console.log('📦 Extracting extension...')
 

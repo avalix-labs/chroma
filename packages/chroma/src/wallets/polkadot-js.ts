@@ -10,6 +10,8 @@ const VERSION = '0.62.6'
 export const POLKADOT_JS_CONFIG = {
   downloadUrl: `https://github.com/polkadot-js/extension/releases/download/v${VERSION}/master-chrome-build.zip`,
   extensionName: `polkadot-extension-${VERSION}`,
+  // SHA-256 of the zip above; update together with VERSION
+  sha256: 'c4f84f01d6f263a463c0007d4c86553bbd2fbb9874b59c9509f3ec320d08f5e4',
 } as const
 
 // Get Polkadot-JS extension path

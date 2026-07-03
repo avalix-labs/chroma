@@ -10,6 +10,8 @@ const VERSION = '3.2.0'
 export const TALISMAN_CONFIG = {
   downloadUrl: `https://github.com/avalix-labs/polkadot-wallets/raw/refs/heads/main/talisman/talisman-${VERSION}.zip`,
   extensionName: `talisman-extension-${VERSION}`,
+  // SHA-256 of the zip above; update together with VERSION
+  sha256: '794221b35a1030c0d45ece32a22e653e0349f9a8d8bd5548424d345a0320383d',
 } as const
 
 // Talisman popup needs a fixed viewport to render correctly in headed runs.

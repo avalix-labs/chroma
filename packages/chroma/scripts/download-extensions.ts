@@ -31,20 +31,13 @@ async function main() {
     // Clear existing .chroma directory
     await clearChromaDir()
 
-    // Download all extensions in parallel — they're independent network ops
+    // Download all extensions in parallel — they're independent network ops.
+    // Each config carries downloadUrl, extensionName, and sha256 for
+    // integrity verification.
     await Promise.all([
-      downloadAndExtractExtension({
-        downloadUrl: POLKADOT_JS_CONFIG.downloadUrl,
-        extensionName: POLKADOT_JS_CONFIG.extensionName,
-      }),
-      downloadAndExtractExtension({
-        downloadUrl: TALISMAN_CONFIG.downloadUrl,
-        extensionName: TALISMAN_CONFIG.extensionName,
-      }),
-      downloadAndExtractExtension({
-        downloadUrl: METAMASK_CONFIG.downloadUrl,
-        extensionName: METAMASK_CONFIG.extensionName,
-      }),
+      downloadAndExtractExtension(POLKADOT_JS_CONFIG),
+      downloadAndExtractExtension(TALISMAN_CONFIG),
+      downloadAndExtractExtension(METAMASK_CONFIG),
     ])
 
     console.log('\n✅ All extensions downloaded successfully!')

@@ -9,6 +9,8 @@ const VERSION = '13.35.1'
 export const METAMASK_CONFIG = {
   downloadUrl: `https://github.com/MetaMask/metamask-extension/releases/download/v${VERSION}/metamask-chrome-${VERSION}.zip`,
   extensionName: `metamask-extension-${VERSION}`,
+  // SHA-256 of the zip above; update together with VERSION
+  sha256: '4e0f8626df0ae9fb15f5f3ad6784a0b518f3ede067b2b0d4f539f9f457c5049c',
 } as const
 
 // Get MetaMask extension path
