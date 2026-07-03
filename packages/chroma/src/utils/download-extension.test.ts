@@ -43,7 +43,7 @@ vi.mock('node:fs', async () => {
         rename: vi.fn().mockResolvedValue(undefined),
         unlink: vi.fn().mockResolvedValue(undefined),
         readdir: vi.fn().mockResolvedValue([]),
-        stat: vi.fn().mockResolvedValue({ isDirectory: () => true }),
+        stat: vi.fn().mockResolvedValue({ isDirectory: () => true, isFile: () => false }),
       },
     },
     createWriteStream: vi.fn().mockReturnValue({
@@ -167,7 +167,7 @@ describe('downloadAndExtractExtension (unit tests)', () => {
 
       mockReaddir.mockResolvedValueOnce([]) // existence check
       mockReaddir.mockResolvedValueOnce(['extension-folder']) // post-extraction
-      mockStat.mockResolvedValue({ isDirectory: () => true })
+      mockStat.mockResolvedValue({ isDirectory: () => true, isFile: () => false })
 
       const result = await downloadAndExtractExtension({
         ...mockOptions,
@@ -187,6 +187,37 @@ describe('downloadAndExtractExtension (unit tests)', () => {
       )
     })
 
+    it('should extract a single nested zip and unwrap its contents', async () => {
+      const mockedFs = vi.mocked(fs)
+      const mockReaddir = mockedFs.promises.readdir as unknown as Mock
+      const mockStat = mockedFs.promises.stat as unknown as Mock
+
+      mockReaddir.mockResolvedValueOnce([]) // existence check
+      mockReaddir.mockResolvedValueOnce(['talisman-3.7.1-chrome.zip']) // post-extraction
+      mockReaddir.mockResolvedValueOnce(['manifest.json', 'popup.html']) // post nested extraction
+      mockStat.mockResolvedValue({ isDirectory: () => false, isFile: () => true })
+
+      const result = await downloadAndExtractExtension({
+        ...mockOptions,
+        targetDir: '/tmp/test',
+      })
+
+      expect(result).toBe(path.join('/tmp/test', 'test-extension'))
+
+      // AdmZip called twice: outer zip, then nested zip
+      const AdmZip = (await import('adm-zip')).default
+      expect(AdmZip).toHaveBeenCalledTimes(2)
+
+      // Nested zip removed after extraction, temp dir renamed to destination
+      expect(mockedFs.promises.unlink).toHaveBeenCalledWith(
+        expect.stringContaining('talisman-3.7.1-chrome.zip'),
+      )
+      expect(mockedFs.promises.rename).toHaveBeenCalledWith(
+        expect.stringContaining('test-extension-temp'),
+        expect.stringContaining('test-extension'),
+      )
+    })
+
     it('should not unwrap when single entry is a file', async () => {
       const mockedFs = vi.mocked(fs)
       const mockReaddir = mockedFs.promises.readdir as unknown as Mock
@@ -194,7 +225,7 @@ describe('downloadAndExtractExtension (unit tests)', () => {
 
       mockReaddir.mockResolvedValueOnce([]) // existence check
       mockReaddir.mockResolvedValueOnce(['only-file.dat']) // post-extraction
-      mockStat.mockResolvedValue({ isDirectory: () => false })
+      mockStat.mockResolvedValue({ isDirectory: () => false, isFile: () => true })
 
       const result = await downloadAndExtractExtension({
         ...mockOptions,
