@@ -17,7 +17,7 @@ export const passetHub = {
   },
   rpcUrls: {
     default: {
-      http: ['https://services.polkadothub-rpc.com/testnet'],
+      http: ['https://eth-rpc-testnet.polkadot.io'],
     },
   },
   testnet: true,
@@ -39,7 +39,7 @@ export const moonbaseAlpha = {
   },
   rpcUrls: {
     default: {
-      http: ['https://moonbase.public.curie.radiumblock.co/http'],
+      http: ['https://rpc.api.moonbase.moonbeam.network'],
     },
   },
   testnet: true,

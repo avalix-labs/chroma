@@ -33,8 +33,7 @@ export async function switchChain({
   toChain,
   action = 'approve',
 }: SwitchChainOptions): Promise<void> {
-  // Open chain selector and pick the target chain
-  await page.getByRole('button', { name: fromChain }).first().click()
+  // Pick the target chain (each chain is rendered as its own button)
   await page.getByRole('button', { name: toChain }).click()
 
   // Handle wallet confirmation
@@ -45,11 +44,10 @@ export async function switchChain({
     await wallet.rejectTx()
   }
 
-  // Verify the UI reflects the expected chain
+  // Active chain is shown as a disabled button in the header selector
   const expectedChain = action === 'approve' ? toChain : fromChain
   await page
-    .getByRole('paragraph')
-    .filter({ hasText: expectedChain })
+    .getByRole('button', { name: expectedChain, disabled: true })
     .waitFor({ state: 'visible' })
 }
 

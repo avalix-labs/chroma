@@ -20,7 +20,6 @@ const popularWallets = [
 ]
 
 const connectModal = ref<HTMLDialogElement | null>(null)
-const chainSelectorOpen = ref(false)
 const switchingChain = ref(false)
 const chainId = useChainId()
 const chains = useChains()
@@ -50,17 +49,8 @@ function closeConnectModal() {
   connectModal.value?.close()
 }
 
-function toggleChainSelector() {
-  chainSelectorOpen.value = !chainSelectorOpen.value
-}
-
-function closeChainSelector() {
-  chainSelectorOpen.value = false
-}
-
 async function handleSwitchChain(chain: Chain) {
   if (chain.id === chainId.value) {
-    closeChainSelector()
     return
   }
 
@@ -75,7 +65,6 @@ async function handleSwitchChain(chain: Chain) {
   }
   finally {
     switchingChain.value = false
-    closeChainSelector()
   }
 }
 
@@ -100,77 +89,25 @@ function handleDisconnect() {
   <!-- Connect/Disconnect Buttons -->
   <div class="flex items-center gap-2">
     <!-- Chain Selector (only shown when connected) -->
-    <div v-if="isConnected" class="relative">
+    <div v-if="isConnected" class="flex items-center gap-1">
       <button
+        v-for="chain in chains"
+        :key="chain.id"
         class="btn btn-outline btn-sm font-mono gap-1"
-        :disabled="switchingChain"
-        @click="toggleChainSelector"
+        :class="chain.id === chainId ? 'btn-active btn-primary' : ''"
+        :disabled="switchingChain || chain.id === chainId"
+        @click="handleSwitchChain(chain)"
       >
-        <span class="icon-[mdi--swap-horizontal] w-4 h-4" />
-        <span class="hidden sm:block">{{ connectedChain.name }}</span>
         <span
-          class="icon-[mdi--chevron-down] w-4 h-4 transition-transform"
-          :class="{ 'rotate-180': chainSelectorOpen }"
+          class="w-2 h-2 rounded-full shrink-0"
+          :class="chain.id === chainId ? 'bg-primary' : 'bg-gray-300'"
+        />
+        <span>{{ chain.name }}</span>
+        <span
+          v-if="switchingChain && chain.id !== chainId"
+          class="icon-[mdi--loading] w-4 h-4 animate-spin shrink-0"
         />
       </button>
-
-      <!-- Chain Dropdown -->
-      <Transition
-        enter-active-class="transition ease-out duration-150"
-        enter-from-class="opacity-0 scale-95 -translate-y-1"
-        enter-to-class="opacity-100 scale-100 translate-y-0"
-        leave-active-class="transition ease-in duration-100"
-        leave-from-class="opacity-100 scale-100 translate-y-0"
-        leave-to-class="opacity-0 scale-95 -translate-y-1"
-      >
-        <div
-          v-if="chainSelectorOpen"
-          class="absolute right-0 top-full mt-2 z-50 min-w-56 rounded-lg border border-base-300 bg-base-100 shadow-lg"
-        >
-          <div class="px-3 py-2 border-b border-base-300">
-            <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">
-              Select Network
-            </p>
-          </div>
-          <ul class="py-1">
-            <li
-              v-for="chain in chains"
-              :key="chain.id"
-              class="px-1"
-            >
-              <button
-                class="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm transition-colors"
-                :class="chain.id === chainId
-                  ? 'bg-primary/10 text-primary font-medium'
-                  : 'hover:bg-base-200 text-base-content'"
-                :disabled="switchingChain"
-                @click="handleSwitchChain(chain)"
-              >
-                <span
-                  class="w-2 h-2 rounded-full shrink-0"
-                  :class="chain.id === chainId ? 'bg-primary' : 'bg-gray-300'"
-                />
-                <span class="truncate">{{ chain.name }}</span>
-                <span
-                  v-if="chain.id === chainId"
-                  class="icon-[mdi--check] w-4 h-4 ml-auto shrink-0"
-                />
-                <span
-                  v-if="switchingChain && chain.id !== chainId"
-                  class="icon-[mdi--loading] w-4 h-4 ml-auto animate-spin shrink-0"
-                />
-              </button>
-            </li>
-          </ul>
-        </div>
-      </Transition>
-
-      <!-- Backdrop to close dropdown -->
-      <div
-        v-if="chainSelectorOpen"
-        class="fixed inset-0 z-40"
-        @click="closeChainSelector"
-      />
     </div>
 
     <!-- Connect / Address Button -->
@@ -213,7 +150,7 @@ function handleDisconnect() {
           <h2 class="text-lg font-medium text-black uppercase tracking-wider">
             CONNECT WALLET
           </h2>
-          <p class="text-xs text-gray-500 mt-1">
+          <p class="text-xs text-gray-500 mt-1" data-testid="connected-chain">
             Network: {{ connectedChain.name }}
           </p>
         </div>
