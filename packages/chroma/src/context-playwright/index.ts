@@ -11,25 +11,15 @@ import { cp, rm } from 'node:fs/promises'
 import { resolve as resolvePath } from 'node:path'
 import { test as base, chromium } from '@playwright/test'
 import { getUnpackedExtensionId } from '../utils/extension-id.js'
-import { getMetaMaskExtensionPath } from '../wallets/metamask.js'
-import { getPolkadotJSExtensionPath } from '../wallets/polkadot-js.js'
-import { getTalismanExtensionPath } from '../wallets/talisman.js'
-import { walletFactories } from './wallet-factory.js'
+import { walletExtensionPaths, walletFactories } from './wallet-factory.js'
 
 // Helper function to get extension path for a wallet config
 async function getExtensionPathForWallet(config: WalletConfig): Promise<string> {
-  const { type } = config
-
-  switch (type) {
-    case 'polkadot-js':
-      return await getPolkadotJSExtensionPath()
-    case 'talisman':
-      return await getTalismanExtensionPath()
-    case 'metamask':
-      return await getMetaMaskExtensionPath()
-    default:
-      throw new Error(`Unsupported wallet type: ${type}`)
+  const getExtensionPath = walletExtensionPaths[config.type]
+  if (!getExtensionPath) {
+    throw new Error(`Unsupported wallet type: ${config.type}`)
   }
+  return getExtensionPath()
 }
 
 // Create a test function with wallet configuration

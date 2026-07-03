@@ -18,25 +18,17 @@ vi.mock('@playwright/test', () => {
   }
 })
 
-// Mock wallet extension paths
-vi.mock('../wallets/polkadot-js.js', () => ({
-  getPolkadotJSExtensionPath: vi.fn().mockResolvedValue('/mock/path/polkadot-extension'),
-}))
-
-vi.mock('../wallets/talisman.js', () => ({
-  getTalismanExtensionPath: vi.fn().mockResolvedValue('/mock/path/talisman-extension'),
-}))
-
-vi.mock('../wallets/metamask.js', () => ({
-  getMetaMaskExtensionPath: vi.fn().mockResolvedValue('/mock/path/metamask-extension'),
-}))
-
-// Mock wallet factories
+// Mock wallet factories and extension path resolvers
 vi.mock('./wallet-factory.js', () => ({
   walletFactories: {
     'polkadot-js': vi.fn().mockReturnValue({ type: 'polkadot-js' }),
     'talisman': vi.fn().mockReturnValue({ type: 'talisman' }),
     'metamask': vi.fn().mockReturnValue({ type: 'metamask' }),
+  },
+  walletExtensionPaths: {
+    'polkadot-js': vi.fn().mockResolvedValue('/mock/path/polkadot-extension'),
+    'talisman': vi.fn().mockResolvedValue('/mock/path/talisman-extension'),
+    'metamask': vi.fn().mockResolvedValue('/mock/path/metamask-extension'),
   },
 }))
 

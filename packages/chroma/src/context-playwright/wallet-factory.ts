@@ -2,6 +2,7 @@ import type { BrowserContext } from '@playwright/test'
 import type { WalletAccount } from './types.js'
 import {
   approveMetaMask,
+  getMetaMaskExtensionPath,
   importSeedPhrase as importMetaMaskSeedPhrase,
   rejectMetaMask,
   unlockMetaMask,
@@ -9,12 +10,14 @@ import {
 import {
   approvePolkadotJSTx,
   authorizePolkadotJS,
+  getPolkadotJSExtensionPath,
   importPolkadotJSAccount,
   rejectPolkadotJSTx,
 } from '../wallets/polkadot-js.js'
 import {
   approveTalismanTx,
   authorizeTalisman,
+  getTalismanExtensionPath,
   importEthPrivateKey,
   importPolkadotMnemonic,
   rejectTalismanTx,
@@ -93,6 +96,15 @@ export const walletFactories = {
   'talisman': createTalismanWallet,
   'metamask': createMetaMaskWallet,
 }
+
+// Extension path resolvers per wallet type. `satisfies` keeps the keys in
+// lockstep with walletFactories, so adding a wallet means extending both maps
+// here in one file.
+export const walletExtensionPaths = {
+  'polkadot-js': getPolkadotJSExtensionPath,
+  'talisman': getTalismanExtensionPath,
+  'metamask': getMetaMaskExtensionPath,
+} satisfies Record<keyof typeof walletFactories, () => Promise<string>>
 
 // Auto-inferred types from factory functions
 export type PolkadotJsWalletInstance = ReturnType<typeof createPolkadotJsWallet>
