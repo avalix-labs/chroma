@@ -6,7 +6,7 @@ import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 
 // Talisman specific configuration
 // https://github.com/avalix-labs/polkadot-wallets/tree/main/talisman
-const VERSION = '3.2.0'
+const VERSION = '3.7.1'
 export const TALISMAN_CONFIG = {
   downloadUrl: `https://github.com/avalix-labs/polkadot-wallets/raw/refs/heads/main/talisman/talisman-${VERSION}.zip`,
   extensionName: `talisman-extension-${VERSION}`,
@@ -80,6 +80,10 @@ async function completeOnboarding(
   await extensionPage.getByRole('button', { name: 'No thanks' }).click()
   await extensionPage.getByTestId('onboarding-enter-talisman-button').click()
 
+  // Wait for the dashboard to settle before navigating away: the app's own
+  // onboarding→portfolio redirect can clobber an immediate hash navigation.
+  await extensionPage.getByTestId('top-actions-buttons').waitFor({ state: 'visible' })
+
   // Navigate directly to settings/general page
   const extensionId = extensionPage.url().match(/chrome-extension:\/\/([^/]+)/)?.[1]
   await extensionPage.goto(`chrome-extension://${extensionId}/dashboard.html#/settings/general`)
@@ -107,7 +111,7 @@ export async function importPolkadotMnemonic(
     await extensionPage.getByRole('button', { name: 'Add Account' }).click()
     await extensionPage.getByRole('button', { name: 'Import Import an existing' }).click()
     await extensionPage.getByRole('button', { name: 'Import via Recovery Phrase' }).click()
-    await extensionPage.getByRole('button', { name: 'Polkadot Relay Chain, Asset' }).click()
+    await extensionPage.getByRole('button', { name: 'Substrate' }).click()
     await extensionPage.getByRole('textbox', { name: 'Choose a name' }).fill(name)
     await extensionPage.getByRole('textbox', { name: 'Enter your 12 or 24 word' }).fill(seed)
     await extensionPage.getByTestId('account-add-mnemonic-import-button').click()
