@@ -14,6 +14,8 @@ export interface DownloadExtensionOptions {
   downloadUrl: string
   extensionName: string
   targetDir?: string
+  /** Abort the download if it takes longer than this. Default: 5 minutes. */
+  timeoutMs?: number
 }
 
 function unzipFile(zipPath: string, destDir: string): void {
@@ -46,7 +48,7 @@ async function moveExtractedToFinal(sourceDir: string, destDir: string): Promise
 }
 
 export async function downloadAndExtractExtension(options: DownloadExtensionOptions): Promise<string> {
-  const { downloadUrl, extensionName, targetDir } = options
+  const { downloadUrl, extensionName, targetDir, timeoutMs = 300_000 } = options
 
   // Default to a directory in the user's project, not relative to this package
   const extensionsDir = targetDir || path.resolve(process.cwd(), '.chroma')
@@ -67,7 +69,8 @@ export async function downloadAndExtractExtension(options: DownloadExtensionOpti
     console.log(`\n📥 Downloading ${extensionName}...`)
 
     // Download the ZIP file
-    const response = await fetch(downloadUrl)
+    // Bounded so a hung connection fails instead of blocking forever
+    const response = await fetch(downloadUrl, { signal: AbortSignal.timeout(timeoutMs) })
     if (!response.ok) {
       throw new Error(`Failed to download extension: ${response.status} ${response.statusText}`)
     }
