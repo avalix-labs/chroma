@@ -169,11 +169,16 @@ export async function authorizeTalisman(
   await accountButton.click({ force: true })
   await extensionPopup.getByTestId('connection-connect-button').click()
 
+  // Some dapps trigger a second Talisman popup (e.g. an EVM connect approval)
+  // right after the account selection. Approve it when it shows up; its
+  // absence is the normal single-popup flow, so the find timing out is not an
+  // error worth surfacing.
   try {
     const anotherPopup = await findExtensionPopup(context, extensionId)
     await anotherPopup.getByRole('button', { name: 'Approve' }).click()
   }
   catch {
+    // no second popup — nothing to approve
   }
 }
 

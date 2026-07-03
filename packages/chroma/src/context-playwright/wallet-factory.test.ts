@@ -13,6 +13,7 @@ vi.mock('../wallets/polkadot-js.js', () => ({
   authorizePolkadotJS: vi.fn(),
   approvePolkadotJSTx: vi.fn(),
   rejectPolkadotJSTx: vi.fn(),
+  getPolkadotJSExtensionPath: vi.fn(),
 }))
 
 vi.mock('../wallets/talisman.js', () => ({
@@ -21,6 +22,7 @@ vi.mock('../wallets/talisman.js', () => ({
   authorizeTalisman: vi.fn(),
   approveTalismanTx: vi.fn(),
   rejectTalismanTx: vi.fn(),
+  getTalismanExtensionPath: vi.fn(),
 }))
 
 vi.mock('../wallets/metamask.js', () => ({
@@ -28,6 +30,7 @@ vi.mock('../wallets/metamask.js', () => ({
   unlockMetaMask: vi.fn(),
   approveMetaMask: vi.fn(),
   rejectMetaMask: vi.fn(),
+  getMetaMaskExtensionPath: vi.fn(),
 }))
 
 // Create mock browser context

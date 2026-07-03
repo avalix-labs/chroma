@@ -11,18 +11,14 @@ vi.mock('@playwright/test', () => ({
   expect: vi.fn(),
 }))
 
-vi.mock('./wallets/polkadot-js.js', () => ({
-  getPolkadotJSExtensionPath: vi.fn().mockResolvedValue('/mock/path'),
-}))
-
-vi.mock('./wallets/talisman.js', () => ({
-  getTalismanExtensionPath: vi.fn().mockResolvedValue('/mock/path'),
-}))
-
 vi.mock('./context-playwright/wallet-factory.js', () => ({
   walletFactories: {
     'polkadot-js': vi.fn(),
     'talisman': vi.fn(),
+  },
+  walletExtensionPaths: {
+    'polkadot-js': vi.fn().mockResolvedValue('/mock/path'),
+    'talisman': vi.fn().mockResolvedValue('/mock/path'),
   },
 }))
 
