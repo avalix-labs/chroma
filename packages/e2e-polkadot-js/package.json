@@ -18,7 +18,7 @@
     "vue": "^3.5.26"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.0.1",
+    "@antfu/eslint-config": "^9.1.0",
     "@avalix/chroma": "workspace:*",
     "@dedot/chaintypes": "^0.216.0",
     "@iconify-json/mdi": "^1.2.3",
