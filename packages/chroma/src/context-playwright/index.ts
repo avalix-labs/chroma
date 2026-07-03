@@ -10,6 +10,7 @@ import type {
 import { cp, rm } from 'node:fs/promises'
 import { resolve as resolvePath } from 'node:path'
 import { test as base, chromium } from '@playwright/test'
+import { getUnpackedExtensionId } from '../utils/extension-id.js'
 import { getMetaMaskExtensionPath } from '../wallets/metamask.js'
 import { getPolkadotJSExtensionPath } from '../wallets/polkadot-js.js'
 import { getTalismanExtensionPath } from '../wallets/talisman.js'
@@ -105,27 +106,44 @@ export function createWalletTest<const T extends readonly WalletConfig[]>(
 
     // Worker-scoped: Map of wallet type to extension ID
     walletExtensionIds: [async ({ walletContext }, use) => {
+      // Chrome derives an unpacked extension's ID from its directory path, so
+      // each wallet's ID is known up front. This avoids the previous approach
+      // of pairing serviceWorkers() with walletConfigs by array index, which
+      // breaks when extensions register in a different order than configured.
       const extensionIds = new Map<WalletType, string>()
+      for (const config of walletConfigs) {
+        const extensionPath = await getExtensionPathForWallet(config)
+        extensionIds.set(config.type, getUnpackedExtensionId(extensionPath))
+      }
 
-      // Wait until one service worker per configured wallet has registered.
+      // Wait until every configured wallet's service worker has registered.
       // Bounded by 10s so a stuck worker fails fast instead of hanging the suite.
-      const expected = walletConfigs.length
       const deadline = Date.now() + 10_000
-      while (walletContext.serviceWorkers().length < expected) {
-        if (Date.now() > deadline) {
+      while (true) {
+        const registeredIds = new Set(
+          walletContext.serviceWorkers().map(worker => worker.url().split('/')[2]),
+        )
+        const missing = [...extensionIds.entries()]
+          .filter(([, id]) => !registeredIds.has(id))
+
+        if (missing.length === 0) {
           break
         }
+        if (Date.now() > deadline) {
+          const missingList = missing
+            .map(([type, id]) => `${type} (expected extension ID ${id})`)
+            .join(', ')
+          throw new Error(
+            `Timed out after 10s waiting for wallet extension service worker(s) to register: ${missingList}. `
+            + `Registered service workers: ${[...registeredIds].join(', ') || 'none'}. `
+            + `Make sure the extensions are downloaded (npx @avalix/chroma download-extensions) and not corrupted.`,
+          )
+        }
+
         await Promise.race([
           walletContext.waitForEvent('serviceworker', { timeout: 2_000 }).catch(() => {}),
           new Promise(resolve => setTimeout(resolve, 200)),
         ])
-      }
-
-      // Map service workers to wallet types (order matches walletConfigs order)
-      const allServiceWorkers = walletContext.serviceWorkers()
-      for (let i = 0; i < walletConfigs.length && i < allServiceWorkers.length; i++) {
-        const extensionId = allServiceWorkers[i].url().split('/')[2]
-        extensionIds.set(walletConfigs[i].type, extensionId)
       }
 
       await use(extensionIds)
