@@ -46,10 +46,6 @@ test(`test with talisman wallet`, async ({ page, wallets, switchChain }) => {
   console.log('[INFO] wallet.approveTx')
   await wallet.approveTx()
 
-  // switch to moonbase alpha
-  console.log('[INFO] switch to moonbase alpha and reject tx')
-  await switchChain({ fromChain: 'Polkadot Hub TestNet', toChain: 'Moonbase Alpha', action: 'reject' })
-
   console.log('[INFO] switch to moonbase alpha and approve tx')
   await switchChain({ fromChain: 'Polkadot Hub TestNet', toChain: 'Moonbase Alpha', action: 'approve' })
 
