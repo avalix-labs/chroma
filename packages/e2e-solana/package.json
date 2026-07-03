@@ -29,25 +29,25 @@
     "@solana/kit": "^7.0.0",
     "@solana/react-hooks": "^1.0.0-rc.3",
     "@tailwindcss/vite": "^4",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "tailwindcss": "^4"
   },
   "devDependencies": {
     "@avalix/chroma": "workspace:*",
     "@eslint/js": "^9.35.0",
-    "@playwright/test": "^1.61.0",
+    "@playwright/test": "^1.61.1",
     "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.0.3",
     "eslint": "^9",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
+    "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^16.4.0",
-    "prettier": "^3.6.2",
+    "prettier": "^3.9.4",
     "typescript": "^5",
-    "typescript-eslint": "^8.44.0",
+    "typescript-eslint": "^8.62.1",
     "vite": "^7.1.6"
   }
 }
