@@ -8,8 +8,9 @@ on:
 
 jobs:
   lint-and-build:
+    if: github.head_ref != 'changeset-release/main'
     runs-on: blacksmith-4vcpu-ubuntu-2404
-    
+
     steps:
     - uses: actions/checkout@v4
 
