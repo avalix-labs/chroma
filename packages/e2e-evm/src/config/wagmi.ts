@@ -39,7 +39,9 @@ export const moonbaseAlpha = {
   },
   rpcUrls: {
     default: {
-      http: ['https://moonbase.public.curie.radiumblock.co/http'],
+      // Official Moonbase endpoint; the previous radiumblock public endpoint
+      // was decommissioned (Cloudflare 530, origin DNS gone)
+      http: ['https://rpc.api.moonbase.moonbeam.network'],
     },
   },
   testnet: true,

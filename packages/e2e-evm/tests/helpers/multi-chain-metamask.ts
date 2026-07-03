@@ -46,11 +46,13 @@ export async function switchChain({
     await wallet.reject()
   }
 
-  // Verify the UI reflects the expected chain
+  // Verify the UI reflects the expected chain. Exact match: wallet reject
+  // errors shown by the dapp embed the chain name in another paragraph, which
+  // would otherwise trigger a strict mode violation.
   const expectedChain = action === 'approve' ? toChain : fromChain
   await page
     .getByRole('paragraph')
-    .filter({ hasText: expectedChain })
+    .filter({ hasText: new RegExp(`^${expectedChain}$`) })
     .waitFor({ state: 'visible' })
 }
 

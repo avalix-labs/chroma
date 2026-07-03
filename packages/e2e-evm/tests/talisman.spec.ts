@@ -46,6 +46,12 @@ test(`test with talisman wallet`, async ({ page, wallets, switchChain }) => {
   console.log('[INFO] wallet.approveTx')
   await wallet.approveTx()
 
+  // Wait for the approved tx to be confirmed before switching chains.
+  // Without this, the Talisman tx popup can still be open when switchChain's
+  // rejectTx runs, and the reject lands on the tx instead of the
+  // add-network request.
+  await page.getByText('Number stored successfully!').waitFor({ state: 'visible', timeout: 45_000 })
+
   // switch to moonbase alpha
   console.log('[INFO] switch to moonbase alpha and reject tx')
   await switchChain({ fromChain: 'Polkadot Hub TestNet', toChain: 'Moonbase Alpha', action: 'reject' })

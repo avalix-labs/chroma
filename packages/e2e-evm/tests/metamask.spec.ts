@@ -44,6 +44,11 @@ test('test with metamask wallet', async ({ page, wallets, switchChain }) => {
   console.log('[INFO] wallet.approve')
   await wallet.approve()
 
+  // Wait for the approved tx to be confirmed before switching chains, so the
+  // wallet popup from the store tx is fully settled before the add-network
+  // popup appears.
+  await page.getByText('Number stored successfully!').waitFor({ state: 'visible', timeout: 45_000 })
+
   // switch to moonbase alpha
   console.log('[INFO] switch to moonbase alpha and reject tx')
   await switchChain({ fromChain: 'Polkadot Hub TestNet', toChain: 'Moonbase Alpha', action: 'reject' })
