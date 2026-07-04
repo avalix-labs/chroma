@@ -35,6 +35,9 @@ export async function switchChain({
 }: SwitchChainOptions): Promise<void> {
   // Pick the target chain (each chain is rendered as its own button)
   await page.getByRole('button', { name: toChain }).click()
+  // Give the confirmation popup time to open so the wallet helpers target it
+  // rather than a popup left over from a previous request
+  await page.waitForTimeout(1000)
 
   // Handle wallet confirmation
   if (action === 'approve') {
@@ -49,6 +52,15 @@ export async function switchChain({
   await page
     .getByRole('button', { name: expectedChain, disabled: true })
     .waitFor({ state: 'visible' })
+
+  if (action === 'reject') {
+    // While the switch request is pending, every chain button is disabled, so
+    // the fromChain check above passes trivially. Only once the rejection has
+    // settled does the toChain button become clickable again.
+    await page
+      .getByRole('button', { name: toChain, disabled: false })
+      .waitFor({ state: 'visible' })
+  }
 }
 
 /**

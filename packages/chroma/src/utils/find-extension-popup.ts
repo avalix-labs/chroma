@@ -4,6 +4,8 @@ export interface FindExtensionPopupOptions {
   maxAttempts?: number
   retryDelay?: number
   viewport?: { width: number, height: number }
+  /** Only match pages whose URL contains this fragment (e.g. 'popup.html') */
+  urlIncludes?: string
 }
 
 /**
@@ -16,11 +18,15 @@ export async function findExtensionPopup(
   extensionId: string,
   options: FindExtensionPopupOptions = {},
 ): Promise<Page> {
-  const { maxAttempts = 10, retryDelay = 500, viewport } = options
+  const { maxAttempts = 10, retryDelay = 500, viewport, urlIncludes } = options
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    for (const p of context.pages()) {
-      if (p.url().includes(`chrome-extension://${extensionId}/`)) {
+    // Newest page first: an earlier popup can linger while its request
+    // finishes (e.g. a transaction submitting), and the popup for the current
+    // request is always the most recently opened one.
+    for (const p of context.pages().slice().reverse()) {
+      const url = p.url()
+      if (url.includes(`chrome-extension://${extensionId}/`) && (!urlIncludes || url.includes(urlIncludes))) {
         if (viewport) {
           await p.setViewportSize(viewport)
         }

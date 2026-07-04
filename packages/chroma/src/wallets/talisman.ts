@@ -15,7 +15,12 @@ export const TALISMAN_CONFIG = {
 // Talisman popup needs a fixed viewport to render correctly in headed runs.
 /* c8 ignore start */
 function findExtensionPopup(context: BrowserContext, extensionId: string): Promise<Page> {
-  return findExtensionPopupBase(context, extensionId, { viewport: { width: 400, height: 600 } })
+  // Match popup.html only: Talisman also keeps dashboard.html/onboarding.html
+  // tabs open, and those must never be mistaken for a request popup.
+  return findExtensionPopupBase(context, extensionId, {
+    viewport: { width: 400, height: 600 },
+    urlIncludes: 'popup.html',
+  })
 }
 /* c8 ignore stop */
 
