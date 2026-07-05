@@ -2,11 +2,12 @@ import type { BrowserContext, Page } from '@playwright/test'
 import type {
   MetaMaskWalletInstance,
   PolkadotJsWalletInstance,
+  SubWalletWalletInstance,
   TalismanWalletInstance,
 } from './wallet-factory.js'
 
 // Wallet types - single source of truth
-export type WalletType = 'polkadot-js' | 'talisman' | 'metamask'
+export type WalletType = 'polkadot-js' | 'talisman' | 'subwallet' | 'metamask'
 
 // Wallet account configuration
 export interface WalletAccount {
@@ -24,6 +25,7 @@ export interface WalletConfig {
 export interface WalletTypeMap {
   'polkadot-js': PolkadotJsWalletInstance
   'talisman': TalismanWalletInstance
+  'subwallet': SubWalletWalletInstance
   'metamask': MetaMaskWalletInstance
 }
 

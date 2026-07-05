@@ -47,7 +47,7 @@ For detailed tutorials and guides, visit the [Documentation](https://chroma.aval
 |--------|--------|---------|
 | Polkadot JS Extension | ✅ Supported | v0.62.6 |
 | Talisman | ✅ Supported | v3.1.13 |
-| SubWallet | ⏳ Planned | - |
+| SubWallet | ✅ Supported | v1.3.80 |
 | MetaMask | ✅ Supported | v13.17.0 (Flask) |
 
 ## Test Matrix

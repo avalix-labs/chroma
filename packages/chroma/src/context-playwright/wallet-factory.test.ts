@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   createMetaMaskWallet,
   createPolkadotJsWallet,
+  createSubWalletWallet,
   createTalismanWallet,
   walletFactories,
 } from './wallet-factory.js'
@@ -23,6 +24,14 @@ vi.mock('../wallets/talisman.js', () => ({
   approveTalismanTx: vi.fn(),
   rejectTalismanTx: vi.fn(),
   getTalismanExtensionPath: vi.fn(),
+}))
+
+vi.mock('../wallets/subwallet.js', () => ({
+  importSubWalletMnemonic: vi.fn(),
+  authorizeSubWallet: vi.fn(),
+  approveSubWalletTx: vi.fn(),
+  rejectSubWalletTx: vi.fn(),
+  getSubWalletExtensionPath: vi.fn(),
 }))
 
 vi.mock('../wallets/metamask.js', () => ({
@@ -61,6 +70,11 @@ describe('wallet-factory', () => {
     it('should have talisman factory', () => {
       expect(walletFactories.talisman).toBeDefined()
       expect(typeof walletFactories.talisman).toBe('function')
+    })
+
+    it('should have subwallet factory', () => {
+      expect(walletFactories.subwallet).toBeDefined()
+      expect(typeof walletFactories.subwallet).toBe('function')
     })
 
     it('should have metamask factory', () => {
@@ -114,6 +128,31 @@ describe('wallet-factory', () => {
 
       expect(typeof wallet.importPolkadotMnemonic).toBe('function')
       expect(typeof wallet.importEthPrivateKey).toBe('function')
+      expect(typeof wallet.authorize).toBe('function')
+      expect(typeof wallet.approveTx).toBe('function')
+      expect(typeof wallet.rejectTx).toBe('function')
+    })
+  })
+
+  describe('createSubWalletWallet', () => {
+    const extensionId = 'test-extension-id'
+    let mockContext: BrowserContext
+
+    beforeEach(() => {
+      mockContext = createMockContext()
+    })
+
+    it('should create wallet with correct type and extensionId', () => {
+      const wallet = createSubWalletWallet(extensionId, mockContext)
+
+      expect(wallet.type).toBe('subwallet')
+      expect(wallet.extensionId).toBe(extensionId)
+    })
+
+    it('should have all required methods', () => {
+      const wallet = createSubWalletWallet(extensionId, mockContext)
+
+      expect(typeof wallet.importPolkadotMnemonic).toBe('function')
       expect(typeof wallet.authorize).toBe('function')
       expect(typeof wallet.approveTx).toBe('function')
       expect(typeof wallet.rejectTx).toBe('function')

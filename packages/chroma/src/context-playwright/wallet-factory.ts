@@ -15,6 +15,13 @@ import {
   rejectPolkadotJSTx,
 } from '../wallets/polkadot-js.js'
 import {
+  approveSubWalletTx,
+  authorizeSubWallet,
+  getSubWalletExtensionPath,
+  importSubWalletMnemonic,
+  rejectSubWalletTx,
+} from '../wallets/subwallet.js'
+import {
   approveTalismanTx,
   authorizeTalisman,
   getTalismanExtensionPath,
@@ -74,6 +81,31 @@ export function createTalismanWallet(extensionId: string, context: BrowserContex
 /* c8 ignore stop */
 
 /*
+ * Factory function for SubWallet wallet
+ * Coverage excluded: methods interact with Chrome extension APIs via browser context.
+ */
+/* c8 ignore start */
+export function createSubWalletWallet(extensionId: string, context: BrowserContext) {
+  let importedAccountName: string | undefined
+
+  return {
+    extensionId,
+    type: 'subwallet' as const,
+    importPolkadotMnemonic: (options: WalletAccount) => {
+      importedAccountName = options.name || 'Test Account'
+      return importSubWalletMnemonic(context, extensionId, options)
+    },
+    authorize: (options: { accountName?: string } = {}) => {
+      const accountName = options.accountName || importedAccountName
+      return authorizeSubWallet(context, extensionId, { accountName })
+    },
+    approveTx: () => approveSubWalletTx(context, extensionId),
+    rejectTx: () => rejectSubWalletTx(context, extensionId),
+  }
+}
+/* c8 ignore stop */
+
+/*
  * Factory function for MetaMask wallet
  * Coverage excluded: methods interact with Chrome extension APIs via browser context.
  */
@@ -94,6 +126,7 @@ export function createMetaMaskWallet(extensionId: string, context: BrowserContex
 export const walletFactories = {
   'polkadot-js': createPolkadotJsWallet,
   'talisman': createTalismanWallet,
+  'subwallet': createSubWalletWallet,
   'metamask': createMetaMaskWallet,
 }
 
@@ -103,10 +136,12 @@ export const walletFactories = {
 export const walletExtensionPaths = {
   'polkadot-js': getPolkadotJSExtensionPath,
   'talisman': getTalismanExtensionPath,
+  'subwallet': getSubWalletExtensionPath,
   'metamask': getMetaMaskExtensionPath,
 } satisfies Record<keyof typeof walletFactories, () => Promise<string>>
 
 // Auto-inferred types from factory functions
 export type PolkadotJsWalletInstance = ReturnType<typeof createPolkadotJsWallet>
 export type TalismanWalletInstance = ReturnType<typeof createTalismanWallet>
+export type SubWalletWalletInstance = ReturnType<typeof createSubWalletWallet>
 export type MetaMaskWalletInstance = ReturnType<typeof createMetaMaskWallet>

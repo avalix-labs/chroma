@@ -23,11 +23,13 @@ vi.mock('./wallet-factory.js', () => ({
   walletFactories: {
     'polkadot-js': vi.fn().mockReturnValue({ type: 'polkadot-js' }),
     'talisman': vi.fn().mockReturnValue({ type: 'talisman' }),
+    'subwallet': vi.fn().mockReturnValue({ type: 'subwallet' }),
     'metamask': vi.fn().mockReturnValue({ type: 'metamask' }),
   },
   walletExtensionPaths: {
     'polkadot-js': vi.fn().mockResolvedValue('/mock/path/polkadot-extension'),
     'talisman': vi.fn().mockResolvedValue('/mock/path/talisman-extension'),
+    'subwallet': vi.fn().mockResolvedValue('/mock/path/subwallet-extension'),
     'metamask': vi.fn().mockResolvedValue('/mock/path/metamask-extension'),
   },
 }))
@@ -73,6 +75,14 @@ describe('context-playwright/index', () => {
     it('should accept talisman wallet configuration', () => {
       const result = createWalletTest({
         wallets: [{ type: 'talisman' }],
+      })
+
+      expect(result).toBeDefined()
+    })
+
+    it('should accept subwallet wallet configuration', () => {
+      const result = createWalletTest({
+        wallets: [{ type: 'subwallet' }],
       })
 
       expect(result).toBeDefined()

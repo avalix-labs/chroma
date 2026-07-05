@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { downloadAndExtractExtension } from '../src/utils/download-extension.js'
 import { METAMASK_CONFIG } from '../src/wallets/metamask.js'
 import { POLKADOT_JS_CONFIG } from '../src/wallets/polkadot-js.js'
+import { SUBWALLET_CONFIG } from '../src/wallets/subwallet.js'
 import { TALISMAN_CONFIG } from '../src/wallets/talisman.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -40,6 +41,10 @@ async function main() {
       downloadAndExtractExtension({
         downloadUrl: TALISMAN_CONFIG.downloadUrl,
         extensionName: TALISMAN_CONFIG.extensionName,
+      }),
+      downloadAndExtractExtension({
+        downloadUrl: SUBWALLET_CONFIG.downloadUrl,
+        extensionName: SUBWALLET_CONFIG.extensionName,
       }),
       downloadAndExtractExtension({
         downloadUrl: METAMASK_CONFIG.downloadUrl,
