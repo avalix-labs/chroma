@@ -9,19 +9,20 @@ This document maps each deliverable feature to its corresponding tests.
 | Extension Download | `download-extension.test.ts` | `download-extension.integration.test.ts` | ✅ |
 | Polkadot-JS Wallet Setup | `polkadot-js.test.ts` | `e2e-polkadot-js/polkadot.spec.ts` | ✅ |
 | Talisman Wallet Setup | `talisman.test.ts` | `e2e-evm/example.spec.ts` | ✅ |
+| SubWallet Wallet Setup | `subwallet.test.ts` | `e2e-polkadot-js/polkadot.spec.ts` | ✅ |
 | Multi-Wallet Support | `wallet-factory.test.ts` | `e2e-polkadot-js/polkadot.spec.ts` | ✅ |
 | Wallet Factory | `wallet-factory.test.ts` | - | ✅ |
 | Test Fixtures | `index.test.ts` | All E2E specs | ✅ |
 
 ## Wallet Operations
 
-| Operation | Polkadot-JS | Talisman | Test File |
-|-----------|-------------|----------|-----------|
-| Import Mnemonic | ✅ | ✅ | `e2e-polkadot-js/polkadot.spec.ts` |
-| Import ETH Private Key | - | ✅ | `e2e-evm/example.spec.ts` |
-| Authorize Connection | ✅ | ✅ | All E2E specs |
-| Approve Transaction | ✅ | ✅ | `e2e-polkadot-js/polkadot.spec.ts` |
-| Reject Transaction | ✅ | ✅ | `e2e-polkadot-js/polkadot.spec.ts` |
+| Operation | Polkadot-JS | Talisman | SubWallet | Test File |
+|-----------|-------------|----------|-----------|-----------|
+| Import Mnemonic | ✅ | ✅ | ✅ | `e2e-polkadot-js/polkadot.spec.ts` |
+| Import ETH Private Key | - | ✅ | - | `e2e-evm/example.spec.ts` |
+| Authorize Connection | ✅ | ✅ | ✅ | All E2E specs |
+| Approve Transaction | ✅ | ✅ | ✅ | `e2e-polkadot-js/polkadot.spec.ts` |
+| Reject Transaction | ✅ | ✅ | ✅ | `e2e-polkadot-js/polkadot.spec.ts` |
 
 ## Chain Support
 
@@ -29,6 +30,7 @@ This document maps each deliverable feature to its corresponding tests.
 |-------|--------|-----------|--------|
 | Polkadot/Substrate | Polkadot-JS | `e2e-polkadot-js/polkadot.spec.ts` | ✅ |
 | Polkadot/Substrate | Talisman | `e2e-polkadot-js/polkadot.spec.ts` | ✅ |
+| Polkadot/Substrate | SubWallet | `e2e-polkadot-js/polkadot.spec.ts` | ✅ |
 | Ethereum/EVM | Talisman | `e2e-evm/example.spec.ts` | ✅ |
 | Solana | MetaMask | _pending_ | 🚧 Preview |
 
@@ -58,6 +60,7 @@ This document maps each deliverable feature to its corresponding tests.
 | `download-extension.integration.test.ts` | Download integration tests | 4 |
 | `polkadot-js.test.ts` | Polkadot-JS config & path | 7 |
 | `talisman.test.ts` | Talisman config & path | 7 |
+| `subwallet.test.ts` | SubWallet config & path | 7 |
 | `wallet-factory.test.ts` | Wallet factory functions | 6 |
 | `index.test.ts` | Main exports | 5 |
 | `context-playwright/index.test.ts` | Playwright fixtures | 13 |
@@ -67,7 +70,7 @@ This document maps each deliverable feature to its corresponding tests.
 
 | Package | File | Description | Wallets Tested |
 |---------|------|-------------|----------------|
-| `e2e-polkadot-js` | `polkadot.spec.ts` | Polkadot dApp flow | Polkadot-JS, Talisman |
+| `e2e-polkadot-js` | `polkadot.spec.ts` | Polkadot dApp flow | Polkadot-JS, Talisman, SubWallet |
 | `e2e-evm` | `example.spec.ts` | EVM dApp flow | Talisman |
 
 ## Running Tests
