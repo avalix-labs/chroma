@@ -30,3 +30,6 @@ dist-ssr
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Chroma wallet extensions
+.chroma
