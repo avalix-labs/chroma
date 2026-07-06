@@ -1,8 +1,8 @@
 {
   "name": "chroma",
   "version": "1.0.0",
+  "private": true,
   "description": "Chroma is an end-to-end (E2E) testing library designed for crypto wallet interactions across the Polkadot, Ethereum, and Solana ecosystems. It enables developers to write automated tests that interact with real wallet extensions, providing a comprehensive testing solution for decentralized applications (dApps).",
-  "main": "index.js",
   "scripts": {
     "changeset": "changeset",
     "version-packages": "changeset version",
