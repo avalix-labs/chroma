@@ -1,17 +1,8 @@
 {
   "name": "e2e-solana",
-  "scripts": {
-    "build": "tsc -b && vite build",
-    "ci": "npm run build && npm run lint && npm run format:check",
-    "dev": "vite",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "test:prepare": "chroma download-extensions"
-  },
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
   "description": "React + Vite, Tailwind, @solana/react-hooks",
   "keywords": [
     "kit",
@@ -21,9 +12,16 @@
     "typescript",
     "vite"
   ],
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "ci": "npm run build && npm run lint",
+    "dev": "vite",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:prepare": "chroma download-extensions"
+  },
   "dependencies": {
     "@solana/client": "^1.0.0-rc.2",
     "@solana/kit": "^7.0.0",
@@ -34,8 +32,9 @@
     "tailwindcss": "^4"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^9.1.0",
     "@avalix/chroma": "workspace:*",
-    "@eslint/js": "^10.0.1",
+    "@eslint-react/eslint-plugin": "^5.9.2",
     "@playwright/test": "^1.61.1",
     "@types/node": "^26",
     "@types/react": "^19",
@@ -44,10 +43,7 @@
     "eslint": "^10.6.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
-    "globals": "^17.7.0",
-    "prettier": "^3.9.4",
     "typescript": "^5",
-    "typescript-eslint": "^8.62.1",
     "vite": "^8.1.3"
   }
 }
