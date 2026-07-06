@@ -1,14 +1,21 @@
-# vite
+# e2e-solana
 
-React + Vite starter with Tailwind CSS and `@solana/react-hooks` for wallet connection and Solana hooks.
+Playground dApp for Chroma's Solana end-to-end tests. A React app built on [`@solana/react-hooks`](https://www.npmjs.com/package/@solana/react-hooks) that the Playwright suite drives with the MetaMask extension: connect a Solana account and sign a message.
 
-## Getting Started
+Bootstrapped from the [create-solana-dapp](https://github.com/solana-foundation/templates) kit template.
 
-```shell
-npx -y create-solana-dapp@latest -t solana-foundation/templates/kit/e2e-solana
+## Running the tests
+
+```bash
+# from the repo root
+bun install
+
+# build the chroma package first
+cd packages/chroma && bun run build
+
+cd ../e2e-solana
+bun run test:prepare   # download wallet extensions
+bun run test           # runs Playwright (starts the dev server itself)
 ```
 
-```shell
-npm install
-npm run dev
-```
+`bun run dev` starts the app on its own if you want to poke at it manually.
