@@ -1,5 +1,25 @@
 # @avalix/chroma
 
+## 1.1.0
+
+### Minor Changes
+
+- [#99](https://github.com/avalix-labs/chroma/pull/99) [`f087451`](https://github.com/avalix-labs/chroma/commit/f087451b3902bcf6a3a6f9be065a8b4c5eac0627) Thanks [@preschian](https://github.com/preschian)! - Upgrade Talisman to 3.7.1: select the Substrate platform on the redesigned recovery phrase import screen, and wait for the dashboard to settle after onboarding before navigating to settings
+
+### Patch Changes
+
+- [#86](https://github.com/avalix-labs/chroma/pull/86) [`c6746cd`](https://github.com/avalix-labs/chroma/commit/c6746cd923382a58a356aec189a07bd7b177f902) Thanks [@preschian](https://github.com/preschian)! - Map wallet extension IDs deterministically from the extension path instead of pairing service workers with wallet configs by array index, and fail with a descriptive error when a wallet's service worker does not register within the deadline
+
+- [#91](https://github.com/avalix-labs/chroma/pull/91) [`f673104`](https://github.com/avalix-labs/chroma/commit/f6731041e24a849ef7f2abc94c949475dd5a6019) Thanks [@preschian](https://github.com/preschian)! - Declare an explicit `types` condition in the exports map, drop the redundant `module` field, and declare `engines.node >= 20`
+
+- [#88](https://github.com/avalix-labs/chroma/pull/88) [`5c52b19`](https://github.com/avalix-labs/chroma/commit/5c52b19b8f06880b0bc0f558cca2a958ce19698b) Thanks [@preschian](https://github.com/preschian)! - Pre-build the `download-extensions` CLI command into `dist` so it no longer downloads and runs tsx at runtime; the published package also no longer ships `src`
+
+- [#97](https://github.com/avalix-labs/chroma/pull/97) [`d394d52`](https://github.com/avalix-labs/chroma/commit/d394d52b02829e3e087d097bb89a89587118d745) Thanks [@preschian](https://github.com/preschian)! - Bound extension downloads with a timeout (default 5 minutes, overridable via `timeoutMs`) so a hung connection fails instead of blocking forever
+
+- [#85](https://github.com/avalix-labs/chroma/pull/85) [`c7d9d6e`](https://github.com/avalix-labs/chroma/commit/c7d9d6e04be61372e945cb4c63a692aebcad59bb) Thanks [@preschian](https://github.com/preschian)! - Add TypeScript typechecking (tsconfig + `typecheck` script + CI step) and fix stream typing in extension download
+
+- [#96](https://github.com/avalix-labs/chroma/pull/96) [`f1724f3`](https://github.com/avalix-labs/chroma/commit/f1724f3511803adf69c8451a0c51e3ab587e96f3) Thanks [@preschian](https://github.com/preschian)! - Internal cleanup: consolidate per-wallet extension path resolvers with the wallet factories into one registry file, and document the intentionally ignored second Talisman popup during authorization
+
 ## 1.0.2
 
 ### Patch Changes
