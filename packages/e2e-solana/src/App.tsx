@@ -1,35 +1,38 @@
-import { useWalletConnection } from "@solana/react-hooks";
-import { getBase58Decoder } from "@solana/kit";
-import { useState } from "react";
+import { getBase58Decoder } from '@solana/kit'
+import { useWalletConnection } from '@solana/react-hooks'
+import { useState } from 'react'
 
-const base58Decoder = getBase58Decoder();
+const base58Decoder = getBase58Decoder()
 
 export default function App() {
-  const { connectors, connect, disconnect, wallet, status } =
-    useWalletConnection();
+  const { connectors, connect, disconnect, wallet, status }
+    = useWalletConnection()
 
-  const address = wallet?.account.address.toString();
+  const address = wallet?.account.address.toString()
 
-  const [message, setMessage] = useState("Hello from create-solana-app");
-  const [signature, setSignature] = useState<string | null>(null);
-  const [signError, setSignError] = useState<string | null>(null);
-  const [isSigning, setIsSigning] = useState(false);
+  const [message, setMessage] = useState('Hello from create-solana-app')
+  const [signature, setSignature] = useState<string | null>(null)
+  const [signError, setSignError] = useState<string | null>(null)
+  const [isSigning, setIsSigning] = useState(false)
 
-  const canSignMessage = status === "connected" && !!wallet?.signMessage;
+  const canSignMessage = status === 'connected' && !!wallet?.signMessage
 
   async function handleSignMessage() {
-    if (!wallet?.signMessage) return;
-    setIsSigning(true);
-    setSignature(null);
-    setSignError(null);
+    if (!wallet?.signMessage)
+      return
+    setIsSigning(true)
+    setSignature(null)
+    setSignError(null)
     try {
-      const bytes = new TextEncoder().encode(message);
-      const signed = await wallet.signMessage(bytes);
-      setSignature(base58Decoder.decode(signed));
-    } catch (err) {
-      setSignError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setIsSigning(false);
+      const bytes = new TextEncoder().encode(message)
+      const signed = await wallet.signMessage(bytes)
+      setSignature(base58Decoder.decode(signed))
+    }
+    catch (err) {
+      setSignError(err instanceof Error ? err.message : String(err))
+    }
+    finally {
+      setIsSigning(false)
     }
   }
 
@@ -44,7 +47,10 @@ export default function App() {
             Ship a Solana dapp fast
           </h1>
           <p className="max-w-3xl text-base leading-relaxed text-muted">
-            Drop in <code className="font-mono">@solana/react-hooks</code>, wrap
+            Drop in
+            {' '}
+            <code className="font-mono">@solana/react-hooks</code>
+            , wrap
             your tree once, and you get wallet connect/disconnect plus
             ready-to-use hooks for balances and transactions—no manual RPC
             wiring.
@@ -63,7 +69,8 @@ export default function App() {
                   rel="noreferrer"
                 >
                   Solana docs
-                </a>{" "}
+                </a>
+                {' '}
                 — core concepts, RPC, programs, and client patterns.
               </div>
             </li>
@@ -80,7 +87,8 @@ export default function App() {
                   rel="noreferrer"
                 >
                   Anchor docs
-                </a>{" "}
+                </a>
+                {' '}
                 — build and test programs with IDL, macros, and type-safe
                 clients.
               </div>
@@ -98,7 +106,8 @@ export default function App() {
                   rel="noreferrer"
                 >
                   Solana faucet (devnet)
-                </a>{" "}
+                </a>
+                {' '}
                 — grab free devnet SOL to try transfers and transactions.
               </div>
             </li>
@@ -115,7 +124,8 @@ export default function App() {
                   rel="noreferrer"
                 >
                   @solana/react-hooks README
-                </a>{" "}
+                </a>
+                {' '}
                 — how this starter wires the client, connectors, and hooks.
               </div>
             </li>
@@ -132,27 +142,27 @@ export default function App() {
               </p>
             </div>
             <span className="rounded-full bg-cream px-3 py-1 text-xs font-semibold uppercase tracking-wide text-foreground/80">
-              {status === "connected" ? "Connected" : "Not connected"}
+              {status === 'connected' ? 'Connected' : 'Not connected'}
             </span>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            {connectors.map((connector) => (
+            {connectors.map(connector => (
               <button
                 key={connector.id}
                 onClick={() => connect(connector.id)}
-                disabled={status === "connecting"}
+                disabled={status === 'connecting'}
                 className="group flex items-center justify-between rounded-xl border border-border-low bg-card px-4 py-3 text-left text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span className="flex flex-col">
                   <span className="text-base">{connector.name}</span>
                   <span className="text-xs text-muted">
-                    {status === "connecting"
-                      ? "Connecting…"
-                      : status === "connected" &&
-                          wallet?.connector.id === connector.id
-                        ? "Active"
-                        : "Tap to connect"}
+                    {status === 'connecting'
+                      ? 'Connecting…'
+                      : status === 'connected'
+                        && wallet?.connector.id === connector.id
+                        ? 'Active'
+                        : 'Tap to connect'}
                   </span>
                 </span>
                 <span
@@ -165,11 +175,11 @@ export default function App() {
 
           <div className="flex flex-wrap items-center gap-3 border-t border-border-low pt-4 text-sm">
             <span className="rounded-lg border border-border-low bg-cream px-3 py-2 font-mono text-xs">
-              {address ?? "No wallet connected"}
+              {address ?? 'No wallet connected'}
             </span>
             <button
               onClick={() => disconnect()}
-              disabled={status !== "connected"}
+              disabled={status !== 'connected'}
               className="inline-flex items-center gap-2 rounded-lg border border-border-low bg-card px-3 py-2 font-medium transition hover:-translate-y-0.5 hover:shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
             >
               Disconnect
@@ -192,7 +202,7 @@ export default function App() {
             </span>
             <textarea
               value={message}
-              onChange={(event) => setMessage(event.target.value)}
+              onChange={event => setMessage(event.target.value)}
               rows={3}
               className="w-full resize-y rounded-lg border border-border-low bg-cream px-3 py-2 font-mono text-sm outline-none focus:border-primary"
             />
@@ -203,15 +213,15 @@ export default function App() {
             disabled={!canSignMessage || isSigning || message.length === 0}
             className="inline-flex items-center gap-2 rounded-lg border border-border-low bg-card px-3 py-2 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-sm cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSigning ? "Signing…" : "Sign message"}
+            {isSigning ? 'Signing…' : 'Sign message'}
           </button>
 
-          {status !== "connected" && (
+          {status !== 'connected' && (
             <p className="text-xs text-muted">
               Connect a wallet above to sign a message.
             </p>
           )}
-          {status === "connected" && !wallet?.signMessage && (
+          {status === 'connected' && !wallet?.signMessage && (
             <p className="text-xs text-muted">
               The active connector does not expose a signMessage capability.
             </p>
@@ -236,5 +246,5 @@ export default function App() {
         </section>
       </main>
     </div>
-  );
+  )
 }
