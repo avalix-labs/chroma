@@ -49,7 +49,7 @@
     "lint:fix": "eslint --fix .",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build",
-    "download-extensions": "rm -rf .chroma && tsx scripts/download-extensions.ts",
+    "download-extensions": "tsx scripts/download-extensions.ts",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:unit": "vitest",
