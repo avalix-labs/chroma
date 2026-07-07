@@ -20,7 +20,7 @@
     "preview": "vite preview",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "test:prepare": "chroma download-extensions"
+    "test:prepare": "chroma download-extensions --wallets metamask"
   },
   "dependencies": {
     "@solana/client": "^1.0.0-rc.2",
