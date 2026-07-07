@@ -11,6 +11,8 @@ if (command === 'download-extensions') {
 else {
   console.log('Unknown command:', command)
   console.log('\nAvailable commands:')
-  console.log('  download-extensions - Download wallet extensions for testing')
+  console.log('  download-extensions [--wallets <names>] - Download wallet extensions for testing')
+  console.log('    --wallets  Comma-separated list of wallets to download (default: all)')
+  console.log('               e.g. --wallets metamask,talisman')
   process.exit(1)
 }

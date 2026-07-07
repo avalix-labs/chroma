@@ -9,6 +9,13 @@ npm install @avalix/chroma @playwright/test
 npx chroma download-extensions
 ```
 
+By default all supported wallet extensions are downloaded. Use `--wallets` to download only the ones you need:
+
+```bash
+npx chroma download-extensions --wallets metamask
+npx chroma download-extensions --wallets polkadot-js,talisman
+```
+
 ```typescript
 import { createWalletTest } from '@avalix/chroma'
 
