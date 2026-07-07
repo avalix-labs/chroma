@@ -10,7 +10,7 @@
     "lint": "eslint --fix",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "test:prepare": "chroma download-extensions"
+    "test:prepare": "chroma download-extensions --wallets polkadot-js,talisman"
   },
   "dependencies": {
     "@talismn/connect-wallets": "^1.2.8",
