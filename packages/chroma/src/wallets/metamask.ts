@@ -315,8 +315,6 @@ async function submitUnlock(
   // later CDP / newPage calls. Ignore if it already closed.
   if (!unlockPage.isClosed())
     await unlockPage.close().catch(() => {})
-
-  await new Promise(resolve => setTimeout(resolve, 500))
 }
 
 async function ensureSidePanelPage(
@@ -347,6 +345,25 @@ async function ensureSidePanelPage(
   return sidePanel
 }
 
+// Leave a sidepanel.html tab open for the rest of the session so approve() /
+// reject() can attach without racing CDP targets after unlock tears down its
+// own tab. Wait briefly first — opening a fresh extension page immediately
+// after unlock races MetaMask's vault settle into CDP "guid not bound" errors.
+async function leaveSidePanelOpen(
+  context: BrowserContext,
+  sidePanelUrl: string,
+): Promise<void> {
+  await new Promise(resolve => setTimeout(resolve, 1_000))
+
+  const sidePanel = await ensureSidePanelPage(context, sidePanelUrl)
+  // Best-effort: unlocked home is the signal the vault is ready. Absence is
+  // not fatal — approve()/reject() will surface a clearer failure later.
+  await sidePanel.getByTestId('account-menu-icon').waitFor({
+    state: 'visible',
+    timeout: 15_000,
+  }).catch(() => {})
+}
+
 async function findUnlockPage(
   context: BrowserContext,
   extensionUrlPrefix: string,
@@ -373,7 +390,8 @@ async function findUnlockPage(
   return undefined
 }
 
-// Unlock MetaMask on a previously-onboarded (locked) profile.
+// Unlock MetaMask on a previously-onboarded (locked) profile and leave its
+// side panel open for the rest of the session.
 //
 // Idempotent: callers can invoke this from a fixture on every test without
 // tracking state. The function:
@@ -383,10 +401,11 @@ async function findUnlockPage(
 //   2. Detects the unlock form via the unlock-password field (not URL alone),
 //      so a late client-side redirect to #/unlock is not missed.
 //   3. If no unlock tab appears but other MetaMask pages are already open,
-//      assumes the profile is unlocked and returns — opening a fresh
-//      sidepanel.html right after unlock races MetaMask's tab teardown.
-//   4. Only when no MetaMask UI exists at all does it open sidepanel.html to
-//      check for a locked form there.
+//      assumes the profile is unlocked (worker reuse) and still ensures a
+//      sidepanel tab exists.
+//   4. After unlock succeeds (or when already unlocked), leaves
+//      `sidepanel.html` open so approve()/reject() can attach without racing
+//      CDP targets after the unlock tab is torn down.
 export async function unlockMetaMask(
   context: BrowserContext,
   extensionId: string,
@@ -409,31 +428,27 @@ export async function unlockMetaMask(
   if (!unlockPage) {
     const existing = listExtensionPages()
     // Any live MetaMask page without an unlock form means the vault is open
-    // (or still booting unlocked). Do not open a new tab — that races the
-    // post-unlock teardown and surfaces CDP "guid not bound" errors.
-    if (existing.length > 0) {
-      for (const page of existing) {
-        if (await pageShowsUnlockedHome(page))
-          return
+    // (or still booting unlocked). Skip opening a second unlock UI — just
+    // ensure the side panel is available below.
+    if (existing.length === 0) {
+      const sidePanel = await ensureSidePanelPage(context, sidePanelUrl)
+      const deadline = Date.now() + 10_000
+      while (Date.now() < deadline) {
+        if (await pageShowsUnlockForm(sidePanel)) {
+          unlockPage = sidePanel
+          break
+        }
+        if (await pageShowsUnlockedHome(sidePanel))
+          break
+        await new Promise(resolve => setTimeout(resolve, 100))
       }
-      return
-    }
-
-    const sidePanel = await ensureSidePanelPage(context, sidePanelUrl)
-    const deadline = Date.now() + 10_000
-    while (Date.now() < deadline) {
-      if (await pageShowsUnlockForm(sidePanel)) {
-        unlockPage = sidePanel
-        break
-      }
-      if (await pageShowsUnlockedHome(sidePanel))
-        return
-      await new Promise(resolve => setTimeout(resolve, 100))
     }
   }
 
   if (unlockPage)
     await submitUnlock(unlockPage)
+
+  await leaveSidePanelOpen(context, sidePanelUrl)
 }
 
 // MetaMask specific seed phrase import implementation

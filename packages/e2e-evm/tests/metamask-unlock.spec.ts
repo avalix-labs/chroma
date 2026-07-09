@@ -17,21 +17,40 @@ const test = createWalletTest({
 
 test.setTimeout(30_000 * 2)
 
-test('unlocks a prepared MetaMask profile', async ({ page, wallets, walletContext }) => {
+test('unlocks a prepared MetaMask profile and leaves the side panel open', async ({ page, wallets, walletContext }) => {
   const wallet = wallets.metamask
+  const sidePanelUrl = `chrome-extension://${wallet.extensionId}/sidepanel.html`
 
   console.log('[INFO] wallets.metamask.unlock')
   await wallet.unlock()
 
-  // Idempotent: a second call must be a no-op on an already-unlocked session.
-  await wallet.unlock()
+  // unlock() must leave a sidepanel tab open so approve()/reject() can attach
+  // without racing CDP targets after the unlock tab is torn down.
+  const sidePanel = walletContext.pages().find((p) => {
+    try {
+      return !p.isClosed() && p.url().startsWith(sidePanelUrl)
+    }
+    catch {
+      return false
+    }
+  })
+  if (!sidePanel)
+    throw new Error('Expected unlock() to leave a sidepanel.html tab open')
+  await sidePanel.getByTestId('account-menu-icon').waitFor({ state: 'visible', timeout: 15_000 })
 
-  // Prove the vault is open: home UI shows the account picker, not the unlock form.
-  const home = await walletContext.newPage()
-  await home.goto(`chrome-extension://${wallet.extensionId}/home.html`)
-  await home.getByTestId('account-menu-icon').waitFor({ state: 'visible', timeout: 15_000 })
-  await home.getByTestId('unlock-password').waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {})
-  await home.close()
+  // Idempotent: a second call must be a no-op on an already-unlocked session
+  // and still keep the side panel available.
+  await wallet.unlock()
+  const sidePanelAfter = walletContext.pages().find((p) => {
+    try {
+      return !p.isClosed() && p.url().startsWith(sidePanelUrl)
+    }
+    catch {
+      return false
+    }
+  })
+  if (!sidePanelAfter)
+    throw new Error('Expected unlock() to keep a sidepanel.html tab open on reuse')
 
   // Sanity-check the dapp still loads after unlock (does not assert wallet connect —
   // that path is covered by metamask.spec.ts on a fresh import session).
