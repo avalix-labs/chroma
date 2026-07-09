@@ -1,5 +1,15 @@
 # @avalix/chroma
 
+## 1.2.0
+
+### Minor Changes
+
+- [#128](https://github.com/avalix-labs/chroma/pull/128) [`2112e1a`](https://github.com/avalix-labs/chroma/commit/2112e1ae06e615e202097667e30e23a45806d579) Thanks [@preschian](https://github.com/preschian)! - Add a `--wallets` flag to `chroma download-extensions` for downloading only selected wallet extensions (e.g. `--wallets metamask,talisman`). Without the flag all wallets are downloaded as before. When a filter is given, only the selected extensions are cleared and re-downloaded, so previously downloaded wallets stay usable
+
+### Patch Changes
+
+- [#131](https://github.com/avalix-labs/chroma/pull/131) [`74d1162`](https://github.com/avalix-labs/chroma/commit/74d116214680060606544a738df7361dd53f4e3c) Thanks [@preschian](https://github.com/preschian)! - Download Talisman from GitHub Releases instead of raw.githubusercontent.com to avoid 429 rate limits
+
 ## 1.1.0
 
 ### Minor Changes
