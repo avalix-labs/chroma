@@ -21,19 +21,15 @@ test('unlocks a prepared MetaMask profile and leaves the side panel open', async
   const wallet = wallets.metamask
   const sidePanelUrl = `chrome-extension://${wallet.extensionId}/sidepanel.html`
 
+  const findSidePanel = () => walletContext.pages()
+    .find(p => !p.isClosed() && p.url().startsWith(sidePanelUrl))
+
   console.log('[INFO] wallets.metamask.unlock')
   await wallet.unlock()
 
   // unlock() must leave a sidepanel tab open so approve()/reject() can attach
   // without racing CDP targets after the unlock tab is torn down.
-  const sidePanel = walletContext.pages().find((p) => {
-    try {
-      return !p.isClosed() && p.url().startsWith(sidePanelUrl)
-    }
-    catch {
-      return false
-    }
-  })
+  const sidePanel = findSidePanel()
   if (!sidePanel)
     throw new Error('Expected unlock() to leave a sidepanel.html tab open')
   await sidePanel.getByTestId('account-menu-icon').waitFor({ state: 'visible', timeout: 15_000 })
@@ -41,15 +37,7 @@ test('unlocks a prepared MetaMask profile and leaves the side panel open', async
   // Idempotent: a second call must be a no-op on an already-unlocked session
   // and still keep the side panel available.
   await wallet.unlock()
-  const sidePanelAfter = walletContext.pages().find((p) => {
-    try {
-      return !p.isClosed() && p.url().startsWith(sidePanelUrl)
-    }
-    catch {
-      return false
-    }
-  })
-  if (!sidePanelAfter)
+  if (!findSidePanel())
     throw new Error('Expected unlock() to keep a sidepanel.html tab open on reuse')
 
   // Sanity-check the dapp still loads after unlock (does not assert wallet connect —

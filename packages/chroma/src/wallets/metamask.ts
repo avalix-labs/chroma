@@ -23,6 +23,62 @@ export async function getMetaMaskExtensionPath(): Promise<string> {
  */
 /* c8 ignore start */
 
+function extensionUrl(extensionId: string, page = ''): string {
+  return `chrome-extension://${extensionId}/${page}`
+}
+
+// `isClosed()` and `url()` are synchronous accessors that never throw, so a
+// closed page reports itself as such rather than blowing up the caller.
+function isLiveExtensionPage(page: Page, extensionUrlPrefix: string): boolean {
+  return !page.isClosed() && page.url().startsWith(extensionUrlPrefix)
+}
+
+function liveExtensionPages(context: BrowserContext, extensionUrlPrefix: string): Page[] {
+  return context.pages().filter(page => isLiveExtensionPage(page, extensionUrlPrefix))
+}
+
+// Whether `testId` is currently rendered. `isVisible()` resolves immediately
+// (no auto-wait), so callers drive their own polling cadence.
+function pageShowsTestId(page: Page, testId: string): Promise<boolean> {
+  if (page.isClosed())
+    return Promise.resolve(false)
+  return page.getByTestId(testId).isVisible().catch(() => false)
+}
+
+// The confirm button MetaMask renders varies by flow: `confirm-btn` for the
+// dapp connect prompt, `confirm-footer-button` for sign/transaction, and the
+// snap-specific variant for snap signature requests.
+function confirmButton(page: Page): Locator {
+  return page.getByTestId('confirm-btn')
+    .or(page.getByTestId('confirm-footer-button'))
+    .or(page.getByTestId('confirm-sign-message-confirm-snap-footer-button'))
+}
+
+async function openTab(context: BrowserContext, url: string): Promise<Page> {
+  const page = await context.newPage()
+  await page.goto(url)
+  return page
+}
+
+// Locate the Chrome side-panel target via CDP. Returns its URL, or undefined
+// when Chrome has not created one.
+async function findSidePanelTargetUrl(
+  context: BrowserContext,
+  cdpHost: Page,
+  extensionUrlPrefix: string,
+): Promise<string | undefined> {
+  const client = await context.newCDPSession(cdpHost)
+  try {
+    const { targetInfos } = await client.send('Target.getTargets')
+    return targetInfos.find(
+      (t: any) => t.url.includes(extensionUrlPrefix) && t.url.includes('sidepanel'),
+    )?.url
+  }
+  finally {
+    await client.detach().catch(() => {})
+  }
+}
+
 // Helper function to find MetaMask side panel via CDP, open in a new tab, and
 // return the page. Falls back to opening sidepanel.html directly when Chrome
 // has not created a side-panel target (common after unlock on a locked profile).
@@ -32,73 +88,32 @@ async function findExtensionPopup(
 ): Promise<Page> {
   const maxAttempts = 10
   const retryDelay = 500
-  const extensionUrlPrefix = `chrome-extension://${extensionId}/`
-  const sidePanelUrl = `${extensionUrlPrefix}sidepanel.html`
+  const extensionUrlPrefix = extensionUrl(extensionId)
 
   // Prefer a non-extension page for the CDP session. Extension tabs (especially
   // the unlock tab MetaMask tears down after password submit) go stale and
   // surface CDP "guid not bound" errors when used as the session host.
   const pickCdpHost = (): Page | undefined =>
-    context.pages().find((p) => {
-      try {
-        return !p.isClosed() && !p.url().startsWith(extensionUrlPrefix)
-      }
-      catch {
-        return false
-      }
-    }) ?? context.pages().find((p) => {
-      try {
-        return !p.isClosed()
-      }
-      catch {
-        return false
-      }
-    })
+    context.pages().find(p => !p.isClosed() && !p.url().startsWith(extensionUrlPrefix))
+    ?? context.pages().find(p => !p.isClosed())
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     // Reuse any already-open extension page that is showing a confirmation
     // (notification.html popup or an existing sidepanel tab).
-    for (const page of context.pages()) {
-      try {
-        if (page.isClosed() || !page.url().startsWith(extensionUrlPrefix))
-          continue
-        const confirm = page.getByTestId('confirm-btn')
-          .or(page.getByTestId('confirm-footer-button'))
-          .or(page.getByTestId('confirm-sign-message-confirm-snap-footer-button'))
-        if (await confirm.first().isVisible().catch(() => false))
-          return page
-      }
-      catch {
-        // Page closed while inspecting.
-      }
+    for (const page of liveExtensionPages(context, extensionUrlPrefix)) {
+      if (await confirmButton(page).first().isVisible().catch(() => false))
+        return page
     }
 
     const cdpHost = pickCdpHost()
     if (!cdpHost)
       throw new Error('No pages available to create CDP session')
 
-    try {
-      const client = await context.newCDPSession(cdpHost)
-      try {
-        const { targetInfos } = await client.send('Target.getTargets')
-        const sidePanelTarget = targetInfos.find(
-          (t: any) => t.url.includes(extensionUrlPrefix) && t.url.includes('sidepanel'),
-        )
-
-        if (sidePanelTarget) {
-          const sidePanelPage = await context.newPage()
-          await sidePanelPage.goto(sidePanelTarget.url)
-          await sidePanelPage.waitForLoadState('domcontentloaded')
-          return sidePanelPage
-        }
-      }
-      finally {
-        await client.detach().catch(() => {})
-      }
-    }
-    catch {
-      // CDP host may have died mid-attempt; retry with a fresh host.
-    }
+    // A dead CDP host throws; retry with a fresh one.
+    const targetUrl = await findSidePanelTargetUrl(context, cdpHost, extensionUrlPrefix)
+      .catch(() => undefined)
+    if (targetUrl)
+      return openTab(context, targetUrl)
 
     if (attempt < maxAttempts - 1)
       await new Promise(resolve => setTimeout(resolve, retryDelay))
@@ -106,15 +121,13 @@ async function findExtensionPopup(
 
   // Fallback: MetaMask may not have opened a Chrome side-panel target.
   // Opening sidepanel.html as a tab still renders pending confirmations.
-  const sidePanelPage = await context.newPage()
-  await sidePanelPage.goto(sidePanelUrl)
-  await sidePanelPage.waitForLoadState('domcontentloaded')
-  return sidePanelPage
+  return openTab(context, extensionUrl(extensionId, 'sidepanel.html'))
 }
 
 // Helper function to complete MetaMask onboarding flow
 async function completeOnboarding(
   extensionPage: Page,
+  extensionId: string,
   seedPhrase: string,
 ): Promise<void> {
   // Bring the onboarding page to front
@@ -167,37 +180,21 @@ async function completeOnboarding(
   // without navigating this tab off the completion screen. Wait for that
   // async persist to finish before closing — otherwise the profile reboots
   // into `#/onboarding/unlock` and restarts the welcome flow.
-  const extensionId = new URL(extensionPage.url()).host
-  const deadline = Date.now() + 15_000
-  let onboarded = false
-  while (Date.now() < deadline) {
+  const context = extensionPage.context()
+  const extensionUrlPrefix = extensionUrl(extensionId)
+  const onboardingPersisted = async (): Promise<boolean> => {
     // Side-panel home is the signal that completedOnboarding was written.
-    for (const page of extensionPage.context().pages()) {
-      try {
-        if (
-          !page.isClosed()
-          && page.url().includes(`chrome-extension://${extensionId}/`)
-          && await page.getByTestId('account-menu-icon').isVisible().catch(() => false)
-        ) {
-          onboarded = true
-          break
-        }
-      }
-      catch {
-        // Page closed while inspecting.
-      }
+    for (const page of liveExtensionPages(context, extensionUrlPrefix)) {
+      if (await pageShowsUnlockedHome(page))
+        return true
     }
-    if (onboarded)
-      break
-
     // Also accept the completion screen disappearing (non-sidepanel builds).
-    if (!(await extensionPage.getByTestId('onboarding-complete-done').isVisible().catch(() => false))) {
-      onboarded = true
-      break
-    }
-
-    await new Promise(resolve => setTimeout(resolve, 200))
+    return !(await pageShowsTestId(extensionPage, 'onboarding-complete-done'))
   }
+
+  const deadline = Date.now() + 15_000
+  while (Date.now() < deadline && !(await onboardingPersisted()))
+    await new Promise(resolve => setTimeout(resolve, 200))
 
   // Extra beat for LevelDB flush before the browser context tears down.
   await new Promise(resolve => setTimeout(resolve, 1_000))
@@ -248,10 +245,7 @@ export async function approveMetaMask(
   context: BrowserContext,
   extensionId: string,
 ): Promise<void> {
-  await clickInSidePanel(context, extensionId, popup =>
-    popup.getByTestId('confirm-btn')
-      .or(popup.getByTestId('confirm-footer-button'))
-      .or(popup.getByTestId('confirm-sign-message-confirm-snap-footer-button')))
+  await clickInSidePanel(context, extensionId, confirmButton)
 }
 
 // MetaMask specific reject implementation
@@ -267,29 +261,15 @@ export async function rejectMetaMask(
       .or(popup.getByRole('button', { name: /Reject|Cancel/i })))
 }
 
-// True when the page is showing MetaMask's unlock form. Prefer the password
-// field over the URL — MetaMask often boots into home.html/sidepanel.html and
-// only later client-redirects to #/unlock, so a URL-only check races the hash.
-async function pageShowsUnlockForm(page: Page): Promise<boolean> {
-  if (page.isClosed())
-    return false
-  try {
-    return await page.getByTestId('unlock-password').isVisible()
-  }
-  catch {
-    return false
-  }
+// Detect the unlock form via the password field rather than the URL — MetaMask
+// often boots into home.html/sidepanel.html and only later client-redirects to
+// #/unlock, so a URL-only check races the hash.
+function pageShowsUnlockForm(page: Page): Promise<boolean> {
+  return pageShowsTestId(page, 'unlock-password')
 }
 
-async function pageShowsUnlockedHome(page: Page): Promise<boolean> {
-  if (page.isClosed())
-    return false
-  try {
-    return await page.getByTestId('account-menu-icon').isVisible()
-  }
-  catch {
-    return false
-  }
+function pageShowsUnlockedHome(page: Page): Promise<boolean> {
+  return pageShowsTestId(page, 'account-menu-icon')
 }
 
 // Submit the unlock form on an already-open MetaMask page.
@@ -321,39 +301,36 @@ async function ensureSidePanelPage(
   context: BrowserContext,
   sidePanelUrl: string,
 ): Promise<Page> {
-  for (const page of context.pages()) {
-    try {
-      if (!page.isClosed() && page.url().startsWith(sidePanelUrl))
-        return page
-    }
-    catch {
-      // Page closed while we inspected it.
-    }
-  }
+  const existing = context.pages().find(page => isLiveExtensionPage(page, sidePanelUrl))
+  if (existing)
+    return existing
 
   const sidePanel = await context.newPage()
   try {
     await sidePanel.goto(sidePanelUrl, { waitUntil: 'domcontentloaded' })
   }
-  catch (error) {
+  catch {
     // Retry once — extension pages can briefly reject navigation while the
     // service worker finishes unlocking.
     await new Promise(resolve => setTimeout(resolve, 500))
     await sidePanel.goto(sidePanelUrl, { waitUntil: 'domcontentloaded' })
-    void error
   }
   return sidePanel
 }
 
 // Leave a sidepanel.html tab open for the rest of the session so approve() /
 // reject() can attach without racing CDP targets after unlock tears down its
-// own tab. Wait briefly first — opening a fresh extension page immediately
-// after unlock races MetaMask's vault settle into CDP "guid not bound" errors.
+// own tab.
 async function leaveSidePanelOpen(
   context: BrowserContext,
   sidePanelUrl: string,
+  { justUnlocked }: { justUnlocked: boolean },
 ): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, 1_000))
+  // Opening a fresh extension page immediately after unlock races MetaMask's
+  // vault settle into CDP "guid not bound" errors. Nothing is settling when we
+  // did not submit an unlock, so skip the wait on the already-unlocked path.
+  if (justUnlocked)
+    await new Promise(resolve => setTimeout(resolve, 1_000))
 
   const sidePanel = await ensureSidePanelPage(context, sidePanelUrl)
   // Best-effort: unlocked home is the signal the vault is ready. Absence is
@@ -364,30 +341,31 @@ async function leaveSidePanelOpen(
   }).catch(() => {})
 }
 
-async function findUnlockPage(
+// A locked profile shows the unlock form; an open vault shows the account
+// menu. `'unknown'` means neither appeared before the deadline.
+type UnlockState = Page | 'unlocked' | 'unknown'
+
+// Poll MetaMask's extension pages until one settles into a known state.
+// Detecting `'unlocked'` matters as much as finding the form: without it the
+// idempotent second unlock() burns the whole timeout waiting for a password
+// field that will never render.
+async function awaitUnlockState(
   context: BrowserContext,
   extensionUrlPrefix: string,
   timeoutMs: number,
-): Promise<Page | undefined> {
+): Promise<UnlockState> {
   const deadline = Date.now() + timeoutMs
   while (Date.now() < deadline) {
-    const extensionPages = context.pages().filter((p) => {
-      try {
-        return !p.isClosed() && p.url().startsWith(extensionUrlPrefix)
-      }
-      catch {
-        return false
-      }
-    })
-
-    for (const page of extensionPages) {
+    for (const page of liveExtensionPages(context, extensionUrlPrefix)) {
       if (await pageShowsUnlockForm(page))
         return page
+      if (await pageShowsUnlockedHome(page))
+        return 'unlocked'
     }
 
     await new Promise(resolve => setTimeout(resolve, 100))
   }
-  return undefined
+  return 'unknown'
 }
 
 // Unlock MetaMask on a previously-onboarded (locked) profile and leave its
@@ -400,9 +378,8 @@ async function findUnlockPage(
 //      around and queues dapp requests behind it.
 //   2. Detects the unlock form via the unlock-password field (not URL alone),
 //      so a late client-side redirect to #/unlock is not missed.
-//   3. If no unlock tab appears but other MetaMask pages are already open,
-//      assumes the profile is unlocked (worker reuse) and still ensures a
-//      sidepanel tab exists.
+//   3. If no MetaMask page has booted yet, opens `sidepanel.html` itself and
+//      waits for it to settle into either state.
 //   4. After unlock succeeds (or when already unlocked), leaves
 //      `sidepanel.html` open so approve()/reject() can attach without racing
 //      CDP targets after the unlock tab is torn down.
@@ -410,45 +387,25 @@ export async function unlockMetaMask(
   context: BrowserContext,
   extensionId: string,
 ): Promise<void> {
-  const sidePanelUrl = `chrome-extension://${extensionId}/sidepanel.html`
-  const extensionUrlPrefix = `chrome-extension://${extensionId}/`
-
-  const listExtensionPages = (): Page[] => context.pages().filter((p) => {
-    try {
-      return !p.isClosed() && p.url().startsWith(extensionUrlPrefix)
-    }
-    catch {
-      return false
-    }
-  })
+  const extensionUrlPrefix = extensionUrl(extensionId)
+  const sidePanelUrl = extensionUrl(extensionId, 'sidepanel.html')
 
   // Prefer an unlock form MetaMask already opened.
-  let unlockPage = await findUnlockPage(context, extensionUrlPrefix, 3_000)
+  let state = await awaitUnlockState(context, extensionUrlPrefix, 3_000)
 
-  if (!unlockPage) {
-    const existing = listExtensionPages()
-    // Any live MetaMask page without an unlock form means the vault is open
-    // (or still booting unlocked). Skip opening a second unlock UI — just
-    // ensure the side panel is available below.
-    if (existing.length === 0) {
-      const sidePanel = await ensureSidePanelPage(context, sidePanelUrl)
-      const deadline = Date.now() + 10_000
-      while (Date.now() < deadline) {
-        if (await pageShowsUnlockForm(sidePanel)) {
-          unlockPage = sidePanel
-          break
-        }
-        if (await pageShowsUnlockedHome(sidePanel))
-          break
-        await new Promise(resolve => setTimeout(resolve, 100))
-      }
-    }
+  // No MetaMask page has rendered either state yet. If none is even open, boot
+  // the side panel ourselves and give it a longer deadline to settle — a cold
+  // profile can take a while to reach its unlock screen.
+  if (state === 'unknown' && liveExtensionPages(context, extensionUrlPrefix).length === 0) {
+    await ensureSidePanelPage(context, sidePanelUrl)
+    state = await awaitUnlockState(context, extensionUrlPrefix, 10_000)
   }
 
+  const unlockPage = typeof state === 'string' ? undefined : state
   if (unlockPage)
     await submitUnlock(unlockPage)
 
-  await leaveSidePanelOpen(context, sidePanelUrl)
+  await leaveSidePanelOpen(context, sidePanelUrl, { justUnlocked: Boolean(unlockPage) })
 }
 
 // MetaMask specific seed phrase import implementation
@@ -460,7 +417,7 @@ export async function importSeedPhrase(
   const extensionPage = await findOnboardingPage(context, extensionId)
 
   try {
-    await completeOnboarding(extensionPage, seedPhrase)
+    await completeOnboarding(extensionPage, extensionId, seedPhrase)
   }
   catch (error) {
     console.error('❌ Error during MetaMask Ethereum account import:', error)
