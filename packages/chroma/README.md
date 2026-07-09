@@ -121,7 +121,7 @@ setup('seed metamask', async ({ wallets }) => {
 
 #### 2. Shared spec fixtures
 
-Spec files import a shared `test` factory pointed at the prepared profile. Because MetaMask boots into a locked state on a previously-onboarded profile, each spec must call `wallets.metamask.unlock()` once (it's idempotent — when MetaMask is already unlocked the call is a no-op). On unlock, the MetaMask side panel is left open for the rest of the test session.
+Spec files import a shared `test` factory pointed at the prepared profile. Because MetaMask boots into a locked state on a previously-onboarded profile, each spec must call `wallets.metamask.unlock()` once (it's idempotent — when MetaMask is already unlocked the call is a no-op).
 
 ```typescript
 // fixtures.ts — shared by your spec files
