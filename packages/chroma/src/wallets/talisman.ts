@@ -5,10 +5,10 @@ import { findExtensionPopup as findExtensionPopupBase } from '../utils/find-exte
 import { DEFAULT_TEST_PASSWORD } from '../utils/test-defaults.js'
 
 // Talisman specific configuration
-// https://github.com/avalix-labs/polkadot-wallets/tree/main/talisman
+// https://github.com/avalix-labs/polkadot-wallets/releases
 const VERSION = '3.7.1'
 export const TALISMAN_CONFIG = {
-  downloadUrl: `https://github.com/avalix-labs/polkadot-wallets/raw/refs/heads/main/talisman/talisman-${VERSION}.zip`,
+  downloadUrl: `https://github.com/avalix-labs/polkadot-wallets/releases/download/talisman-v${VERSION}/talisman-${VERSION}.zip`,
   extensionName: `talisman-extension-${VERSION}`,
 } as const
 
