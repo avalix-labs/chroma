@@ -1,5 +1,11 @@
 # @avalix/chroma
 
+## 1.2.1
+
+### Patch Changes
+
+- [#132](https://github.com/avalix-labs/chroma/pull/132) [`c178960`](https://github.com/avalix-labs/chroma/commit/c1789603de76b097a8f5d0de114de62198e96729) Thanks [@preschian](https://github.com/preschian)! - Harden MetaMask `unlock()` for setup-project profiles: detect the unlock form via the password field (not URL alone), wait for onboarding persistence before closing, and leave `sidepanel.html` open so approve/reject can attach without a consumer-side workaround
+
 ## 1.2.0
 
 ### Minor Changes
