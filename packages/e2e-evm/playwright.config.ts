@@ -30,8 +30,27 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/,
+    },
+    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      testMatch: /.*\.spec\.ts/,
+      // Unlock specs need the prepared profile from `setup`.
+      testIgnore: /metamask-unlock\.spec\.ts/,
+    },
+    {
+      name: 'metamask-unlock',
+      use: {
+        ...devices['Desktop Chrome'],
+        // Unlock tears down its own tab; Playwright's multi-page screenshot
+        // on failure races that teardown into CDP "guid not bound" noise.
+        screenshot: 'off',
+        video: 'off',
+      },
+      testMatch: /metamask-unlock\.spec\.ts/,
+      dependencies: ['setup'],
     },
   ],
 

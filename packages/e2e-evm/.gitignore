@@ -33,3 +33,6 @@ dist-ssr
 
 # Chroma wallet extensions
 .chroma
+
+# Prepared MetaMask profiles for unlock e2e (setup project)
+.cache/
